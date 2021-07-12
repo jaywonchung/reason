@@ -1,6 +1,7 @@
 use crate::config::Config;
-use crate::state::{State, Papers};
+use crate::state::State;
 use crate::error::Fallacy;
+use crate::paper::Papers;
 
 mod ls;
 

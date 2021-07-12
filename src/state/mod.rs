@@ -1,12 +1,10 @@
 use std::fs::File;
 use std::path::Path;
 
-mod paper;
-pub use crate::state::paper::{Paper, Papers};
-
 mod filter;
 pub use crate::state::filter::FilterState;
 
+use crate::paper::Paper;
 use crate::error::Fallacy;
 
 pub struct State {

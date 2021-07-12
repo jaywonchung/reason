@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 pub struct Papers(Vec<Paper>);
 
 impl fmt::Display for Papers {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut table = Table::new();
 
         // First row
@@ -38,6 +38,7 @@ impl fmt::Display for Papers {
 #[derive(Serialize, Deserialize)]
 pub struct Paper {
     title: String,
+    nickname: String,
     authors: Vec<String>,
     venue: String,
     year: u32,

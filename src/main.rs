@@ -5,6 +5,7 @@ mod cmd;
 mod config;
 mod error;
 mod state;
+mod paper;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config: config::Config = confy::load("reason")?;

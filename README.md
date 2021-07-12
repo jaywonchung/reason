@@ -1,21 +1,21 @@
 # Reason is for Research
 
-`reason` is an interactive research paper management tool for the commandline.
+`reason` is a commandline tool for research paper management.
 
-Invoking `reason` will start a new command prompt. It accepts unix-like commands that work on research papers in your knowledge base.
+Invoking `reason` will start a new command prompt. It accepts unix-like commands that instead work on research papers in your paperbase.
 
 For instance:
-- `ls` filters and prints papers in table format. Default columns are title, nickname, first author, venue, and year.
+- `ls` filters and prints papers in table format. Default columns are title, nickname(as), first author(by1), venue(at), and year(in).
 - `sort` sorts papers by given columns.
 - `cd` adds an AND filter to the default set of filters (which is empty upon startup).
-- `pwd` shows the current scope set by `cd`.
-- `touch` creates a new entry or updates an existing entry in your knowledge base. It will open your editor (defaulting to `vim` but abiding by `$EDITOR`), in which you can edit your notes.
+- `pwd` shows the current default filter set by `cd`.
+- `touch` creates a new entry in your knowledge base.
 - `rm` removes an entry from your knowledge base.
 - `set` sets attributes of papers.
-- `head` prints the abstract of papers. It can also print more if configured to do so.
 - `stat` prints the metadata and notes of papers.
-- `printf` creates an HTML page of your note using pandoc.
+- `printf` creates an HTML page of your note using mdbook.
 - `open` opens the paper with Zathura.
+- `read` opens the paper with Zathura and also your editor (defaulting to `vim` but abiding by `$EDITOR`), in which you can edit your notes.
 - `top` prints out a summary of your knowledge base.
 - `exit` or Ctrl-d quits `reason`.
 
@@ -47,10 +47,23 @@ impl App {
   fn run_command();
 }
 
-// Allowed commands and their chaining relationships,
-ls -> {rm, printf, sort, set, open}
-touch
-rm
-top
-exit
-printf
+// Commands
+// allowed_positions piped_input -> command(argument_input) -> output
+1             ls(filter)         -> table
+1             cd(filter)         -> filter
+1             pwd()              -> filter
+1             touch(filename)    -> table
+1             rm(filter)         -> none
+1             top()              -> custom
+1             exit()             -> !
+ 2 filter ->  rm()               -> none
+1             set(filter, attr)  -> table
+ 2 filter ->  set(attr)          -> table
+1             stat(filter)       -> custom
+ 2 filter ->  stat()             -> custom
+1             printf(filter)     -> exec
+ 2 filter ->  printf()           -> exec
+1             open(filter)       -> exec
+ 2 filter ->  open()             -> exec
+1             read(filter)       -> exec
+ 2 filter ->  read()             -> exec
