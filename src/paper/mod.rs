@@ -4,6 +4,9 @@ use chrono::prelude::*;
 use prettytable::{cell, row, Table};
 use serde::{Deserialize, Serialize};
 
+mod filter;
+pub use crate::paper::filter::{FilterInst, PaperFilter};
+
 #[derive(Default)]
 pub struct Papers(Vec<Paper>);
 

@@ -4,8 +4,8 @@ use std::path::Path;
 mod filter;
 pub use crate::state::filter::FilterState;
 
-use crate::paper::Paper;
 use crate::error::Fallacy;
+use crate::paper::Paper;
 
 pub struct State {
     papers: Vec<Paper>,

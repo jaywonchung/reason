@@ -49,21 +49,21 @@ impl App {
 
 // Commands
 // allowed_positions piped_input -> command(argument_input) -> output
-1             ls(filter)         -> table
-1             cd(filter)         -> filter
-1             pwd()              -> filter
-1             touch(filename)    -> table
+1             ls(filter)         -> papers
+1             cd(filter)         -> none
+1             pwd()              -> custom
+1             touch(filename)    -> papers
 1             rm(filter)         -> none
 1             top()              -> custom
-1             exit()             -> !
- 2 filter ->  rm()               -> none
-1             set(filter, attr)  -> table
- 2 filter ->  set(attr)          -> table
+1             exit()             -> none
+ 2 papers ->  rm()               -> none
+1             set(filter, attr)  -> papers
+ 2 papers ->  set(attr)          -> papers
 1             stat(filter)       -> custom
- 2 filter ->  stat()             -> custom
+ 2 papers ->  stat()             -> custom
 1             printf(filter)     -> exec
- 2 filter ->  printf()           -> exec
+ 2 papers ->  printf()           -> exec
 1             open(filter)       -> exec
- 2 filter ->  open()             -> exec
+ 2 papers ->  open()             -> exec
 1             read(filter)       -> exec
- 2 filter ->  read()             -> exec
+ 2 papers ->  read()             -> exec

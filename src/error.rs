@@ -12,10 +12,12 @@ pub enum Fallacy {
     StateStoreFailed(String, std::io::Error),
     #[error("Failed to serialize and store paper metadata to '{0}': '{1}'")]
     StateSerializeFailed(String, serde_yaml::Error),
+    #[error("Failed to load from config: '{0}'")]
+    ConfigLoadFailed(std::io::Error),
 
     // Non-critical errors
     #[error("Invalid filter: '{0}'")]
     InvalidFilter(regex::Error),
-    #[error("No more than two commands can be chained.")]
-    ChainTooLongError,
+    #[error("Invalid command chain: {0}")]
+    InvalidChain(String),
 }
