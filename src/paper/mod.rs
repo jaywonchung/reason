@@ -5,7 +5,9 @@ use prettytable::{cell, row, Table};
 use serde::{Deserialize, Serialize};
 
 mod filter;
-pub use crate::paper::filter::{FilterInst, PaperFilter};
+pub use crate::paper::filter::{
+    FilterInst, PaperFilter, PaperFilterBuilder, PaperFilterBuilderError,
+};
 
 #[derive(Default)]
 pub struct Papers(Vec<Paper>);

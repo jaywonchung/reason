@@ -1,5 +1,7 @@
 use thiserror::Error;
 
+use crate::paper::PaperFilterBuilderError;
+
 /// A use of invalid or faulty reason.
 #[derive(Error, Debug)]
 pub enum Fallacy {
@@ -16,8 +18,12 @@ pub enum Fallacy {
     ConfigLoadFailed(std::io::Error),
 
     // Non-critical errors
+    #[error("Unknown command: '{0}'")]
+    UnknownCommand(String),
     #[error("Invalid filter: '{0}'")]
     InvalidFilter(regex::Error),
-    #[error("Invalid command chain: {0}")]
-    InvalidChain(String),
+    #[error("Invalid command: {0}")]
+    InvalidCommand(String),
+    #[error("Failed to build filter from regex: '{0}'")]
+    FilterBuildFailed(#[from] PaperFilterBuilderError),
 }

@@ -4,6 +4,7 @@ use rustyline::error::ReadlineError;
 use rustyline::Editor;
 
 mod app;
+mod cmd;
 mod config;
 mod error;
 mod paper;
@@ -16,7 +17,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     loop {
         let readline = editor.readline(">> ");
         match readline {
-            Ok(line) => match reason.run(&line) {
+            Ok(line) => match reason.execute(&line) {
                 Ok(msg) => print!("{}", msg),
                 Err(e) => println!("{}", e),
             },

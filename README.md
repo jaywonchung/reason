@@ -13,7 +13,7 @@ For instance:
 - `rm` removes an entry from your knowledge base.
 - `set` sets attributes of papers.
 - `stat` prints the metadata and notes of papers.
-- `printf` creates an HTML page of your note using mdbook.
+- `printf` creates an HTML page of your note using mdbook. It supports outputing the page with a ToC that resembles your current filters.
 - `open` opens the paper with Zathura.
 - `read` opens the paper with Zathura and also your editor (defaulting to `vim` but abiding by `$EDITOR`), in which you can edit your notes.
 - `top` prints out a summary of your knowledge base.
@@ -50,17 +50,17 @@ impl App {
 // Commands
 // allowed_positions piped_input -> command(argument_input) -> output
 1             ls(filter)         -> papers
-1             cd(filter)         -> none
-1             pwd()              -> custom
+1             cd(filter)         -> message
+1             pwd()              -> message
 1             touch(filename)    -> papers
-1             rm(filter)         -> none
-1             top()              -> custom
-1             exit()             -> none
- 2 papers ->  rm()               -> none
+1             rm(filter)         -> message
+1             top()              -> message
+1             exit()             -> message
+ 2 papers ->  rm()               -> message
 1             set(filter, attr)  -> papers
  2 papers ->  set(attr)          -> papers
-1             stat(filter)       -> custom
- 2 papers ->  stat()             -> custom
+1             stat(filter)       -> message
+ 2 papers ->  stat()             -> message
 1             printf(filter)     -> exec
  2 papers ->  printf()           -> exec
 1             open(filter)       -> exec

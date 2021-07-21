@@ -22,6 +22,7 @@ pub enum FilterInst {
 }
 
 #[derive(Builder, Default, Clone)]
+#[builder(setter(strip_option))]
 pub struct PaperFilter {
     title: Option<Regex>,
     nickname: Option<Regex>,
@@ -54,15 +55,5 @@ impl fmt::Display for PaperFilter {
         }
 
         write!(f, "{}\n", ret.join(", "))
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn build_filter() {
-        let builder = PaperFilter::builder();
     }
 }
