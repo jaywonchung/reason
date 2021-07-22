@@ -1,8 +1,7 @@
-use crate::cmd::ls;
 use crate::cmd::prelude::*;
+use crate::cmd::to_executor;
 use crate::config::Config;
 use crate::error::Fallacy;
-use crate::paper::Papers;
 use crate::state::State;
 
 pub struct App {
@@ -30,82 +29,55 @@ impl App {
             .map(|cmd| cmd.split_ascii_whitespace().collect())
             .collect();
 
-        // ls::execute(CommandInput {
-        //     args: None,
-        //     pipe: None,
-        // })
-
         // Run the command.
-        self.run_command(&chained_cmds)
+        self.run_command(&chained_cmds).map(|output| output.into())
     }
 
-    fn run_command(&self, commands: &Vec<Vec<&str>>) -> Result<String, Fallacy> {
+    fn run_command(&self, commands: &Vec<Vec<&str>>) -> Result<CommandOutput, Fallacy> {
         // Probably impossible.
         if commands.len() == 0 {
-            return Ok(String::new());
+            return Ok(CommandOutput::None);
         }
         // A single command.
         if commands.len() == 1 {
             // An empty line.
             if commands[0].len() == 0 {
-                return Ok(String::new());
+                return Ok(CommandOutput::None);
             } else {
-                // Convert to reason command.
-                let rcmd = to_cmd(commands[0][0])?;
-                if !rcmd.accepts_args && rcmd.accepts_pipe {
-                    return Err(Fallacy::InvalidCommand(
-                        "Command only accepts input from pipe.".to_owned(),
-                    ));
-                }
-                // Execute command.
+                let executor = to_executor(commands[0][0])?;
                 let input = CommandInput {
-                    args: Some(commands[0]),
-                    pipe: None,
+                    args: Some(&commands[0]),
+                    papers: None,
                 };
-                return rcmd
-                    .execute(input, &mut self.state, &self.config)
-                    .map(|output| output.into());
+                return executor(input, &mut self.state, &self.config).map(|o| o.into());
             }
         }
         // A chained command.
         let result: CommandOutput;
-        for window in commands.windows(2) {
-            let (cmd1, cmd2) = (&window[0], &window[1]);
-            if cmd1.len() == 0 || cmd2.len() == 0 {
-                return Err(Fallacy::InvalidCommand("Empty command chained.".to_owned()));
+        for (ind, command) in commands.iter().enumerate() {
+            // The command shouldn't be empty.
+            if command.len() == 0 {
+                let message: String = if ind == 0 {
+                    "Command cannot begin with a pipe.".to_owned()
+                } else if ind == commands.len() - 1 {
+                    "Command cannot end with a pipe.".to_owned()
+                } else {
+                    "Commands can only be chained with one pipe character.".to_owned()
+                };
+                return Err(Fallacy::InvalidCommand(message));
             }
-
-            // Check command.
-            let (rcmd1, rcmd2) = (to_cmd(cmd1[0])?, to_cmd(cmd2[0])?);
-            if rcmd1.outputs_none && (rcmd2.accepts_args || rcmd2.accepts_pipe) {
-                return Err(Fallacy::InvalidCommand(format!(
-                    "'{}' cannot be chained with '{}' since '{}' outputs none.",
-                    cmd1[0], cmd2[0], cmd1[0]
-                )));
-            }
-            if rcmd1.outputs_message && (rcmd2.accepts_args || rcmd2.accepts_pipe) {
-                return Err(Fallacy::InvalidCommand(format!(
-                    "'{}' cannot be chained with '{}' since '{}' only outputs a message.",
-                    cmd1[0], cmd2[0], cmd1[0]
-                )));
-            }
-            if rcmd1.outputs_papers && !rcmd2.accepts_pipe {
-                return Err(Fallacy::InvalidCommand(format!(
-                    "'{}' cannot be chained with '{}' since '{}' does not accept input from pipe.",
-                    cmd1[0], cmd2[0], cmd2[0]
-                )));
-            }
-
-            // Execute command.
-            // TODO: `rm me | ls` works in shells!
+            // Run the command.
+            let executor = to_executor(command[0])?;
+            let input = if ind == 0 {
+                CommandInput {
+                    args: Some(command),
+                    papers: None,
+                }
+            } else {
+                result.into()
+            };
+            result = executor(input, &mut self.state, &self.config)?;
         }
-        Ok("".to_owned())
-    }
-}
-
-fn to_cmd(command: &str) -> Result<&ReasonCmd, Fallacy> {
-    match command {
-        "ls" => Ok(&ls::LS),
-        _ => Err(Fallacy::UnknownCommand(command.to_owned())),
+        return Ok(result);
     }
 }

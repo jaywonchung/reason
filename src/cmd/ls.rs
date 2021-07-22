@@ -1,8 +1,6 @@
 use crate::cmd::prelude::*;
 
-reason_command!(LS: "args -> papers", execute);
-
-fn execute(
+pub fn execute(
     input: CommandInput,
     state: &mut State,
     config: &Config,

@@ -6,54 +6,62 @@ use regex::Regex;
 pub enum FilterInst {
     /// cd something
     /// Add a new filter joined with AND.
-    ADD(PaperFilter),
+    Add(PaperFilterPiece),
     /// cd .
     /// Changes nothing, but `cd -` takes this into account.
-    KEEP,
+    Keep,
     /// cd ..
     /// Remove the most recent non-empty filter.
-    PARENT,
+    Parent,
     /// cd
     /// Clear the filter history vector.
-    RESET,
+    Reset,
     /// cd -
     /// Reset to previous filter state.
-    PREV,
+    Prev,
 }
 
 #[derive(Builder, Default, Clone)]
 #[builder(setter(strip_option))]
+pub struct PaperFilterPiece {
+    pub title: Option<Regex>,
+    pub nickname: Option<Regex>,
+    pub author: Option<Regex>,
+    pub first_author: Option<Regex>,
+    pub venue: Option<Regex>,
+    pub year: Option<Regex>,
+}
+
+#[derive(Default)]
 pub struct PaperFilter {
-    title: Option<Regex>,
-    nickname: Option<Regex>,
-    author: Option<Regex>,
-    first_author: Option<Regex>,
-    venue: Option<Regex>,
-    year: Option<Regex>,
+    pub title: Vec<Regex>,
+    pub nickname: Vec<Regex>,
+    pub author: Vec<Regex>,
+    pub first_author: Vec<Regex>,
+    pub venue: Vec<Regex>,
+    pub year: Vec<Regex>,
 }
 
 impl fmt::Display for PaperFilter {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut ret = Vec::new();
-        if let Some(regex) = &self.title {
-            ret.push(format!("title matches '{}'", regex));
-        }
-        if let Some(regex) = &self.nickname {
-            ret.push(format!("nickname matches '{}'", regex));
-        }
-        if let Some(regex) = &self.author {
-            ret.push(format!("author matches '{}'", regex));
-        }
-        if let Some(regex) = &self.first_author {
-            ret.push(format!("first author matches '{}'", regex));
-        }
-        if let Some(regex) = &self.venue {
-            ret.push(format!("venue matches '{}'", regex));
-        }
-        if let Some(regex) = &self.year {
-            ret.push(format!("year matches '{}'", regex));
-        }
+        let mut segments = Vec::new();
+        let displayer = |ret: &mut Vec<String>, filter: &Vec<Regex>, name: &str| {
+            let joined = filter
+                .iter()
+                .map(|re| re.to_string())
+                .reduce(|a, b| format!("({})|({})", a, b));
+            if let Some(joined) = joined {
+                ret.push(format!("{} matches '{}'", name, joined));
+            }
+        };
 
-        write!(f, "{}\n", ret.join(", "))
+        displayer(&mut segments, &self.title, "title");
+        displayer(&mut segments, &self.nickname, "nickname");
+        displayer(&mut segments, &self.author, "author");
+        displayer(&mut segments, &self.first_author, "first_author");
+        displayer(&mut segments, &self.venue, "venue");
+        displayer(&mut segments, &self.year, "year");
+
+        writeln!(f, "{}", segments.join(", "))
     }
 }

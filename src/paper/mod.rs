@@ -6,7 +6,8 @@ use serde::{Deserialize, Serialize};
 
 mod filter;
 pub use crate::paper::filter::{
-    FilterInst, PaperFilter, PaperFilterBuilder, PaperFilterBuilderError,
+    FilterInst, PaperFilter, PaperFilterPiece, PaperFilterPieceBuilder,
+    PaperFilterPieceBuilderError,
 };
 
 #[derive(Default)]
@@ -25,7 +26,7 @@ impl fmt::Display for Papers {
             bc->"State"
         ]);
 
-        // One row per table
+        // One row per paper
         for p in self.0.iter() {
             table.add_row(row![
                 p.title,
@@ -52,27 +53,27 @@ pub struct Paper {
 
 #[derive(Serialize, Deserialize)]
 pub enum PaperStatus {
-    ADDED(String),
-    READ(String),
+    Added(String),
+    Read(String),
 }
 
 impl PaperStatus {
     fn read(mut self) {
-        self = Self::READ(Local::now().to_string());
+        self = Self::Read(Local::now().to_string());
     }
 }
 
 impl Default for PaperStatus {
     fn default() -> Self {
-        Self::ADDED(Local::now().to_string())
+        Self::Added(Local::now().to_string())
     }
 }
 
 impl fmt::Display for PaperStatus {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            PaperStatus::ADDED(datetime) => write!(f, "ADDED {}", datetime),
-            PaperStatus::READ(datetime) => write!(f, "READ  {}", datetime),
+            PaperStatus::Added(datetime) => write!(f, "ADDED {}", datetime),
+            PaperStatus::Read(datetime) => write!(f, "READ  {}", datetime),
         }
     }
 }
