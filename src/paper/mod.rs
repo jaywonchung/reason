@@ -49,6 +49,7 @@ pub struct Paper {
     venue: String,
     year: u32,
     state: PaperStatus,
+    tags: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize)]

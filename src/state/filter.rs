@@ -45,17 +45,7 @@ impl FilterState {
     }
 
     pub fn current(&self) -> PaperFilter {
-        let mut current = PaperFilter::default();
-        for filter in &self.history[..self.current + 1] {
-            let cloned = filter.clone();
-            current.title.extend(cloned.title);
-            current.nickname.extend(cloned.nickname);
-            current.author.extend(cloned.author);
-            current.first_author.extend(cloned.first_author);
-            current.venue.extend(cloned.venue);
-            current.year.extend(cloned.year);
-        }
-        current
+        PaperFilterPiece::merge(&self.history[..self.current + 1])
     }
 }
 

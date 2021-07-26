@@ -32,6 +32,22 @@ pub struct PaperFilterPiece {
     pub year: Option<Regex>,
 }
 
+impl PaperFilterPiece {
+    pub fn merge(pieces: &[PaperFilterPiece]) -> PaperFilter {
+        let mut merged = PaperFilter::default();
+        for filter in pieces {
+            let cloned = filter.clone();
+            merged.title.extend(cloned.title);
+            merged.nickname.extend(cloned.nickname);
+            merged.author.extend(cloned.author);
+            merged.first_author.extend(cloned.first_author);
+            merged.venue.extend(cloned.venue);
+            merged.year.extend(cloned.year);
+        }
+        merged
+    }
+}
+
 #[derive(Default)]
 pub struct PaperFilter {
     pub title: Vec<Regex>,
