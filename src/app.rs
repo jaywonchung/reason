@@ -23,39 +23,6 @@ impl App {
     /// Runs a command entered by the user and returns a success or error message.
     /// The command may mutate the current state object.
     pub fn execute(&mut self, command: &str) -> Result<String, Fallacy> {
-        // Split chained commands.
-        // Regexes may contain '|' or whitespaces. We don't want to interpret them as pipes.
-        // TODO: whitespace not handled.
-        let mut cmd: String = String::new();
-        let mut chained_cmds: Vec<String> = Vec::new();
-        let mut stack: Vec<char> = Vec::new();
-        for c in command.chars() {
-            // Quote
-            if c == '\'' || c == '"' {
-                if stack.last() == Some(&c) {
-                    stack.pop();
-                } else {
-                    stack.push(c);
-                }
-            } else if c == '|' {
-                // We're not inside a quote. This is a pipe.
-                if stack.len() == 0 {
-                    chained_cmds.push(String::new());
-                    std::mem::swap(chained_cmds.last_mut().unwrap(), &mut cmd);
-                }
-                // We're inside a quote. This character should be considered
-                // as part of a regex.
-                else {
-                    cmd.push(c);
-                }
-            } else if c.is_whitespace() {
-                continue;
-            } else {
-                cmd.push(c);
-            }
-        }
-        chained_cmds.push(cmd);
-
         let chained_cmds: Vec<Vec<_>> = command
             .split('|')
             .map(|cmd| cmd.split_ascii_whitespace().collect())
@@ -65,7 +32,59 @@ impl App {
         self.run_command(&chained_cmds).map(|output| output.into())
     }
 
-    fn run_command(&self, commands: &Vec<Vec<&str>>) -> Result<CommandOutput, Fallacy> {
+    /// Split chained commands.
+    /// Pipe characters and whitesapces need extra care.
+    ///
+    /// ```
+    /// ls shadowtutor    => [["ls", "shadowtutor"]]
+    /// ls 'shadow tutor' => [["ls", "shadow tutor"]]
+    /// ls shadow|tutor   => [["ls", "shadow"], ["tutor"]]
+    /// ls 'shadow|tutor' => [["ls", "shadow|tutor"]]
+    /// ```
+    fn parse_command(&self, command: &str) -> Vec<Vec<String>> {
+        let mut current_cmd: Vec<String> = vec![String::new()];
+        let mut current_piece: usize = 0; // index into `current_cmd`
+        let mut parsed_cmds: Vec<Vec<String>> = Vec::new(); // final result
+
+        let mut inside_quotes = false; // whether we're inside single quotes
+        let mut command_iter = command.chars().peekable();
+
+        for c in command_iter {
+            // Escaped single quote
+            if c == '\\' && command_iter.peek() == Some(&'\'') {
+                command_iter.next();
+                current_cmd[current_piece].push('\'');
+            }
+            // Unescaped single quote
+            else if c == '\'' {
+                inside_quotes = !inside_quotes;
+            }
+            // Pipe
+            // If we're inside quotes, this is merely a character part of a regex.
+            // Otherwise, this indicates a command chain.
+            else if c == '|' {
+                if inside_quotes {
+                    current_cmd[current_piece].push(c);
+                } else {
+                    // Wrap up the previous command and start a new one.
+                    parsed_cmds.push(vec![String::new()]);
+                    std::mem::swap(parsed_cmds.last_mut().unwrap(), &mut current_cmd);
+                }
+            }
+            // Whitespace
+            // Advance to next piece.
+            else if c.is_whitespace() {
+                continue;
+            }
+            else {
+                current_cmd.push(c);
+            }
+        }
+        parsed_cmds.push(current_cmd);
+        parsed_cmds
+    }
+
+    fn run_command(&mut self, commands: &Vec<Vec<&str>>) -> Result<CommandOutput, Fallacy> {
         // Probably impossible.
         if commands.len() == 0 {
             return Ok(CommandOutput::None);
@@ -85,7 +104,7 @@ impl App {
             }
         }
         // A chained command.
-        let result: CommandOutput;
+        let mut result = CommandOutput::None;
         for (ind, command) in commands.iter().enumerate() {
             // The command shouldn't be empty.
             if command.len() == 0 {

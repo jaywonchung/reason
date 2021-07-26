@@ -10,8 +10,8 @@ pub type ExecuteFn = fn(CommandInput, &mut State, &Config) -> Result<CommandOutp
 
 #[derive(Default)]
 pub struct CommandInput<'a> {
-    args: Option<&'a Vec<&'a str>>,
-    papers: Option<Papers>,
+    pub args: Option<&'a Vec<&'a str>>,
+    pub papers: Option<Papers>,
 }
 
 pub enum CommandOutput {
