@@ -68,61 +68,63 @@ mod test {
     #[test]
     fn empty_filter() {
         let fstate = FilterState::default();
-        assert_eq!(fstate.history.len(), 0);
+        assert_eq!(fstate.history.len(), 1);
         assert_eq!(fstate.current, 0);
         assert_eq!(fstate.previous, 0);
     }
 
     #[test]
-    fn one_filter() -> Result<(), Box<dyn std::error::Error>> {
+    fn one_filter() {
         let mut fstate = FilterState::default();
         fstate.record(FilterInst::Add(
             PaperFilterPieceBuilder::default()
-                .author(Regex::new("Chung")?)
-                .build()?,
+                .author(Regex::new("Chung").unwrap())
+                .build()
+                .unwrap(),
         ));
-        assert_eq!(fstate.history.len(), 1);
+        assert_eq!(fstate.history.len(), 2);
         assert_eq!(fstate.current, 1);
         assert_eq!(fstate.previous, 0);
-        Ok(())
     }
 
     #[test]
-    fn two_filters() -> Result<(), Box<dyn std::error::Error>> {
+    fn two_filters() {
         let mut fstate = FilterState::default();
         fstate.record(FilterInst::Add(
             PaperFilterPieceBuilder::default()
-                .author(Regex::new("Chung")?)
-                .build()?,
+                .author(Regex::new("Chung").unwrap())
+                .build()
+                .unwrap(),
         ));
         fstate.record(FilterInst::Add(
             PaperFilterPieceBuilder::default()
-                .nickname(Regex::new("ShadowTutor")?)
-                .build()?,
+                .nickname(Regex::new("ShadowTutor").unwrap())
+                .build()
+                .unwrap(),
         ));
-        assert_eq!(fstate.history.len(), 2);
+        assert_eq!(fstate.history.len(), 3);
         assert_eq!(fstate.current, 2);
         assert_eq!(fstate.previous, 1);
-        Ok(())
     }
 
     #[test]
-    fn two_then_parent() -> Result<(), Box<dyn std::error::Error>> {
+    fn two_then_parent() {
         let mut fstate = FilterState::default();
         fstate.record(FilterInst::Add(
             PaperFilterPieceBuilder::default()
-                .author(Regex::new("Chung")?)
-                .build()?,
+                .author(Regex::new("Chung").unwrap())
+                .build()
+                .unwrap(),
         ));
         fstate.record(FilterInst::Add(
             PaperFilterPieceBuilder::default()
-                .nickname(Regex::new("ShadowTutor")?)
-                .build()?,
+                .nickname(Regex::new("ShadowTutor").unwrap())
+                .build()
+                .unwrap(),
         ));
         fstate.record(FilterInst::Prev);
-        assert_eq!(fstate.history.len(), 2);
+        assert_eq!(fstate.history.len(), 3);
         assert_eq!(fstate.current, 1);
         assert_eq!(fstate.previous, 2);
-        Ok(())
     }
 }

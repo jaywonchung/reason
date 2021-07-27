@@ -21,8 +21,9 @@ pub enum FilterInst {
     Prev,
 }
 
-#[derive(Builder, Default, Clone)]
+#[derive(Default, Builder, Clone)]
 #[builder(setter(strip_option))]
+#[builder(default)]
 pub struct PaperFilterPiece {
     pub title: Option<Regex>,
     pub nickname: Option<Regex>,

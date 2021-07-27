@@ -20,6 +20,10 @@ impl App {
         Ok(Self { state, config })
     }
 
+    fn new_for_test(config: Config, state: State) -> Self {
+        Self { state, config }
+    }
+
     /// Runs a command entered by the user and returns a success or error message.
     /// The command may mutate the current state object.
     pub fn execute(&mut self, command: &str) -> Result<String, Fallacy> {
@@ -49,7 +53,7 @@ impl App {
         let mut inside_quotes = false; // whether we're inside single quotes
         let mut command_iter = command.chars().peekable();
 
-        for c in command_iter {
+        while let Some(c) = command_iter.next() {
             // Escaped single quote
             if c == '\\' && command_iter.peek() == Some(&'\'') {
                 command_iter.next();
@@ -72,12 +76,33 @@ impl App {
                 }
             }
             // Whitespace
-            // Advance to next piece.
+            // If we're inside quotes, this is merely a character part of a regex.
+            // Otherwise, this indicates the end of the current piece.
             else if c.is_whitespace() {
-                continue;
-            }
-            else {
-                current_cmd.push(c);
+                if inside_quotes {
+                    current_cmd[current_piece].push(c);
+                } else {
+                    // Consume all whitespaces that follow.
+                    while let Some(c) = command_iter.peek() {
+                        if c.is_whitespace() {
+                            command_iter.next();
+                        } else {
+                            break;
+                        }
+                    }
+                    // If the command ended, this is the end of the command.
+                    match command_iter.peek() {
+                        Some(_) => {
+                            current_piece += 1;
+                            current_cmd.push(String::new());
+                        }
+                        None => {
+                            break;
+                        }
+                    }
+                }
+            } else {
+                current_cmd[current_piece].push(c);
             }
         }
         parsed_cmds.push(current_cmd);
@@ -130,5 +155,51 @@ impl App {
             result = executor(input, &mut self.state, &self.config)?;
         }
         return Ok(result);
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    // ls shadowtutor    => [["ls", "shadowtutor"]]
+    // ls 'shadow tutor' => [["ls", "shadow tutor"]]
+    // ls shadow|tutor   => [["ls", "shadow"], ["tutor"]]
+    // ls 'shadow|tutor' => [["ls", "shadow|tutor"]]
+
+    fn create_app() -> App {
+        let config = Config::default();
+        let state = State::default();
+        App::new_for_test(config, state)
+    }
+
+    fn to_vec_string(vec: Vec<Vec<&str>>) -> Vec<Vec<String>> {
+        vec.iter()
+            .map(|v| v.iter().map(|s| String::from(*s)).collect())
+            .collect()
+    }
+
+    #[test]
+    fn normal_single() {
+        let app = create_app();
+        let command = r"ls shadowtutor";
+        let parsed = app.parse_command(command);
+        assert_eq!(parsed, to_vec_string(vec![vec!["ls", "shadowtutor"]]));
+    }
+
+    #[test]
+    fn normal_many() {
+        let app = create_app();
+        let command = r"ls shadowtutor by Chung";
+        let parsed = app.parse_command(command);
+        assert_eq!(
+            parsed,
+            vec![vec![
+                String::from("ls"),
+                String::from("shadowtutor"),
+                String::from("by"),
+                String::from("Chung")
+            ]],
+        );
     }
 }

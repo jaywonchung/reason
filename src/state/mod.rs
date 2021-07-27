@@ -7,6 +7,7 @@ pub use crate::state::filter::FilterState;
 use crate::error::Fallacy;
 use crate::paper::Paper;
 
+#[derive(Default)]
 pub struct State {
     papers: Vec<Paper>,
     filters: FilterState,
