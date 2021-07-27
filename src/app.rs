@@ -46,18 +46,33 @@ impl App {
     /// ls 'shadow|tutor' => [["ls", "shadow|tutor"]]
     /// ```
     fn parse_command(&self, command: &str) -> Vec<Vec<String>> {
-        let mut current_cmd: Vec<String> = vec![String::new()];
-        let mut current_piece: usize = 0; // index into `current_cmd`
+        let mut current_piece: String = String::new();
+        let mut current_cmd: Vec<String> = Vec::new();
         let mut parsed_cmds: Vec<Vec<String>> = Vec::new(); // final result
 
         let mut inside_quotes = false; // whether we're inside single quotes
         let mut command_iter = command.chars().peekable();
 
+        // A helper closure that consumes all whitespaces from an char peekable iterator.
+        let consume_whitespace = |iter: &mut std::iter::Peekable<core::str::Chars>| {
+            while let Some(c) = iter.peek() {
+                if c.is_whitespace() {
+                    iter.next();
+                } else {
+                    break;
+                }
+            }
+        };
+
+        // Trim whitespace in the beginning.
+        consume_whitespace(&mut command_iter);
+
+        // Parse commands.
         while let Some(c) = command_iter.next() {
             // Escaped single quote
             if c == '\\' && command_iter.peek() == Some(&'\'') {
                 command_iter.next();
-                current_cmd[current_piece].push('\'');
+                current_piece.push('\'');
             }
             // Unescaped single quote
             else if c == '\'' {
@@ -68,10 +83,14 @@ impl App {
             // Otherwise, this indicates a command chain.
             else if c == '|' {
                 if inside_quotes {
-                    current_cmd[current_piece].push(c);
+                    current_piece.push(c);
                 } else {
                     // Wrap up the previous command and start a new one.
-                    parsed_cmds.push(vec![String::new()]);
+                    if current_piece.len() != 0 {
+                        current_cmd.push(String::new());
+                        std::mem::swap(current_cmd.last_mut().unwrap(), &mut current_piece);
+                    }
+                    parsed_cmds.push(Vec::new());
                     std::mem::swap(parsed_cmds.last_mut().unwrap(), &mut current_cmd);
                 }
             }
@@ -80,30 +99,29 @@ impl App {
             // Otherwise, this indicates the end of the current piece.
             else if c.is_whitespace() {
                 if inside_quotes {
-                    current_cmd[current_piece].push(c);
+                    current_piece.push(c);
                 } else {
                     // Consume all whitespaces that follow.
-                    while let Some(c) = command_iter.peek() {
-                        if c.is_whitespace() {
-                            command_iter.next();
-                        } else {
-                            break;
-                        }
-                    }
-                    // If the command ended, this is the end of the command.
-                    match command_iter.peek() {
-                        Some(_) => {
-                            current_piece += 1;
-                            current_cmd.push(String::new());
-                        }
-                        None => {
-                            break;
-                        }
+                    consume_whitespace(&mut command_iter);
+
+                    // Wrap up the previous piece and start a new one.
+                    if current_piece.len() != 0 {
+                        current_cmd.push(String::new());
+                        std::mem::swap(current_cmd.last_mut().unwrap(), &mut current_piece);
                     }
                 }
-            } else {
-                current_cmd[current_piece].push(c);
             }
+            // Everything else.
+            else {
+                current_piece.push(c);
+            }
+            println!(
+                "current_piece: {:?}\tcurrent_cmd: {:?}\tparsed_cmds: {:?}",
+                current_piece, current_cmd, parsed_cmds
+            );
+        }
+        if current_piece.len() != 0 {
+            current_cmd.push(current_piece);
         }
         parsed_cmds.push(current_cmd);
         parsed_cmds
@@ -162,44 +180,63 @@ impl App {
 mod test {
     use super::*;
 
-    // ls shadowtutor    => [["ls", "shadowtutor"]]
-    // ls 'shadow tutor' => [["ls", "shadow tutor"]]
-    // ls shadow|tutor   => [["ls", "shadow"], ["tutor"]]
-    // ls 'shadow|tutor' => [["ls", "shadow|tutor"]]
-
-    fn create_app() -> App {
-        let config = Config::default();
-        let state = State::default();
-        App::new_for_test(config, state)
+    macro_rules! parse_test {
+        ($name:ident: $command:expr, $answer:expr) => {
+            #[test]
+            fn $name() {
+                let app = App::new_for_test(Config::default(), State::default());
+                let answer: Vec<Vec<&str>> = $answer;
+                let answer: Vec<Vec<String>> = answer
+                    .iter()
+                    .map(|v| v.iter().map(|s| String::from(*s)).collect())
+                    .collect();
+                let parsed = app.parse_command($command);
+                assert_eq!(parsed, answer);
+            }
+        };
     }
 
-    fn to_vec_string(vec: Vec<Vec<&str>>) -> Vec<Vec<String>> {
-        vec.iter()
-            .map(|v| v.iter().map(|s| String::from(*s)).collect())
-            .collect()
-    }
+    // Correct commands
+    parse_test!(normal_single:
+        "ls shadowtutor",
+        vec![vec!["ls", "shadowtutor"]]
+    );
+    parse_test!(normal_many:
+        "ls   shadowtutor by  	Chung  ",
+        vec![vec!["ls", "shadowtutor", "by", "Chung"]]
+    );
+    parse_test!(pipe_single:
+        "ls shadowtutor | printf",
+        vec![vec!["ls", "shadowtutor"], vec!["printf"]]
+    );
+    parse_test!(pipe_many:
+        "ls shadow|tutor by| Chung on icpp |2020 ",
+        vec![vec!["ls", "shadow"], vec!["tutor", "by"], vec!["Chung", "on", "icpp"], vec!["2020"]]
+    );
+    parse_test!(quote_whitespace:
+        "ls 'shadow tutor'",
+        vec![vec!["ls", "shadow tutor"]]
+    );
+    parse_test!(quote_pipe:
+        "ls 'shadow|tutor'",
+        vec![vec!["ls", "shadow|tutor"]]
+    );
+    parse_test!(all_in_one:
+        r"  ls  ' shadow| tutor\'' | 'printf ' 	 this\' paper  ",
+        vec![vec!["ls", " shadow| tutor'"], vec!["printf ", "this'", "paper"]]
+    );
 
-    #[test]
-    fn normal_single() {
-        let app = create_app();
-        let command = r"ls shadowtutor";
-        let parsed = app.parse_command(command);
-        assert_eq!(parsed, to_vec_string(vec![vec!["ls", "shadowtutor"]]));
-    }
-
-    #[test]
-    fn normal_many() {
-        let app = create_app();
-        let command = r"ls shadowtutor by Chung";
-        let parsed = app.parse_command(command);
-        assert_eq!(
-            parsed,
-            vec![vec![
-                String::from("ls"),
-                String::from("shadowtutor"),
-                String::from("by"),
-                String::from("Chung")
-            ]],
-        );
-    }
+    // Wrong commands
+    parse_test!(double_pipe:
+        "ls shadowtutor || printf",
+        vec![vec!["ls", "shadowtutor"], vec![], vec!["printf"]]
+    );
+    parse_test!(ends_with_pipe1:
+        "ls shadowtutor|",
+        vec![vec!["ls", "shadowtutor"], vec![]]
+    );
+    parse_test!(ends_with_pipe2:
+        "ls shadowtutor | ",
+        vec![vec!["ls", "shadowtutor"], vec![]]
+    );
 }
