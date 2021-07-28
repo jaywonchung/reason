@@ -1,6 +1,6 @@
 use thiserror::Error;
 
-use crate::paper::PaperFilterPieceBuilderError;
+use crate::filter::PaperFilterPieceBuilderError;
 
 /// A use of invalid or faulty reason.
 #[derive(Error, Debug)]
@@ -26,4 +26,6 @@ pub enum Fallacy {
     InvalidCommand(String),
     #[error("Failed to build filter from regex: '{0}'")]
     FilterBuildFailed(#[from] PaperFilterPieceBuilderError),
+    #[error("No matching regex for keyword '{0}'")]
+    FilterKeywordNoMatch(String),
 }

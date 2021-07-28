@@ -1,5 +1,5 @@
 use crate::cmd::prelude::*;
-use crate::paper::{PaperFilter, PaperFilterPieceBuilder};
+use crate::filter::PaperFilter;
 
 pub fn execute(
     input: CommandInput,

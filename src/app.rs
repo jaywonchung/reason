@@ -21,7 +21,7 @@ impl App {
         let commands = self.parse_command(command)?;
 
         // Run the command.
-        self.run_command(&commands).map(|output| output.into())
+        self.run_command(&commands).map(|output| output.to_string())
     }
 
     /// Split chained commands.
@@ -132,14 +132,14 @@ impl App {
             } else {
                 let executor = to_executor(&commands[0][0])?;
                 let input = CommandInput {
-                    args: Some(&commands[0]),
+                    args: &commands[0],
                     papers: None,
                 };
                 return executor(input, &mut self.state, &self.config).map(|o| o.into());
             }
         }
         // A chained command.
-        let mut result = CommandOutput::None;
+        let mut output = CommandOutput::None;
         for (ind, command) in commands.iter().enumerate() {
             // The command shouldn't be empty.
             if command.len() == 0 {
@@ -153,18 +153,14 @@ impl App {
                 return Err(Fallacy::InvalidCommand(message));
             }
             // Run the command.
+            // A command is always given arguments. Commands that come after
+            // the first one are given papers, but it's up to the command to
+            // utilize it.
             let executor = to_executor(&command[0])?;
-            let input = if ind == 0 {
-                CommandInput {
-                    args: Some(command),
-                    papers: None,
-                }
-            } else {
-                result.into()
-            };
-            result = executor(input, &mut self.state, &self.config)?;
+            let mut input = CommandInput::from_output(command, output);
+            output = executor(input, &mut self.state, &self.config)?;
         }
-        return Ok(result);
+        return Ok(output);
     }
 }
 

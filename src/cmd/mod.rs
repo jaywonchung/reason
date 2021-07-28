@@ -1,3 +1,5 @@
+use std::fmt;
+
 use crate::config::Config;
 use crate::error::Fallacy;
 use crate::paper::Papers;
@@ -9,9 +11,8 @@ pub mod ls;
 
 pub type ExecuteFn = fn(CommandInput, &mut State, &Config) -> Result<CommandOutput, Fallacy>;
 
-#[derive(Default)]
 pub struct CommandInput<'a> {
-    pub args: Option<&'a Vec<String>>,
+    pub args: &'a Vec<String>,
     pub papers: Option<Papers>,
 }
 
@@ -21,26 +22,26 @@ pub enum CommandOutput {
     Message(String),
 }
 
-impl From<CommandOutput> for CommandInput<'_> {
-    fn from(output: CommandOutput) -> Self {
-        match output {
-            CommandOutput::None => Self::default(),
-            CommandOutput::Message(_) => Self::default(),
-            CommandOutput::Papers(p) => Self {
-                args: None,
-                papers: Some(p),
-            },
-        }
+impl<'a> CommandInput<'a> {
+    pub fn from_output(args: &'a Vec<String>, output: CommandOutput) -> Self {
+        let papers = match output {
+            CommandOutput::None => None,
+            CommandOutput::Message(_) => None,
+            CommandOutput::Papers(p) => Some(p),
+        };
+        Self { args, papers }
     }
 }
 
-impl From<CommandOutput> for String {
-    fn from(output: CommandOutput) -> Self {
-        match output {
-            CommandOutput::None => String::new(),
+impl fmt::Display for CommandOutput {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let output = match self {
+            CommandOutput::None => "",
             CommandOutput::Message(s) => s,
-            CommandOutput::Papers(p) => p.to_string(),
-        }
+            CommandOutput::Papers(p) => &p.to_string(),
+        };
+
+        write!(f, "{}", output)
     }
 }
 
