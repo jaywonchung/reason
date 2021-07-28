@@ -1,19 +1,28 @@
-use crate::app::App;
-
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
 
-mod app;
 mod cmd;
+mod state;
+mod app;
 mod config;
 mod error;
+mod filter;
 mod paper;
-mod state;
+
+use crate::app::App;
+use crate::config::Config;
+use crate::state::State;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let mut reason = App::new()?;
+    // Initialize app.
+    let config = Config::load()?;
+    let state = State::load(&config.state_path)?;
+    let mut reason = App::new(config, state);
+
+    // Setup readline.
     let mut editor = Editor::<()>::new();
 
+    // Start main loop.
     loop {
         let readline = editor.readline(">> ");
         match readline {
@@ -24,7 +33,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             Err(ReadlineError::Interrupted) => continue,
             Err(ReadlineError::Eof) => break,
             Err(e) => {
-                eprintln!("Error: {}", e);
+                eprintln!("Error reading from stdin: {}", e);
                 break;
             }
         }

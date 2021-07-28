@@ -1,4 +1,4 @@
-use crate::paper::{FilterInst, PaperFilter, PaperFilterPiece};
+use crate::filter::{FilterInst, PaperFilter, PaperFilterPiece};
 
 pub struct FilterState {
     history: Vec<PaperFilterPiece>,
@@ -62,7 +62,7 @@ impl Default for FilterState {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::paper::PaperFilterPieceBuilder;
+    use crate::filter::PaperFilterPieceBuilder;
     use regex::Regex;
 
     #[test]

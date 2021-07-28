@@ -3,14 +3,15 @@ use crate::error::Fallacy;
 use crate::paper::Papers;
 use crate::state::State;
 
-pub mod ls;
 pub mod prelude;
+pub mod cd;
+pub mod ls;
 
 pub type ExecuteFn = fn(CommandInput, &mut State, &Config) -> Result<CommandOutput, Fallacy>;
 
 #[derive(Default)]
 pub struct CommandInput<'a> {
-    pub args: Option<&'a Vec<&'a str>>,
+    pub args: Option<&'a Vec<String>>,
     pub papers: Option<Papers>,
 }
 

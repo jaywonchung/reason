@@ -25,7 +25,7 @@ fn input_to_filter(input: &CommandInput) -> Result<PaperFilter, Fallacy> {
     // The same keyword may appear multiple times. Those filters are and'ed.
     let keyword: String;
     let found_keyword = false;
-    for &arg in args {
+    for arg in args {
         // The current argument should be a regex.
         if found_keyword {
         } else {

@@ -4,12 +4,6 @@ use chrono::prelude::*;
 use prettytable::{cell, row, Table};
 use serde::{Deserialize, Serialize};
 
-mod filter;
-pub use crate::paper::filter::{
-    FilterInst, PaperFilter, PaperFilterPiece, PaperFilterPieceBuilder,
-    PaperFilterPieceBuilderError,
-};
-
 #[derive(Default)]
 pub struct Papers(Vec<Paper>);
 
@@ -59,8 +53,8 @@ pub enum PaperStatus {
 }
 
 impl PaperStatus {
-    fn read(mut self) {
-        self = Self::Read(Local::now().to_string());
+    fn read(&mut self) {
+        *self = Self::Read(Local::now().to_string());
     }
 }
 

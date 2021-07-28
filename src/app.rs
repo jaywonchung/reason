@@ -5,47 +5,34 @@ use crate::error::Fallacy;
 use crate::state::State;
 
 pub struct App {
-    state: State,
     config: Config,
+    state: State,
 }
 
 impl App {
-    pub fn new() -> Result<Self, Fallacy> {
-        let config: Config = match confy::load("reason") {
-            Ok(c) => c,
-            Err(e) => return Err(Fallacy::ConfigLoadFailed(e)),
-        };
-        let state = State::load(&config.state_path)?;
-
-        Ok(Self { state, config })
-    }
-
-    fn new_for_test(config: Config, state: State) -> Self {
-        Self { state, config }
+    pub fn new(config: Config, state: State) -> Self {
+        Self { config, state }
     }
 
     /// Runs a command entered by the user and returns a success or error message.
     /// The command may mutate the current state object.
     pub fn execute(&mut self, command: &str) -> Result<String, Fallacy> {
-        let chained_cmds: Vec<Vec<_>> = command
-            .split('|')
-            .map(|cmd| cmd.split_ascii_whitespace().collect())
-            .collect();
+        // Parse the command.
+        let commands = self.parse_command(command)?;
 
         // Run the command.
-        self.run_command(&chained_cmds).map(|output| output.into())
+        self.run_command(&commands).map(|output| output.into())
     }
 
     /// Split chained commands.
-    /// Pipe characters and whitesapces need extra care.
     ///
-    /// ```
-    /// ls shadowtutor    => [["ls", "shadowtutor"]]
-    /// ls 'shadow tutor' => [["ls", "shadow tutor"]]
-    /// ls shadow|tutor   => [["ls", "shadow"], ["tutor"]]
-    /// ls 'shadow|tutor' => [["ls", "shadow|tutor"]]
-    /// ```
-    fn parse_command(&self, command: &str) -> Vec<Vec<String>> {
+    /// Reason implements its own command line parser.
+    /// By default arguments are delimited with whitespace, but they can be chunked
+    /// by grouping them in single quotes.
+    /// Literal single quotes can be entered by escaping them with a backslash.
+    ///
+    /// Multiple commands can be piped with the pipe(`|`) character.
+    fn parse_command(&self, command: &str) -> Result<Vec<Vec<String>>, Fallacy> {
         let mut current_piece: String = String::new();
         let mut current_cmd: Vec<String> = Vec::new();
         let mut parsed_cmds: Vec<Vec<String>> = Vec::new(); // final result
@@ -90,6 +77,10 @@ impl App {
                         current_cmd.push(String::new());
                         std::mem::swap(current_cmd.last_mut().unwrap(), &mut current_piece);
                     }
+                    // Pipe encountered when `current_cmd` is empty: double pipes!
+                    if current_cmd.len() == 0 {
+                        return Err(Fallacy::InvalidCommand("Invalid use of pipes.".to_owned()));
+                    }
                     parsed_cmds.push(Vec::new());
                     std::mem::swap(parsed_cmds.last_mut().unwrap(), &mut current_cmd);
                 }
@@ -115,19 +106,20 @@ impl App {
             else {
                 current_piece.push(c);
             }
-            println!(
-                "current_piece: {:?}\tcurrent_cmd: {:?}\tparsed_cmds: {:?}",
-                current_piece, current_cmd, parsed_cmds
-            );
         }
+        // No need to push empty pieces.
         if current_piece.len() != 0 {
             current_cmd.push(current_piece);
         }
+        // Command ended with a pipe.
+        if current_cmd.len() == 0 && parsed_cmds.len() != 0 {
+            return Err(Fallacy::InvalidCommand("Command ends with a dangling pipe.".to_owned()));
+        }
         parsed_cmds.push(current_cmd);
-        parsed_cmds
+        Ok(parsed_cmds)
     }
 
-    fn run_command(&mut self, commands: &Vec<Vec<&str>>) -> Result<CommandOutput, Fallacy> {
+    fn run_command(&mut self, commands: &Vec<Vec<String>>) -> Result<CommandOutput, Fallacy> {
         // Probably impossible.
         if commands.len() == 0 {
             return Ok(CommandOutput::None);
@@ -138,7 +130,7 @@ impl App {
             if commands[0].len() == 0 {
                 return Ok(CommandOutput::None);
             } else {
-                let executor = to_executor(commands[0][0])?;
+                let executor = to_executor(&commands[0][0])?;
                 let input = CommandInput {
                     args: Some(&commands[0]),
                     papers: None,
@@ -161,7 +153,7 @@ impl App {
                 return Err(Fallacy::InvalidCommand(message));
             }
             // Run the command.
-            let executor = to_executor(command[0])?;
+            let executor = to_executor(&command[0])?;
             let input = if ind == 0 {
                 CommandInput {
                     args: Some(command),
@@ -184,14 +176,15 @@ mod test {
         ($name:ident: $command:expr, $answer:expr) => {
             #[test]
             fn $name() {
-                let app = App::new_for_test(Config::default(), State::default());
-                let answer: Vec<Vec<&str>> = $answer;
-                let answer: Vec<Vec<String>> = answer
-                    .iter()
-                    .map(|v| v.iter().map(|s| String::from(*s)).collect())
-                    .collect();
+                let app = App::new(Config::default(), State::default());
+                let answer: Result<Vec<Vec<&str>>, Fallacy> = $answer;
+                let answer: Result<Vec<Vec<String>>, Fallacy> = answer.map(|vec| vec.iter().map(|v| v.iter().map(|s| String::from(*s)).collect()).collect());
                 let parsed = app.parse_command($command);
-                assert_eq!(parsed, answer);
+                if answer.is_err() {
+                    assert_eq!(parsed.unwrap_err().to_string(), answer.unwrap_err().to_string());
+                } else {
+                    assert_eq!(parsed.unwrap(), answer.unwrap());
+                }
             }
         };
     }
@@ -199,44 +192,56 @@ mod test {
     // Correct commands
     parse_test!(normal_single:
         "ls shadowtutor",
-        vec![vec!["ls", "shadowtutor"]]
+        Ok(vec![vec!["ls", "shadowtutor"]])
     );
     parse_test!(normal_many:
         "ls   shadowtutor by  	Chung  ",
-        vec![vec!["ls", "shadowtutor", "by", "Chung"]]
+        Ok(vec![vec!["ls", "shadowtutor", "by", "Chung"]])
     );
     parse_test!(pipe_single:
         "ls shadowtutor | printf",
-        vec![vec!["ls", "shadowtutor"], vec!["printf"]]
+        Ok(vec![vec!["ls", "shadowtutor"], vec!["printf"]])
     );
     parse_test!(pipe_many:
         "ls shadow|tutor by| Chung on icpp |2020 ",
-        vec![vec!["ls", "shadow"], vec!["tutor", "by"], vec!["Chung", "on", "icpp"], vec!["2020"]]
+        Ok(vec![vec!["ls", "shadow"], vec!["tutor", "by"], vec!["Chung", "on", "icpp"], vec!["2020"]])
     );
     parse_test!(quote_whitespace:
         "ls 'shadow tutor'",
-        vec![vec!["ls", "shadow tutor"]]
+        Ok(vec![vec!["ls", "shadow tutor"]])
     );
     parse_test!(quote_pipe:
         "ls 'shadow|tutor'",
-        vec![vec!["ls", "shadow|tutor"]]
+        Ok(vec![vec!["ls", "shadow|tutor"]])
     );
     parse_test!(all_in_one:
         r"  ls  ' shadow| tutor\'' | 'printf ' 	 this\' paper  ",
-        vec![vec!["ls", " shadow| tutor'"], vec!["printf ", "this'", "paper"]]
+        Ok(vec![vec!["ls", " shadow| tutor'"], vec!["printf ", "this'", "paper"]])
+    );
+    parse_test!(empty:
+        "",
+        Ok(vec![vec![]])
     );
 
     // Wrong commands
     parse_test!(double_pipe:
         "ls shadowtutor || printf",
-        vec![vec!["ls", "shadowtutor"], vec![], vec!["printf"]]
+        Err(Fallacy::InvalidCommand("Invalid use of pipes.".to_owned()))
     );
     parse_test!(ends_with_pipe1:
         "ls shadowtutor|",
-        vec![vec!["ls", "shadowtutor"], vec![]]
+        Err(Fallacy::InvalidCommand("Command ends with a dangling pipe.".to_owned()))
     );
     parse_test!(ends_with_pipe2:
         "ls shadowtutor | ",
-        vec![vec!["ls", "shadowtutor"], vec![]]
+        Err(Fallacy::InvalidCommand("Command ends with a dangling pipe.".to_owned()))
+    );
+    parse_test!(starts_with_pipe1:
+        "|ls shadowtutor",
+        Err(Fallacy::InvalidCommand("Invalid use of pipes.".to_owned()))
+    );
+    parse_test!(starts_with_pipe2:
+        "|  ls shadowtutor",
+        Err(Fallacy::InvalidCommand("Invalid use of pipes.".to_owned()))
     );
 }
