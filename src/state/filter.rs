@@ -1,7 +1,26 @@
-use crate::filter::{FilterInst, PaperFilter, PaperFilterPiece};
+use crate::filter::PaperFilter;
 
+pub enum FilterInst {
+    /// cd something
+    /// Add a new filter joined with AND.
+    Add(PaperFilter),
+    /// cd .
+    /// Changes nothing, but `cd -` takes this into account.
+    Here,
+    /// cd ..
+    /// Remove the most recent non-empty filter.
+    Parent,
+    /// cd
+    /// Clear the filter history vector.
+    Reset,
+    /// cd -
+    /// Reset to previous filter state.
+    Prev,
+}
+
+#[derive(Debug)]
 pub struct FilterState {
-    history: Vec<PaperFilterPiece>,
+    history: Vec<PaperFilter>,
     current: usize,
     previous: usize,
 }
@@ -18,10 +37,10 @@ impl FilterState {
                     self.history[self.current] = filter;
                 }
             }
-            FilterInst::Keep => {
+            FilterInst::Here => {
                 self.previous = self.current;
                 self.current += 1;
-                let filter = PaperFilterPiece::default();
+                let filter = PaperFilter::default();
                 if self.current == self.history.len() {
                     self.history.push(filter);
                 } else {
@@ -45,14 +64,14 @@ impl FilterState {
     }
 
     pub fn current(&self) -> PaperFilter {
-        PaperFilterPiece::merge(&self.history[..self.current + 1])
+        PaperFilter::merge(&self.history[..self.current + 1])
     }
 }
 
 impl Default for FilterState {
     fn default() -> Self {
         Self {
-            history: vec![PaperFilterPiece::default()],
+            history: vec![PaperFilter::default()],
             current: 0,
             previous: 0,
         }
@@ -62,7 +81,7 @@ impl Default for FilterState {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::filter::PaperFilterPieceBuilder;
+    use crate::filter::PaperFilterBuilder;
     use regex::Regex;
 
     #[test]
@@ -77,8 +96,8 @@ mod test {
     fn one_filter() {
         let mut fstate = FilterState::default();
         fstate.record(FilterInst::Add(
-            PaperFilterPieceBuilder::default()
-                .author(Regex::new("Chung").unwrap())
+            PaperFilterBuilder::default()
+                .author(vec![Regex::new("Chung").unwrap()])
                 .build()
                 .unwrap(),
         ));
@@ -91,14 +110,14 @@ mod test {
     fn two_filters() {
         let mut fstate = FilterState::default();
         fstate.record(FilterInst::Add(
-            PaperFilterPieceBuilder::default()
-                .author(Regex::new("Chung").unwrap())
+            PaperFilterBuilder::default()
+                .author(vec![Regex::new("Chung").unwrap()])
                 .build()
                 .unwrap(),
         ));
         fstate.record(FilterInst::Add(
-            PaperFilterPieceBuilder::default()
-                .nickname(Regex::new("ShadowTutor").unwrap())
+            PaperFilterBuilder::default()
+                .nickname(vec![Regex::new("ShadowTutor").unwrap()])
                 .build()
                 .unwrap(),
         ));
@@ -111,14 +130,14 @@ mod test {
     fn two_then_parent() {
         let mut fstate = FilterState::default();
         fstate.record(FilterInst::Add(
-            PaperFilterPieceBuilder::default()
-                .author(Regex::new("Chung").unwrap())
+            PaperFilterBuilder::default()
+                .author(vec![Regex::new("Chung").unwrap()])
                 .build()
                 .unwrap(),
         ));
         fstate.record(FilterInst::Add(
-            PaperFilterPieceBuilder::default()
-                .nickname(Regex::new("ShadowTutor").unwrap())
+            PaperFilterBuilder::default()
+                .nickname(vec![Regex::new("ShadowTutor").unwrap()])
                 .build()
                 .unwrap(),
         ));

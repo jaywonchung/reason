@@ -1,5 +1,9 @@
+use rustyline::error::ReadlineError;
+use rustyline::Editor;
+use serde::Serialize;
+
 use crate::cmd::prelude::*;
-use crate::cmd::to_executor;
+use crate::cmd::{parse_command, to_executor};
 use crate::config::Config;
 use crate::error::Fallacy;
 use crate::state::State;
@@ -7,116 +11,105 @@ use crate::state::State;
 pub struct App {
     config: Config,
     state: State,
+    editor: Editor<()>,
 }
 
 impl App {
-    pub fn new(config: Config, state: State) -> Self {
-        Self { config, state }
+    /// Initialize a new Reason app.
+    pub fn startup() -> Result<Self, Box<dyn std::error::Error>> {
+        // Load reason configuration.
+        let config: Config = confy::load("reason")?;
+        let state = State::load(&config.state_path)?;
+
+        // Setup readline.
+        let builder = rustyline::config::Builder::default();
+        let rlconfig = builder
+            .max_history_size(config.max_history_size)
+            .auto_add_history(true)
+            .build();
+        let mut editor = Editor::<()>::with_config(rlconfig);
+
+        // Maybe create and load from command history file.
+        let history_path = &config.history_path;
+        if !history_path.exists() {
+            if let Err(e) = std::fs::File::create(history_path) {
+                eprintln!(
+                    "Failed to create command history file {:?}: {}",
+                    history_path, e
+                );
+            }
+        } else {
+            if let Err(e) = editor.load_history(history_path) {
+                eprintln!(
+                    "Failed to load command history from {:?}: {}",
+                    history_path, e
+                );
+            }
+        }
+
+        Ok(Self {
+            config,
+            state,
+            editor,
+        })
+    }
+
+    /// The main command line loop.
+    pub fn main_loop(&mut self) -> Result<(), Fallacy> {
+        loop {
+            let readline = self.editor.readline(">> ");
+            match readline {
+                Ok(line) => {
+                    self.editor.add_history_entry(line.as_str());
+                    match self.execute(&line) {
+                        Ok(msg) => print!("{}", msg),
+                        Err(e) => println!("{}", e),
+                    }
+                }
+                Err(ReadlineError::Interrupted) => continue,
+                Err(ReadlineError::Eof) => break,
+                Err(e) => {
+                    eprintln!("Error reading from stdin: {}", e);
+                    break;
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Teardown the app.
+    /// This function only prints errors to stderr and does not fail immediately.
+    /// - Save paper metadata state
+    /// - Save readline history
+    pub fn teardown(&mut self) {
+        // Save state to state file.
+        if let Err(e) = self.state.store(&self.config.state_path) {
+            eprintln!("Error during teardown: {}", e);
+        }
+
+        // Save command history to history file.
+        let history_path = &self.config.history_path;
+        if !history_path.exists() {
+            if let Err(e) = std::fs::File::create(history_path) {
+                eprintln!("Error during teardown: {}", Fallacy::HistoryStoreFailed(history_path.to_owned(), e));
+                return;
+            }
+        }
+        if let Err(e) = self.editor.save_history(history_path) {
+            eprintln!("Error during teardown: {}", Fallacy::RLHistoryStoreFailed(history_path.to_owned(), e));
+            return;
+        }
     }
 
     /// Runs a command entered by the user and returns a success or error message.
     /// The command may mutate the current state object.
     pub fn execute(&mut self, command: &str) -> Result<String, Fallacy> {
         // Parse the command.
-        let commands = self.parse_command(command)?;
+        let commands = parse_command(command)?;
 
         // Run the command.
         self.run_command(&commands).map(|output| output.to_string())
-    }
-
-    /// Split chained commands.
-    ///
-    /// Reason implements its own command line parser.
-    /// By default arguments are delimited with whitespace, but they can be chunked
-    /// by grouping them in single quotes.
-    /// Literal single quotes can be entered by escaping them with a backslash.
-    ///
-    /// Multiple commands can be piped with the pipe(`|`) character.
-    fn parse_command(&self, command: &str) -> Result<Vec<Vec<String>>, Fallacy> {
-        let mut current_piece: String = String::new();
-        let mut current_cmd: Vec<String> = Vec::new();
-        let mut parsed_cmds: Vec<Vec<String>> = Vec::new(); // final result
-
-        let mut inside_quotes = false; // whether we're inside single quotes
-        let mut command_iter = command.chars().peekable();
-
-        // A helper closure that consumes all whitespaces from an char peekable iterator.
-        let consume_whitespace = |iter: &mut std::iter::Peekable<core::str::Chars>| {
-            while let Some(c) = iter.peek() {
-                if c.is_whitespace() {
-                    iter.next();
-                } else {
-                    break;
-                }
-            }
-        };
-
-        // Trim whitespace in the beginning.
-        consume_whitespace(&mut command_iter);
-
-        // Parse commands.
-        while let Some(c) = command_iter.next() {
-            // Escaped single quote
-            if c == '\\' && command_iter.peek() == Some(&'\'') {
-                command_iter.next();
-                current_piece.push('\'');
-            }
-            // Unescaped single quote
-            else if c == '\'' {
-                inside_quotes = !inside_quotes;
-            }
-            // Pipe
-            // If we're inside quotes, this is merely a character part of a regex.
-            // Otherwise, this indicates a command chain.
-            else if c == '|' {
-                if inside_quotes {
-                    current_piece.push(c);
-                } else {
-                    // Wrap up the previous command and start a new one.
-                    if current_piece.len() != 0 {
-                        current_cmd.push(String::new());
-                        std::mem::swap(current_cmd.last_mut().unwrap(), &mut current_piece);
-                    }
-                    // Pipe encountered when `current_cmd` is empty: double pipes!
-                    if current_cmd.len() == 0 {
-                        return Err(Fallacy::InvalidCommand("Invalid use of pipes.".to_owned()));
-                    }
-                    parsed_cmds.push(Vec::new());
-                    std::mem::swap(parsed_cmds.last_mut().unwrap(), &mut current_cmd);
-                }
-            }
-            // Whitespace
-            // If we're inside quotes, this is merely a character part of a regex.
-            // Otherwise, this indicates the end of the current piece.
-            else if c.is_whitespace() {
-                if inside_quotes {
-                    current_piece.push(c);
-                } else {
-                    // Consume all whitespaces that follow.
-                    consume_whitespace(&mut command_iter);
-
-                    // Wrap up the previous piece and start a new one.
-                    if current_piece.len() != 0 {
-                        current_cmd.push(String::new());
-                        std::mem::swap(current_cmd.last_mut().unwrap(), &mut current_piece);
-                    }
-                }
-            }
-            // Everything else.
-            else {
-                current_piece.push(c);
-            }
-        }
-        // No need to push empty pieces.
-        if current_piece.len() != 0 {
-            current_cmd.push(current_piece);
-        }
-        // Command ended with a pipe.
-        if current_cmd.len() == 0 && parsed_cmds.len() != 0 {
-            return Err(Fallacy::InvalidCommand("Command ends with a dangling pipe.".to_owned()));
-        }
-        parsed_cmds.push(current_cmd);
-        Ok(parsed_cmds)
     }
 
     fn run_command(&mut self, commands: &Vec<Vec<String>>) -> Result<CommandOutput, Fallacy> {
@@ -172,12 +165,19 @@ mod test {
         ($name:ident: $command:expr, $answer:expr) => {
             #[test]
             fn $name() {
-                let app = App::new(Config::default(), State::default());
+                // let app = App::new(Config::default(), State::default());
                 let answer: Result<Vec<Vec<&str>>, Fallacy> = $answer;
-                let answer: Result<Vec<Vec<String>>, Fallacy> = answer.map(|vec| vec.iter().map(|v| v.iter().map(|s| String::from(*s)).collect()).collect());
-                let parsed = app.parse_command($command);
+                let answer: Result<Vec<Vec<String>>, Fallacy> = answer.map(|vec| {
+                    vec.iter()
+                        .map(|v| v.iter().map(|s| String::from(*s)).collect())
+                        .collect()
+                });
+                let parsed = parse_command($command);
                 if answer.is_err() {
-                    assert_eq!(parsed.unwrap_err().to_string(), answer.unwrap_err().to_string());
+                    assert_eq!(
+                        parsed.unwrap_err().to_string(),
+                        answer.unwrap_err().to_string()
+                    );
                 } else {
                     assert_eq!(parsed.unwrap(), answer.unwrap());
                 }

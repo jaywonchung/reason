@@ -17,6 +17,7 @@ For instance:
 - `open` opens the paper with Zathura.
 - `read` opens the paper with Zathura and also your editor (defaulting to `vim` but abiding by `$EDITOR`), in which you can edit your notes.
 - `top` prints out a summary of your knowledge base.
+- `sync` stores the paper metadata state to disk.
 - `exit` or Ctrl-d quits `reason`.
 
 `ls` in action:
@@ -56,6 +57,7 @@ impl App {
 1             rm(filter)         -> message
 1             top()              -> message
 1             exit()             -> message
+1             sync()             -> message
  2 papers ->  rm()               -> message
 1             set(filter, attr)  -> papers
  2 papers ->  set(attr)          -> papers

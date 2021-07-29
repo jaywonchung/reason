@@ -35,7 +35,7 @@ impl fmt::Display for Papers {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Paper {
     title: String,
     nickname: String,
@@ -46,7 +46,7 @@ pub struct Paper {
     tags: Vec<String>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub enum PaperStatus {
     Added(String),
     Read(String),
