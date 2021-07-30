@@ -10,7 +10,7 @@ use crate::app::App;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Startup Reason.
-    let mut reason = App::startup()?;
+    let mut reason = App::init()?;
 
     // Run the main loop.
     // Errors will not terminate the program. We want to run the teardown logic.

@@ -1,9 +1,9 @@
 use crate::cmd::prelude::*;
 
-pub fn execute<'p>(
-    _input: CommandInput<'p>,
+pub fn execute(
+    _input: CommandInput,
     _state: &mut State,
     _config: &Config,
-) -> Result<CommandOutput<'p>, Fallacy> {
+) -> Result<CommandOutput, Fallacy> {
     Err(Fallacy::ExitReason)
 }

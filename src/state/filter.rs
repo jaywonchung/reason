@@ -23,10 +23,14 @@ impl FilterInst {
     /// Accepts filter arguments given to commands and builds an
     /// instance of `FilterInst`. Remove the command (first argument)
     /// and pass the rest to this function.
-    pub fn from_args(args: &[String]) -> Result<Self, Fallacy> {
+    pub fn from_args(args: &[String], reset_if_empty: bool) -> Result<Self, Fallacy> {
         // No arguments given.
         if args.len() == 0 {
-            Ok(FilterInst::Reset)
+            if reset_if_empty {
+                Ok(FilterInst::Reset)
+            } else {
+                Ok(FilterInst::Here)
+            }
         }
         // Might be special filters.
         else if args.len() == 1 {

@@ -1,6 +1,3 @@
-use std::fmt;
-
-use crate::app::App;
 use crate::config::Config;
 use crate::error::Fallacy;
 use crate::paper::PaperList;
@@ -12,22 +9,21 @@ mod ls;
 pub mod prelude;
 mod pwd;
 
-pub type ExecuteFn<'p> =
-    fn(CommandInput<'p>, &mut State, &Config) -> Result<CommandOutput<'p>, Fallacy>;
+pub type ExecuteFn = fn(CommandInput, &mut State, &Config) -> Result<CommandOutput, Fallacy>;
 
-pub struct CommandInput<'p> {
+pub struct CommandInput {
     pub args: Vec<String>,
-    pub papers: Option<PaperList<'p>>,
+    pub papers: Option<PaperList>,
 }
 
-pub enum CommandOutput<'p> {
+pub enum CommandOutput {
     None,
-    Papers(PaperList<'p>),
+    Papers(PaperList),
     Message(String),
 }
 
-impl<'a, 'p> CommandInput<'p> {
-    pub fn from_output(args: Vec<String>, output: CommandOutput<'p>) -> Self {
+impl CommandInput {
+    pub fn from_output(args: Vec<String>, output: CommandOutput) -> Self {
         let papers = match output {
             CommandOutput::None => None,
             CommandOutput::Message(_) => None,
@@ -37,17 +33,27 @@ impl<'a, 'p> CommandInput<'p> {
     }
 }
 
-impl<'p> fmt::Display for CommandOutput<'p> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl CommandOutput {
+    pub fn into_string(self, state: &State) -> String {
         match self {
-            CommandOutput::None => write!(f, ""),
-            CommandOutput::Message(s) => write!(f, "{}", s),
-            CommandOutput::Papers(p) => write!(f, "{}", p),
+            CommandOutput::None => "".to_string(),
+            CommandOutput::Message(s) => s,
+            CommandOutput::Papers(p) => p.into_string(state),
         }
     }
 }
 
-pub fn to_executor<'p>(command: String) -> Result<ExecuteFn<'p>, Fallacy> {
+// impl<'p> fmt::Display for CommandOutput<'p> {
+//     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+//         match self {
+//             CommandOutput::None => write!(f, ""),
+//             CommandOutput::Message(s) => write!(f, "{}", s),
+//             CommandOutput::Papers(p) => write!(f, "{}", p),
+//         }
+//     }
+// }
+
+pub fn to_executor(command: String) -> Result<ExecuteFn, Fallacy> {
     match command.as_ref() {
         "cd" => Ok(cd::execute),
         "pwd" => Ok(pwd::execute),

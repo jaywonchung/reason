@@ -43,7 +43,7 @@ impl PaperFilter {
 
     /// Merges multiple filters into one.
     pub fn merge(filters: &[Self]) -> Self {
-        let mut merged = PaperFilter::default();
+        let mut merged = Self::default();
         for filter in filters {
             merged.title.extend(filter.title.clone());
             merged.nickname.extend(filter.nickname.clone());
@@ -57,7 +57,44 @@ impl PaperFilter {
 
     /// Check if the filter matches the given paper.
     pub fn matches(&self, paper: &Paper) -> bool {
-        false
+        macro_rules! checker {
+            ($regex_field:ident) => {
+                if !self
+                    .$regex_field
+                    .iter()
+                    .all(|regex| regex.is_match(paper.$regex_field.as_ref()))
+                {
+                    return false;
+                }
+            };
+            ($regex_field:ident, Vector => $vec_field:ident) => {
+                if !self
+                    .$regex_field
+                    .iter()
+                    .all(|regex| paper.$vec_field.iter().any(|field| regex.is_match(field)))
+                {
+                    return false;
+                }
+            };
+            ($regex_field:ident, Getter => $field_getter:expr) => {
+                if !self
+                    .$regex_field
+                    .iter()
+                    .all(|regex| regex.is_match($field_getter))
+                {
+                    return false;
+                }
+            };
+        }
+
+        checker!(title);
+        checker!(nickname);
+        checker!(author, Vector => authors);
+        checker!(first_author, Getter => paper.authors.first().unwrap_or(&"".to_string()));
+        checker!(venue);
+        checker!(year);
+
+        true
     }
 }
 

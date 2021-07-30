@@ -1,8 +1,7 @@
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
 
-use crate::cmd::prelude::*;
-use crate::cmd::{parse_command, to_executor};
+use crate::cmd::{parse_command, to_executor, CommandInput, CommandOutput};
 use crate::config::Config;
 use crate::error::Fallacy;
 use crate::state::State;
@@ -15,7 +14,7 @@ pub struct App {
 
 impl App {
     /// Initialize a new Reason app.
-    pub fn startup() -> Result<Self, Box<dyn std::error::Error>> {
+    pub fn init() -> Result<Self, Box<dyn std::error::Error>> {
         // Load reason configuration.
         let config: Config = confy::load("reason")?;
         let state = State::load(&config.state_path)?;
@@ -112,13 +111,11 @@ impl App {
         let commands = parse_command(command)?;
 
         // Run the command.
-        self.run_command(commands).map(|output| output.to_string())
+        self.run_command(commands)
+            .map(|output| output.into_string(&self.state))
     }
 
-    fn run_command<'p>(
-        &'p mut self,
-        mut commands: Vec<Vec<String>>,
-    ) -> Result<CommandOutput<'p>, Fallacy> {
+    fn run_command(&mut self, mut commands: Vec<Vec<String>>) -> Result<CommandOutput, Fallacy> {
         // Probably impossible.
         if commands.len() == 0 {
             return Ok(CommandOutput::None);

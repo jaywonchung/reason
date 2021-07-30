@@ -4,20 +4,21 @@ use chrono::prelude::*;
 use prettytable::{cell, row, Table};
 use serde::{Deserialize, Serialize};
 
-pub struct PaperList<'p> {
-    papers: &'p Vec<Paper>,
+use crate::state::State;
+
+pub struct PaperList {
     pub selected: Vec<usize>,
 }
 
-impl<'p> PaperList<'p> {
-    pub fn new(papers: &'p Vec<Paper>) -> Self {
-        let selected = (0..papers.len()).collect();
-        Self { papers, selected }
+impl PaperList {
+    pub fn new(length: usize) -> Self {
+        let selected = (0..length).collect();
+        Self { selected }
     }
 }
 
-impl<'p> fmt::Display for PaperList<'p> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl PaperList {
+    pub fn into_string(self, state: &State) -> String {
         let mut table = Table::new();
 
         // First row
@@ -30,8 +31,8 @@ impl<'p> fmt::Display for PaperList<'p> {
         ]);
 
         // One row per paper
-        for &ind in self.selected.iter() {
-            let p = &self.papers[ind];
+        for ind in self.selected {
+            let p = &state.papers[ind];
             table.add_row(row![
                 p.title,
                 p.authors.first().unwrap_or(&"".to_string()),
@@ -41,19 +42,19 @@ impl<'p> fmt::Display for PaperList<'p> {
             ]);
         }
 
-        write!(f, "{}", table)
+        table.to_string()
     }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Paper {
-    title: String,
-    nickname: String,
-    authors: Vec<String>,
-    venue: String,
-    year: u32,
-    state: PaperStatus,
-    tags: Vec<String>,
+    pub title: String,
+    pub nickname: String,
+    pub authors: Vec<String>,
+    pub venue: String,
+    pub year: String,
+    pub state: PaperStatus,
+    // tags: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -64,7 +65,7 @@ pub enum PaperStatus {
 
 impl PaperStatus {
     fn read(&mut self) {
-        *self = Self::Read(Local::now().to_string());
+        *self = Self::Read(Local::today().to_string());
     }
 }
 
