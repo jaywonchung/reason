@@ -1,8 +1,9 @@
 use std::fmt;
 
+use crate::app::App;
 use crate::config::Config;
 use crate::error::Fallacy;
-use crate::paper::Papers;
+use crate::paper::PaperList;
 use crate::state::State;
 
 mod cd;
@@ -12,21 +13,21 @@ pub mod prelude;
 mod pwd;
 
 pub type ExecuteFn<'p> =
-    fn(CommandInput, &'p mut State, &Config) -> Result<CommandOutput<'p>, Fallacy>;
+    fn(CommandInput<'p>, &mut State, &Config) -> Result<CommandOutput<'p>, Fallacy>;
 
-pub struct CommandInput<'a, 'p> {
-    pub args: &'a Vec<String>,
-    pub papers: Option<Papers<'p>>,
+pub struct CommandInput<'p> {
+    pub args: Vec<String>,
+    pub papers: Option<PaperList<'p>>,
 }
 
 pub enum CommandOutput<'p> {
     None,
-    Papers(Papers<'p>),
+    Papers(PaperList<'p>),
     Message(String),
 }
 
-impl<'a, 'p> CommandInput<'a, 'p> {
-    pub fn from_output(args: &'a Vec<String>, output: CommandOutput<'p>) -> Self {
+impl<'a, 'p> CommandInput<'p> {
+    pub fn from_output(args: Vec<String>, output: CommandOutput<'p>) -> Self {
         let papers = match output {
             CommandOutput::None => None,
             CommandOutput::Message(_) => None,
@@ -46,8 +47,8 @@ impl<'p> fmt::Display for CommandOutput<'p> {
     }
 }
 
-pub fn to_executor(command: &str) -> Result<ExecuteFn, Fallacy> {
-    match command {
+pub fn to_executor<'p>(command: String) -> Result<ExecuteFn<'p>, Fallacy> {
+    match command.as_ref() {
         "cd" => Ok(cd::execute),
         "pwd" => Ok(pwd::execute),
         "ls" => Ok(ls::execute),

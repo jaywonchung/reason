@@ -2,8 +2,8 @@ use crate::cmd::prelude::*;
 use crate::state::FilterInst;
 
 pub fn execute<'p>(
-    input: CommandInput,
-    state: &'p mut State,
+    input: CommandInput<'p>,
+    state: &mut State,
     _config: &Config,
 ) -> Result<CommandOutput<'p>, Fallacy> {
     // Convert arguments to a filter.

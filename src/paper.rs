@@ -4,19 +4,19 @@ use chrono::prelude::*;
 use prettytable::{cell, row, Table};
 use serde::{Deserialize, Serialize};
 
-pub struct Papers<'p>(pub Vec<&'p Paper>);
+pub struct PaperList<'p> {
+    papers: &'p Vec<Paper>,
+    pub selected: Vec<usize>,
+}
 
-impl<'a> Papers<'a> {
-    pub fn new() -> Self {
-        Self(Vec::new())
-    }
-
-    pub fn push(&mut self, paper: &'a Paper) {
-        self.0.push(paper);
+impl<'p> PaperList<'p> {
+    pub fn new(papers: &'p Vec<Paper>) -> Self {
+        let selected = (0..papers.len()).collect();
+        Self { papers, selected }
     }
 }
 
-impl<'a> fmt::Display for Papers<'a> {
+impl<'p> fmt::Display for PaperList<'p> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut table = Table::new();
 
@@ -30,7 +30,8 @@ impl<'a> fmt::Display for Papers<'a> {
         ]);
 
         // One row per paper
-        for p in self.0.iter() {
+        for &ind in self.selected.iter() {
+            let p = &self.papers[ind];
             table.add_row(row![
                 p.title,
                 p.authors.first().unwrap_or(&"".to_string()),

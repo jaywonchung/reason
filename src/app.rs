@@ -112,10 +112,13 @@ impl App {
         let commands = parse_command(command)?;
 
         // Run the command.
-        self.run_command(&commands).map(|output| output.to_string())
+        self.run_command(commands).map(|output| output.to_string())
     }
 
-    fn run_command<'p>(&'p mut self, commands: &'p Vec<Vec<String>>) -> Result<CommandOutput<'p>, Fallacy> {
+    fn run_command<'p>(
+        &'p mut self,
+        mut commands: Vec<Vec<String>>,
+    ) -> Result<CommandOutput<'p>, Fallacy> {
         // Probably impossible.
         if commands.len() == 0 {
             return Ok(CommandOutput::None);
@@ -126,9 +129,9 @@ impl App {
             if commands[0].len() == 0 {
                 return Ok(CommandOutput::None);
             } else {
-                let executor = to_executor(&commands[0][0])?;
+                let executor = to_executor(commands[0][0].clone())?;
                 let input = CommandInput {
-                    args: &commands[0],
+                    args: commands.remove(0),
                     papers: None,
                 };
                 return executor(input, &mut self.state, &self.config).map(|o| o.into());
@@ -136,12 +139,13 @@ impl App {
         }
         // A chained command.
         let mut output = CommandOutput::None;
-        for (ind, command) in commands.iter().enumerate() {
+        let num_commands = commands.len();
+        for (ind, command) in commands.into_iter().enumerate() {
             // The command shouldn't be empty.
             if command.len() == 0 {
                 let message: String = if ind == 0 {
                     "Command cannot begin with a pipe.".to_owned()
-                } else if ind == commands.len() - 1 {
+                } else if ind == num_commands - 1 {
                     "Command cannot end with a pipe.".to_owned()
                 } else {
                     "Commands can only be chained with one pipe character.".to_owned()
@@ -152,7 +156,7 @@ impl App {
             // A command is always given arguments. Commands that come after
             // the first one are given papers, but it's up to the command to
             // utilize it.
-            let executor = to_executor(&command[0])?;
+            let executor = to_executor(command[0].clone())?;
             let input = CommandInput::from_output(command, output);
             output = executor(input, &mut self.state, &self.config)?;
         }
