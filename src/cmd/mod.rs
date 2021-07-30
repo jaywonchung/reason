@@ -5,8 +5,10 @@ use crate::error::Fallacy;
 use crate::paper::Papers;
 use crate::state::State;
 
-pub mod cd;
-pub mod ls;
+mod cd;
+mod pwd;
+mod ls;
+mod exit;
 pub mod prelude;
 
 pub type ExecuteFn = fn(CommandInput, &mut State, &Config) -> Result<CommandOutput, Fallacy>;
@@ -45,7 +47,10 @@ impl fmt::Display for CommandOutput {
 
 pub fn to_executor(command: &str) -> Result<ExecuteFn, Fallacy> {
     match command {
+        "cd" => Ok(cd::execute),
+        "pwd" => Ok(pwd::execute),
         "ls" => Ok(ls::execute),
+        "exit" => Ok(exit::execute),
         _ => Err(Fallacy::UnknownCommand(command.to_owned())),
     }
 }

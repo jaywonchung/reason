@@ -30,4 +30,6 @@ pub enum Fallacy {
     FilterBuildFailed(regex::Error),
     #[error("No matching regex for keyword '{0}'")]
     FilterKeywordNoMatch(String),
+    #[error("Exit reason")]
+    ExitReason,
 }

@@ -62,7 +62,7 @@ impl fmt::Display for PaperFilter {
             let joined = filter
                 .iter()
                 .map(|re| re.to_string())
-                .reduce(|a, b| format!("({})|({})", a, b));
+                .reduce(|a, b| format!("{}, {}", a, b));
             if let Some(joined) = joined {
                 ret.push(format!("{} matches '{}'", name, joined));
             }
