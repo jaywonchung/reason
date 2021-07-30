@@ -1,3 +1,4 @@
+use crate::error::Fallacy;
 use crate::filter::PaperFilter;
 
 pub enum FilterInst {
@@ -18,7 +19,32 @@ pub enum FilterInst {
     Prev,
 }
 
-#[derive(Debug)]
+impl FilterInst {
+    /// Accepts filter arguments given to commands and builds an
+    /// instance of `FilterInst`. Remove the command (first argument)
+    /// and pass the rest to this function.
+    pub fn from_args(args: &[String]) -> Result<Self, Fallacy> {
+        // No arguments given.
+        if args.len() == 0 {
+            Ok(FilterInst::Reset)
+        }
+        // Might be special filters.
+        else if args.len() == 1 {
+            match args[0].as_ref() {
+                "." => Ok(Self::Here),
+                ".." => Ok(Self::Parent),
+                "-" => Ok(Self::Prev),
+                _ => Ok(Self::Add(PaperFilter::from_args(args)?)),
+            }
+        }
+        // A normal filter.
+        else {
+            Ok(Self::Add(PaperFilter::from_args(args)?))
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct FilterState {
     history: Vec<PaperFilter>,
     current: usize,
@@ -26,7 +52,14 @@ pub struct FilterState {
 }
 
 impl FilterState {
-    pub fn record(&mut self, inst: FilterInst) {
+    /// Generate the current filter based on history.
+    pub fn current(&self) -> PaperFilter {
+        PaperFilter::merge(&self.history[..self.current + 1])
+    }
+
+    /// Record the given filter instruction in history and generate
+    /// the current filter based on the updated history.
+    pub fn record(&mut self, inst: FilterInst) -> PaperFilter {
         match inst {
             FilterInst::Add(filter) => {
                 self.previous = self.current;
@@ -61,10 +94,15 @@ impl FilterState {
                 std::mem::swap(&mut self.previous, &mut self.current);
             }
         }
+
+        self.current()
     }
 
-    pub fn current(&self) -> PaperFilter {
-        PaperFilter::merge(&self.history[..self.current + 1])
+    /// Observe the given filter instruction but do not record in history.
+    /// Return a filter that would have been generated if the instruction
+    /// were recorded in history.
+    pub fn observe(&self, inst: FilterInst) -> PaperFilter {
+        self.clone().record(inst)
     }
 }
 
@@ -95,7 +133,7 @@ mod test {
     #[test]
     fn one_filter() {
         let mut fstate = FilterState::default();
-        fstate.record(FilterInst::Add(
+        fstate.record(&FilterInst::Add(
             PaperFilterBuilder::default()
                 .author(vec![Regex::new("Chung").unwrap()])
                 .build()
@@ -109,13 +147,13 @@ mod test {
     #[test]
     fn two_filters() {
         let mut fstate = FilterState::default();
-        fstate.record(FilterInst::Add(
+        fstate.record(&FilterInst::Add(
             PaperFilterBuilder::default()
                 .author(vec![Regex::new("Chung").unwrap()])
                 .build()
                 .unwrap(),
         ));
-        fstate.record(FilterInst::Add(
+        fstate.record(&FilterInst::Add(
             PaperFilterBuilder::default()
                 .nickname(vec![Regex::new("ShadowTutor").unwrap()])
                 .build()
@@ -129,19 +167,19 @@ mod test {
     #[test]
     fn two_then_parent() {
         let mut fstate = FilterState::default();
-        fstate.record(FilterInst::Add(
+        fstate.record(&FilterInst::Add(
             PaperFilterBuilder::default()
                 .author(vec![Regex::new("Chung").unwrap()])
                 .build()
                 .unwrap(),
         ));
-        fstate.record(FilterInst::Add(
+        fstate.record(&FilterInst::Add(
             PaperFilterBuilder::default()
                 .nickname(vec![Regex::new("ShadowTutor").unwrap()])
                 .build()
                 .unwrap(),
         ));
-        fstate.record(FilterInst::Prev);
+        fstate.record(&FilterInst::Prev);
         assert_eq!(fstate.history.len(), 3);
         assert_eq!(fstate.current, 1);
         assert_eq!(fstate.previous, 2);

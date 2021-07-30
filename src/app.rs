@@ -1,6 +1,5 @@
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
-use serde::Serialize;
 
 use crate::cmd::prelude::*;
 use crate::cmd::{parse_command, to_executor};
@@ -59,13 +58,11 @@ impl App {
         loop {
             let readline = self.editor.readline(">> ");
             match readline {
-                Ok(line) => {
-                    match self.execute(&line) {
-                        Ok(msg) => print!("{}", msg),
-                        Err(Fallacy::ExitReason) => break,
-                        Err(e) => println!("{}", e),
-                    }
-                }
+                Ok(line) => match self.execute(&line) {
+                    Ok(msg) => print!("{}", msg),
+                    Err(Fallacy::ExitReason) => break,
+                    Err(e) => println!("{}", e),
+                },
                 Err(ReadlineError::Interrupted) => continue,
                 Err(ReadlineError::Eof) => break,
                 Err(e) => {
@@ -92,12 +89,18 @@ impl App {
         let history_path = &self.config.history_path;
         if !history_path.exists() {
             if let Err(e) = std::fs::File::create(history_path) {
-                eprintln!("Error during teardown: {}", Fallacy::HistoryStoreFailed(history_path.to_owned(), e));
+                eprintln!(
+                    "Error during teardown: {}",
+                    Fallacy::HistoryStoreFailed(history_path.to_owned(), e)
+                );
                 return;
             }
         }
         if let Err(e) = self.editor.save_history(history_path) {
-            eprintln!("Error during teardown: {}", Fallacy::RLHistoryStoreFailed(history_path.to_owned(), e));
+            eprintln!(
+                "Error during teardown: {}",
+                Fallacy::RLHistoryStoreFailed(history_path.to_owned(), e)
+            );
             return;
         }
     }
@@ -112,7 +115,7 @@ impl App {
         self.run_command(&commands).map(|output| output.to_string())
     }
 
-    fn run_command(&mut self, commands: &Vec<Vec<String>>) -> Result<CommandOutput, Fallacy> {
+    fn run_command<'p>(&'p mut self, commands: &'p Vec<Vec<String>>) -> Result<CommandOutput<'p>, Fallacy> {
         // Probably impossible.
         if commands.len() == 0 {
             return Ok(CommandOutput::None);
@@ -150,7 +153,7 @@ impl App {
             // the first one are given papers, but it's up to the command to
             // utilize it.
             let executor = to_executor(&command[0])?;
-            let mut input = CommandInput::from_output(command, output);
+            let input = CommandInput::from_output(command, output);
             output = executor(input, &mut self.state, &self.config)?;
         }
         return Ok(output);

@@ -1,9 +1,9 @@
 use crate::cmd::prelude::*;
 
-pub fn execute(
+pub fn execute<'p>(
     _input: CommandInput,
-    state: &mut State,
+    state: &'p mut State,
     _config: &Config,
-) -> Result<CommandOutput, Fallacy> {
+) -> Result<CommandOutput<'p>, Fallacy> {
     Ok(CommandOutput::Message(state.filters.current().to_string()))
 }

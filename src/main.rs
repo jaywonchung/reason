@@ -21,6 +21,5 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Teardown Reason.
     reason.teardown();
 
-
     Ok(())
 }

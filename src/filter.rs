@@ -3,8 +3,9 @@ use std::fmt;
 use regex::Regex;
 
 use crate::error::Fallacy;
+use crate::paper::Paper;
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct PaperFilter {
     pub title: Vec<Regex>,
     pub nickname: Vec<Regex>,
@@ -17,7 +18,8 @@ pub struct PaperFilter {
 
 impl PaperFilter {
     /// Accepts filter arguments given to commands and builds an
-    /// instance of `PaperFilter`.
+    /// instance of `PaperFilter`. Remove the command (first argument)
+    /// and pass the rest to this function.
     pub fn from_args(args: &[String]) -> Result<Self, Fallacy> {
         let mut filter = Self::default();
         let mut arg_iter = args.iter().peekable();
@@ -43,15 +45,19 @@ impl PaperFilter {
     pub fn merge(filters: &[Self]) -> Self {
         let mut merged = PaperFilter::default();
         for filter in filters {
-            let cloned = filter.clone();
             merged.title.extend(filter.title.clone());
-            merged.nickname.extend(cloned.nickname.clone());
-            merged.author.extend(cloned.author.clone());
-            merged.first_author.extend(cloned.first_author.clone());
-            merged.venue.extend(cloned.venue.clone());
-            merged.year.extend(cloned.year.clone());
+            merged.nickname.extend(filter.nickname.clone());
+            merged.author.extend(filter.author.clone());
+            merged.first_author.extend(filter.first_author.clone());
+            merged.venue.extend(filter.venue.clone());
+            merged.year.extend(filter.year.clone());
         }
         merged
+    }
+
+    /// Check if the filter matches the given paper.
+    pub fn matches(&self, paper: &Paper) -> bool {
+        false
     }
 }
 

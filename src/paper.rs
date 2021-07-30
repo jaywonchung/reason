@@ -4,10 +4,19 @@ use chrono::prelude::*;
 use prettytable::{cell, row, Table};
 use serde::{Deserialize, Serialize};
 
-#[derive(Default)]
-pub struct Papers(Vec<Paper>);
+pub struct Papers<'p>(pub Vec<&'p Paper>);
 
-impl fmt::Display for Papers {
+impl<'a> Papers<'a> {
+    pub fn new() -> Self {
+        Self(Vec::new())
+    }
+
+    pub fn push(&mut self, paper: &'a Paper) {
+        self.0.push(paper);
+    }
+}
+
+impl<'a> fmt::Display for Papers<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut table = Table::new();
 

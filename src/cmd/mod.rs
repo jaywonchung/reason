@@ -6,26 +6,27 @@ use crate::paper::Papers;
 use crate::state::State;
 
 mod cd;
-mod pwd;
-mod ls;
 mod exit;
+mod ls;
 pub mod prelude;
+mod pwd;
 
-pub type ExecuteFn = fn(CommandInput, &mut State, &Config) -> Result<CommandOutput, Fallacy>;
+pub type ExecuteFn<'p> =
+    fn(CommandInput, &'p mut State, &Config) -> Result<CommandOutput<'p>, Fallacy>;
 
-pub struct CommandInput<'a> {
+pub struct CommandInput<'a, 'p> {
     pub args: &'a Vec<String>,
-    pub papers: Option<Papers>,
+    pub papers: Option<Papers<'p>>,
 }
 
-pub enum CommandOutput {
+pub enum CommandOutput<'p> {
     None,
-    Papers(Papers),
+    Papers(Papers<'p>),
     Message(String),
 }
 
-impl<'a> CommandInput<'a> {
-    pub fn from_output(args: &'a Vec<String>, output: CommandOutput) -> Self {
+impl<'a, 'p> CommandInput<'a, 'p> {
+    pub fn from_output(args: &'a Vec<String>, output: CommandOutput<'p>) -> Self {
         let papers = match output {
             CommandOutput::None => None,
             CommandOutput::Message(_) => None,
@@ -35,7 +36,7 @@ impl<'a> CommandInput<'a> {
     }
 }
 
-impl fmt::Display for CommandOutput {
+impl<'p> fmt::Display for CommandOutput<'p> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             CommandOutput::None => write!(f, ""),
