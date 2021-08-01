@@ -141,6 +141,10 @@ impl fmt::Display for PaperFilter {
         displayer(&mut segments, &self.venue, "venue");
         displayer(&mut segments, &self.year, "year");
 
-        writeln!(f, "{}", segments.join(", "))
+        if segments.len() == 0 {
+            writeln!(f, "No filters are active.")
+        } else {
+            writeln!(f, "{}", segments.join(", "))
+        }
     }
 }
