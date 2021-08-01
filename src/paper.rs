@@ -33,6 +33,7 @@ impl PaperList {
         // One row per paper
         for ind in self.selected {
             let p = &state.papers[ind];
+            // if p.title.len() > 
             table.add_row(row![
                 p.title,
                 p.authors.first().unwrap_or(&"".to_string()),

@@ -1,0 +1,75 @@
+---
+- title: "Shadowtutor: Distributed Partial Distillation for Mobile Video DNN Inference"
+  nickname: Shadowtutor
+  authors:
+    - Jae-Won Chung
+    - Jaeyun Kim
+    - Soomook Moon
+  venue: ICPP
+  year: "2020"
+  state:
+    Added: 2021-07-31
+- title: "Janus: Fast and Flexible Deep Learning via Symbolic Graph Execution of Imperative Programs"
+  nickname: Janus
+  authors:
+    - Eunji Jeong
+    - Sungwoo Cho
+    - Gyeong-In Yu
+    - Joo Seong Jeong
+    - Dong-Jin Shin
+    - Byung-Gon Chung
+  venue: NSDI
+  year: "2019"
+  state:
+    Added: 2021-07-31
+- title: "CloneCloud: elastic execution between mobile device and cloud"
+  nickname: CloneCloud
+  authors:
+    - Byung-Gon Chun
+    - Shunghwan Ihm
+    - Petros Maniatis
+    - Mayur Naik
+    - Ashwin Patti
+  venue: EuroSys
+  year: "2011"
+  state:
+    Added: 2021-07-31
+- title: "WindTunnel: Towards Differentiable ML Pipelines Beyond a Single Model"
+  nickname: WindTunnel
+  authors:
+    - Gyeong-In Yu
+    - Saeed Amizadeh
+    - Sehoon Kim
+    - Artidoro Pagnoni
+    - Ce Zhang
+    - Byung-Gon Chun
+    - Markus Weimer
+    - Matteo Interlandi
+  venue: VLDB
+  year: "2022"
+  state:
+    Added: 2021-07-31
+- title: "Refurbish Your Training Data: Reusing Partially Augmented Samples for Faster Deep Neural Network Training"
+  nickname: Data Refurbishing
+  authors:
+    - Gyewon Lee
+    - Irene Lee
+    - Hyeongmin Ha
+    - Kyunggeun Lee
+    - Hwarim Hyun
+    - Ahnjae Shin
+    - Byung-Gon Chun
+  venue: ATC
+  year: "2021"
+  state:
+    Added: 2021-07-31
+- title: Finding Consensus Bugs in Etherium via Multi-transaction Differential Fuzzing
+  nickname: Fluffy
+  authors:
+    - Youngseok Yang
+    - Taesoo Kim
+    - Byung-Gon Chun
+  venue: OSDI
+  year: "2021"
+  state:
+    Added: 2021-07-31

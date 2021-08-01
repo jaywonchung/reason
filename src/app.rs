@@ -16,7 +16,18 @@ impl App {
     /// Initialize a new Reason app.
     pub fn init() -> Result<Self, Box<dyn std::error::Error>> {
         // Load reason configuration.
-        let config: Config = confy::load("reason")?;
+        let config: Config = match home::home_dir() {
+            Some(mut p) => {
+                p.push(".config/reason/config.toml");
+                confy::load_path(p)?
+            }
+            None => {
+                eprintln!("Failed to find your home directory. Using default configuration.");
+                Config::default()
+            }
+        };
+
+        // Load metadata state.
         let state = State::load(&config.state_path)?;
 
         // Setup readline.

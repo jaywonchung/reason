@@ -1,6 +1,5 @@
 use std::path::PathBuf;
 
-use directories_next::ProjectDirs;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
@@ -12,14 +11,13 @@ pub struct Config {
 
 impl Default for Config {
     fn default() -> Self {
-        // Generate default paths.
-        // Try to follow the XDG base directory specification, but fall back to the
-        // current working directory if not possible.
-        // These paths are not created yet.
-        let data_dir = match ProjectDirs::from("rs", "reason", "reason") {
-            Some(project_dir) => project_dir.data_dir().to_path_buf(),
+        let data_dir = match home::home_dir() {
+            Some(mut p) => {
+                p.push(".local/share/reason");
+                p
+            }
             None => {
-                eprintln!("User home directory not found. Storing state to the current working directory.");
+                eprintln!("Failed to find your home directory. Using the current directory to save state and history.");
                 PathBuf::from(".")
             }
         };
