@@ -36,7 +36,10 @@ impl PaperFilter {
                 Some(string) => string,
                 None => return Err(Fallacy::FilterKeywordNoMatch(arg.to_string())),
             };
-            place.push(Regex::new(item)?);
+            match Regex::new(item) {
+                Ok(regex) => place.push(regex),
+                Err(e) => return Err(Fallacy::FilterBuildFailed(e)),
+            }
         }
         Ok(filter)
     }
@@ -91,6 +94,26 @@ impl PaperFilter {
         checker!(nickname);
         checker!(author, Vector => authors);
         checker!(first_author, Getter => paper.authors.first().unwrap_or(&"".to_string()));
+        checker!(venue);
+        checker!(year);
+
+        true
+    }
+
+    /// Check if this filter is empty.
+    pub fn is_empty(&self) -> bool {
+        macro_rules! checker {
+            ($field:ident) => {
+                if self.$field.len() != 0 {
+                    return false;
+                }
+            }
+        }
+
+        checker!(title);
+        checker!(nickname);
+        checker!(author);
+        checker!(first_author);
         checker!(venue);
         checker!(year);
 

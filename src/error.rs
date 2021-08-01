@@ -26,7 +26,7 @@ pub enum Fallacy {
     InvalidFilter(#[from] regex::Error),
     #[error("Invalid command: {0}")]
     InvalidCommand(String),
-    #[error("Failed to build filter from regex: '{0}'")]
+    #[error("Failed to build filter from regex:\n{0}")]
     FilterBuildFailed(regex::Error),
     #[error("No matching regex for keyword '{0}'")]
     FilterKeywordNoMatch(String),

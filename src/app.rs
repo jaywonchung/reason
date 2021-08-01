@@ -147,18 +147,10 @@ impl App {
         }
         // A chained command.
         let mut output = CommandOutput::None;
-        let num_commands = commands.len();
-        for (ind, command) in commands.into_iter().enumerate() {
+        for command in commands.into_iter() {
             // The command shouldn't be empty.
             if command.len() == 0 {
-                let message: String = if ind == 0 {
-                    "Command cannot begin with a pipe.".to_owned()
-                } else if ind == num_commands - 1 {
-                    "Command cannot end with a pipe.".to_owned()
-                } else {
-                    "Commands can only be chained with one pipe character.".to_owned()
-                };
-                return Err(Fallacy::InvalidCommand(message));
+                return Err(Fallacy::InvalidCommand("Command cannot be empty.".to_owned()));
             }
             // Run the command.
             // A command is always given arguments. Commands that come after
@@ -170,89 +162,4 @@ impl App {
         }
         return Ok(output);
     }
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    macro_rules! parse_test {
-        ($name:ident: $command:expr, $answer:expr) => {
-            #[test]
-            fn $name() {
-                // let app = App::new(Config::default(), State::default());
-                let answer: Result<Vec<Vec<&str>>, Fallacy> = $answer;
-                let answer: Result<Vec<Vec<String>>, Fallacy> = answer.map(|vec| {
-                    vec.iter()
-                        .map(|v| v.iter().map(|s| String::from(*s)).collect())
-                        .collect()
-                });
-                let parsed = parse_command($command);
-                if answer.is_err() {
-                    assert_eq!(
-                        parsed.unwrap_err().to_string(),
-                        answer.unwrap_err().to_string()
-                    );
-                } else {
-                    assert_eq!(parsed.unwrap(), answer.unwrap());
-                }
-            }
-        };
-    }
-
-    // Correct commands
-    parse_test!(normal_single:
-        "ls shadowtutor",
-        Ok(vec![vec!["ls", "shadowtutor"]])
-    );
-    parse_test!(normal_many:
-        "ls   shadowtutor by  	Chung  ",
-        Ok(vec![vec!["ls", "shadowtutor", "by", "Chung"]])
-    );
-    parse_test!(pipe_single:
-        "ls shadowtutor | printf",
-        Ok(vec![vec!["ls", "shadowtutor"], vec!["printf"]])
-    );
-    parse_test!(pipe_many:
-        "ls shadow|tutor by| Chung on icpp |2020 ",
-        Ok(vec![vec!["ls", "shadow"], vec!["tutor", "by"], vec!["Chung", "on", "icpp"], vec!["2020"]])
-    );
-    parse_test!(quote_whitespace:
-        "ls 'shadow tutor'",
-        Ok(vec![vec!["ls", "shadow tutor"]])
-    );
-    parse_test!(quote_pipe:
-        "ls 'shadow|tutor'",
-        Ok(vec![vec!["ls", "shadow|tutor"]])
-    );
-    parse_test!(all_in_one:
-        r"  ls  ' shadow| tutor\'' | 'printf ' 	 this\' paper  ",
-        Ok(vec![vec!["ls", " shadow| tutor'"], vec!["printf ", "this'", "paper"]])
-    );
-    parse_test!(empty:
-        "",
-        Ok(vec![vec![]])
-    );
-
-    // Wrong commands
-    parse_test!(double_pipe:
-        "ls shadowtutor || printf",
-        Err(Fallacy::InvalidCommand("Invalid use of pipes.".to_owned()))
-    );
-    parse_test!(ends_with_pipe1:
-        "ls shadowtutor|",
-        Err(Fallacy::InvalidCommand("Command ends with a dangling pipe.".to_owned()))
-    );
-    parse_test!(ends_with_pipe2:
-        "ls shadowtutor | ",
-        Err(Fallacy::InvalidCommand("Command ends with a dangling pipe.".to_owned()))
-    );
-    parse_test!(starts_with_pipe1:
-        "|ls shadowtutor",
-        Err(Fallacy::InvalidCommand("Invalid use of pipes.".to_owned()))
-    );
-    parse_test!(starts_with_pipe2:
-        "|  ls shadowtutor",
-        Err(Fallacy::InvalidCommand("Invalid use of pipes.".to_owned()))
-    );
 }

@@ -15,9 +15,16 @@ pub fn execute(
 
     // Filter papers.
     let mut selected = Vec::new();
-    for (ind, paper) in state.papers.iter().enumerate() {
-        if filter.matches(paper) {
-            selected.push(ind);
+    // Shortcut path for listing all papers.
+    if filter.is_empty() {
+        selected = (0..state.papers.len()).collect();
+    }
+    // Our filter is not empty.
+    else {
+        for (ind, paper) in state.papers.iter().enumerate() {
+            if filter.matches(paper) {
+                selected.push(ind);
+            }
         }
     }
 

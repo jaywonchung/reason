@@ -1,7 +1,7 @@
 use std::fmt;
 
 use chrono::prelude::*;
-use prettytable::{cell, row, Table};
+use comfy_table::{Attribute, Cell, CellAlignment, ContentArrangement, Table};
 use serde::{Deserialize, Serialize};
 
 use crate::state::State;
@@ -11,39 +11,34 @@ pub struct PaperList {
 }
 
 impl PaperList {
-    pub fn new(length: usize) -> Self {
-        let selected = (0..length).collect();
-        Self { selected }
-    }
-}
-
-impl PaperList {
     pub fn into_string(self, state: &State) -> String {
         let mut table = Table::new();
 
+        // Content width is dynamically arranged.
+        table.set_content_arrangement(ContentArrangement::Dynamic);
+
         // First row
-        table.add_row(row![
-            bc->"Title",
-            bc->"First Author",
-            bc->"Venue",
-            bc->"Year",
-            bc->"State"
+        table.set_header(vec![
+            Cell::new("Title").set_alignment(CellAlignment::Center).add_attribute(Attribute::Bold),
+            Cell::new("First Author").set_alignment(CellAlignment::Center).add_attribute(Attribute::Bold),
+            Cell::new("Venue").set_alignment(CellAlignment::Center).add_attribute(Attribute::Bold),
+            Cell::new("Year").set_alignment(CellAlignment::Center).add_attribute(Attribute::Bold),
+            Cell::new("State").set_alignment(CellAlignment::Center).add_attribute(Attribute::Bold),
         ]);
 
         // One row per paper
         for ind in self.selected {
             let p = &state.papers[ind];
-            // if p.title.len() > 
-            table.add_row(row![
-                p.title,
-                p.authors.first().unwrap_or(&"".to_string()),
-                p.venue,
+            table.add_row(vec![
+                p.title.to_string(),
+                p.authors.first().unwrap_or(&"".to_string()).to_string(),
+                p.venue.to_string(),
                 p.year.to_string(),
-                p.state.to_string(),
+                p.state.to_string()
             ]);
         }
 
-        table.to_string()
+        table.to_string() + "\n"
     }
 }
 
