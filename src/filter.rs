@@ -22,13 +22,13 @@ impl PaperFilter {
     /// and pass the rest to this function.
     pub fn from_args(args: &[String]) -> Result<Self, Fallacy> {
         let mut filter = Self::default();
-        let mut arg_iter = args.iter().peekable();
+        let mut arg_iter = args.iter();
         while let Some(arg) = arg_iter.next() {
             let (place, item) = match arg.as_ref() {
                 "as" => (&mut filter.nickname, arg_iter.next()),
                 "by" => (&mut filter.author, arg_iter.next()),
                 "by1" => (&mut filter.first_author, arg_iter.next()),
-                "at" | "on" => (&mut filter.venue, arg_iter.next()),
+                "at" => (&mut filter.venue, arg_iter.next()),
                 "in" => (&mut filter.year, arg_iter.next()),
                 _ => (&mut filter.title, Some(arg)),
             };
@@ -70,7 +70,7 @@ impl PaperFilter {
                     return false;
                 }
             };
-            ($regex_field:ident, Vector => $vec_field:ident) => {
+            ($regex_field:ident, vector => $vec_field:ident) => {
                 if !self
                     .$regex_field
                     .iter()
@@ -79,7 +79,7 @@ impl PaperFilter {
                     return false;
                 }
             };
-            ($regex_field:ident, Getter => $field_getter:expr) => {
+            ($regex_field:ident, getter => $field_getter:expr) => {
                 if !self
                     .$regex_field
                     .iter()
@@ -91,9 +91,9 @@ impl PaperFilter {
         }
 
         checker!(title);
-        checker!(nickname);
-        checker!(author, Vector => authors);
-        checker!(first_author, Getter => paper.authors.first().unwrap_or(&"".to_string()));
+        checker!(nickname, getter => paper.nickname.as_ref().unwrap_or(&"".to_string()));
+        checker!(author, vector => authors);
+        checker!(first_author, getter => paper.authors.first().unwrap_or(&"".to_string()));
         checker!(venue);
         checker!(year);
 
@@ -107,7 +107,7 @@ impl PaperFilter {
                 if self.$field.len() != 0 {
                     return false;
                 }
-            }
+            };
         }
 
         checker!(title);

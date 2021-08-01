@@ -7,8 +7,9 @@
     - Soomook Moon
   venue: ICPP
   year: "2020"
+  filepath: ~
   state:
-    Added: 2021-07-31
+    - Read: "2021-07-31 03:48:24 PM"
 - title: "Janus: Fast and Flexible Deep Learning via Symbolic Graph Execution of Imperative Programs"
   nickname: Janus
   authors:
@@ -20,8 +21,9 @@
     - Byung-Gon Chung
   venue: NSDI
   year: "2019"
+  filepath: ~
   state:
-    Added: 2021-07-31
+    - Added: "2021-07-31 05:02:58 PM"
 - title: "CloneCloud: elastic execution between mobile device and cloud"
   nickname: CloneCloud
   authors:
@@ -32,8 +34,9 @@
     - Ashwin Patti
   venue: EuroSys
   year: "2011"
+  filepath: ~
   state:
-    Added: 2021-07-31
+    - Added: "2021-07-31 10:29:10 PM"
 - title: "WindTunnel: Towards Differentiable ML Pipelines Beyond a Single Model"
   nickname: WindTunnel
   authors:
@@ -47,8 +50,9 @@
     - Matteo Interlandi
   venue: VLDB
   year: "2022"
+  filepath: ~
   state:
-    Added: 2021-07-31
+    - Added: "2021-07-31 10:30:01 PM"
 - title: "Refurbish Your Training Data: Reusing Partially Augmented Samples for Faster Deep Neural Network Training"
   nickname: Data Refurbishing
   authors:
@@ -61,8 +65,9 @@
     - Byung-Gon Chun
   venue: ATC
   year: "2021"
+  filepath: ~
   state:
-    Added: 2021-07-31
+    - Added: "2021-07-31 11:22:59 PM"
 - title: Finding Consensus Bugs in Etherium via Multi-transaction Differential Fuzzing
   nickname: Fluffy
   authors:
@@ -71,5 +76,31 @@
     - Byung-Gon Chun
   venue: OSDI
   year: "2021"
+  filepath: ~
   state:
-    Added: 2021-07-31
+    - Added: "2021-07-31 11:23:01 PM"
+- title: "Harmony: A Scheduling Framework Optimized for Multiple Distributed Machine Learning Jobs"
+  nickname: Harmony
+  authors:
+    - Woo-Yeon Lee
+    - Yunseong Lee
+    - Wonwook Song
+    - Yongseok Yang
+    - Joo Yeon Kim
+    - Byung-Gon Chun
+  venue: ICDCS
+  year: "2021"
+  filepath: ~
+  state:
+    - Added: "2021-08-02 02:36:50 AM"
+- title: "Pluto: High-Performance IoT-Aware Stream Processing"
+  nickname: ~
+  authors:
+    - Taegeon Um
+    - Gyewon Lee
+    - Byung-Gon Chun
+  venue: ICDCS
+  year: "2021"
+  filepath: ~
+  state:
+    - Added: "2021-08-02 02:36:59 AM"

@@ -8,6 +8,7 @@ mod exit;
 mod ls;
 pub mod prelude;
 mod pwd;
+mod touch;
 
 pub type ExecuteFn = fn(CommandInput, &mut State, &Config) -> Result<CommandOutput, Fallacy>;
 
@@ -49,6 +50,7 @@ pub fn to_executor(command: String) -> Result<ExecuteFn, Fallacy> {
         "pwd" => Ok(pwd::execute),
         "ls" => Ok(ls::execute),
         "exit" => Ok(exit::execute),
+        "touch" => Ok(touch::execute),
         _ => Err(Fallacy::UnknownCommand(command.to_owned())),
     }
 }
@@ -86,7 +88,9 @@ pub fn parse_command(command: &str) -> Result<Vec<Vec<String>>, Fallacy> {
 
     // Command shouldn't start with a pipe.
     if command_iter.peek() == Some(&'|') {
-        return Err(Fallacy::InvalidCommand("Command cannot start with a pipe.".to_owned()));
+        return Err(Fallacy::InvalidCommand(
+            "Command cannot start with a pipe.".to_owned(),
+        ));
     }
 
     // Parse commands.

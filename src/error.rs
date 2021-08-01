@@ -30,6 +30,12 @@ pub enum Fallacy {
     FilterBuildFailed(regex::Error),
     #[error("No matching regex for keyword '{0}'")]
     FilterKeywordNoMatch(String),
+    #[error("Duplicate field keyword specified: '{0}'")]
+    PaperDuplicateField(String),
+    #[error("Required field keywords not given: {0}")]
+    PaperMissingFields(String),
+    #[error("Specified file path does not exist: '{0}'")]
+    PaperPathDoesNotExist(String),
     #[error("Exit reason")]
     ExitReason,
 }

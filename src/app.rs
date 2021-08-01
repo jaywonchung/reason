@@ -137,6 +137,10 @@ impl App {
             if commands[0].len() == 0 {
                 return Ok(CommandOutput::None);
             } else {
+                // Skip comments.
+                if commands[0][0] == "#" {
+                    return Ok(CommandOutput::None);
+                }
                 let executor = to_executor(commands[0][0].clone())?;
                 let input = CommandInput {
                     args: commands.remove(0),
@@ -150,7 +154,9 @@ impl App {
         for command in commands.into_iter() {
             // The command shouldn't be empty.
             if command.len() == 0 {
-                return Err(Fallacy::InvalidCommand("Command cannot be empty.".to_owned()));
+                return Err(Fallacy::InvalidCommand(
+                    "Command cannot be empty.".to_owned(),
+                ));
             }
             // Run the command.
             // A command is always given arguments. Commands that come after
