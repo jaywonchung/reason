@@ -69,7 +69,8 @@ No filters are active.
 | Shadowtutor: Distributed Partial Distillation for Mobile | Jae-Won Chung | ICPP  | 2020 |
 | Video DNN Inference                                      |               |       |      |
 +----------------------------------------------------------+---------------+-------+------+
->> touch 'Hippo: Taming Hyper-parameter Optimization of Deep Learning with Stage Trees' by 'Ahnjae Shin, Do Yoon Kim, Joo Seong Jeong, Byung-Gon Chun' at arXiv in 2020 as Hippo
+>> touch 'Hippo: Taming Hyper-parameter Optimization of Deep Learning with Stage Trees'
+by 'Ahnjae Shin, Do Yoon Kim, Joo Seong Jeong, Byung-Gon Chun' at arXiv in 2020 as Hippo
 +--------------------------------------------------------------+--------------+-------+------+
 |                             title                            | first author | venue | year |
 +============================================================================================+
