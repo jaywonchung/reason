@@ -31,7 +31,7 @@ impl App {
         };
 
         // Check and fix the contents of the config.
-        config.audit()?;
+        config.validate()?;
 
         // Load metadata state.
         let state = State::load(&config.storage.paper_metadata)?;

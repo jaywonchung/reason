@@ -29,16 +29,16 @@ pub struct DisplayConfig {
 }
 
 impl Config {
-    pub fn audit(&mut self) -> Result<(), Fallacy> {
-        self.storage.audit()?;
-        self.filter.audit()?;
-        self.display.audit()?;
+    pub fn validate(&mut self) -> Result<(), Fallacy> {
+        self.storage.validate()?;
+        self.filter.validate()?;
+        self.display.validate()?;
         Ok(())
     }
 }
 
 impl StorageConfig {
-    fn audit(&mut self) -> Result<(), Fallacy> {
+    fn validate(&mut self) -> Result<(), Fallacy> {
         expand_tilde(&mut self.paper_metadata)?;
         expand_tilde(&mut self.command_history)?;
         Ok(())
@@ -46,17 +46,20 @@ impl StorageConfig {
 }
 
 impl FilterConfig {
-    fn audit(&mut self) -> Result<(), Fallacy> {
+    fn validate(&mut self) -> Result<(), Fallacy> {
         Ok(())
     }
 }
 
 impl DisplayConfig {
-    fn audit(&mut self) -> Result<(), Fallacy> {
+    fn validate(&mut self) -> Result<(), Fallacy> {
         let allowed_columns = vec!["title", "authors", "first author", "venue", "year", "state"];
         for col in self.table_columns.iter() {
             if !allowed_columns.contains(&&col[..]) {
-                return Err(Fallacy::ConfigAuditError(format!("Table column name {} is not supported.", col)));
+                return Err(Fallacy::ConfigAuditError(format!(
+                    "Table column name {} is not supported.",
+                    col
+                )));
             }
         }
         Ok(())
