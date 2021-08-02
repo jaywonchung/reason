@@ -24,7 +24,7 @@
   filepath: ~
   state:
     - Added: "2021-07-31 05:02:58 PM"
-- title: "CloneCloud: elastic execution between mobile device and cloud"
+- title: "CloneCloud: Elastic Execution Between Mobile Device and Cloud"
   nickname: CloneCloud
   authors:
     - Byung-Gon Chun
@@ -93,14 +93,27 @@
   filepath: ~
   state:
     - Added: "2021-08-02 02:36:50 AM"
-- title: "Pluto: High-Performance IoT-Aware Stream Processing"
-  nickname: ~
+- title: "Nimble: Lightweight and Parallel GPU Task Scheduling for Deep Learning"
+  nickname: Nimble
   authors:
-    - Taegeon Um
-    - Gyewon Lee
+    - Woosuk Kwon
+    - Gyeong-In Yu
+    - Eunji Jeong
     - Byung-Gon Chun
-  venue: ICDCS
-  year: "2021"
+  venue: NeurIPS
+  year: "2020"
   filepath: ~
   state:
-    - Added: "2021-08-02 02:36:59 AM"
+    - Added: "2021-08-01 02:36:59 AM"
+- title: "Hippo: Taming Hyper-parameter Optimization of Deep Learning with Stage Trees"
+  nickname: Hippo
+  authors:
+    - Ahnjae Shin
+    - Do Yoon Kim
+    - Joo Seong Jeong
+    - Byung-Gon Chun
+  venue: arXiv
+  year: "2020"
+  filepath: ~
+  state:
+    - Added: "2021-08-02 11:38:11 PM"

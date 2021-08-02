@@ -7,70 +7,123 @@
 
 Well, ask `reason`!
 
-Invoking `reason` will start a new command prompt. It accepts unix-like commands that instead work on research papers in your paperbase.
+## How it works
 
-For instance:
-- `ls` filters and prints papers in table format. Default columns are title, nickname(as), first author(by1), venue(at), and year(in).
-- `sort` sorts papers by given columns.
-- `cd` adds an AND filter to the default set of filters (which is empty upon startup).
-- `pwd` shows the current default filter set by `cd`.
-- `touch` creates a new entry in your knowledge base.
-- `rm` removes an entry from your knowledge base.
-- `set` sets attributes of papers.
-- `stat` prints the metadata and notes of papers.
-- `printf` creates an HTML page of your note using mdbook. It supports outputing the page with a ToC that resembles your current filters.
-- `open` opens the paper with Zathura.
-- `read` opens the paper with Zathura and also your editor (defaulting to `vim` but abiding by `$EDITOR`), in which you can edit your notes.
-- `top` prints out a summary of your knowledge base.
-- `sync` stores the paper metadata state to disk.
-- `exit` or Ctrl-d quits `reason`.
-
-`ls` in action:
 ```bash
 $ reason
-> ls
-# all papers
-> ls shadowtutor
-# papers with 'shadowtutor' in its title
-> ls * by Chung at icpp on 2020
-# papers with 'Chung' in the name of at least one author, published at icpp on the year 2020
+>> ls
++----------------------------------------------------------+----------------+---------+------+
+|                           title                          |  first author  |  venue  | year |
++============================================================================================+
+| Shadowtutor: Distributed Partial Distillation for Mobile | Jae-Won Chung  | ICPP    | 2020 |
+| Video DNN Inference                                      |                |         |      |
+|----------------------------------------------------------+----------------+---------+------|
+| Janus: Fast and Flexible Deep Learning via Symbolic      | Eunji Jeong    | NSDI    | 2019 |
+| Graph Execution of Imperative Programs                   |                |         |      |
+|----------------------------------------------------------+----------------+---------+------|
+| CloneCloud: elastic execution between mobile device and  | Byung-Gon Chun | EuroSys | 2011 |
+| cloud                                                    |                |         |      |
+|----------------------------------------------------------+----------------+---------+------|
+| WindTunnel: Towards Differentiable ML Pipelines Beyond a | Gyeong-In Yu   | VLDB    | 2022 |
+| Single Model                                             |                |         |      |
+|----------------------------------------------------------+----------------+---------+------|
+| Nimble: Lightweight and Parallel GPU Task Scheduling for | Woosuk Kwon    | NeurIPS | 2020 |
+| Deep Learning                                            |                |         |      |
+|----------------------------------------------------------+----------------+---------+------|
+| Refurbish Your Training Data: Reusing Partially          | Gyewon Lee     | ATC     | 2021 |
+| Augmented Samples for Faster Deep Neural Network         |                |         |      |
+| Training                                                 |                |         |      |
+|----------------------------------------------------------+----------------+---------+------|
+| Finding Consensus Bugs in Etherium via Multi-transaction | Youngseok Yang | OSDI    | 2021 |
+| Differential Fuzzing                                     |                |         |      |
++----------------------------------------------------------+----------------+---------+------+
+>> ls 'Deep Learning'
++------------------------------------------------------------+--------------+---------+------+
+|                            title                           | first author |  venue  | year |
++============================================================================================+
+| Janus: Fast and Flexible Deep Learning via Symbolic Graph  | Eunji Jeong  | NSDI    | 2019 |
+| Execution of Imperative Programs                           |              |         |      |
+|------------------------------------------------------------+--------------+---------+------|
+| Nimble: Lightweight and Parallel GPU Task Scheduling for   | Woosuk Kwon  | NeurIPS | 2020 |
+| Deep Learning                                              |              |         |      |
++------------------------------------------------------------+--------------+---------+------+
+>> cd 'Deep Learning'
+>> pwd
+title matches 'Deep Learning'
+>> ls in NSDI
++-----------------------------------------------------------+--------------+-------+------+
+|                           title                           | first author | venue | year |
++=========================================================================================+
+| Janus: Fast and Flexible Deep Learning via Symbolic Graph | Eunji Jeong  | NSDI  | 2019 |
+| Execution of Imperative Programs                          |              |       |      |
++-----------------------------------------------------------+--------------+-------+------+
+>> cd ..
+>> pwd
+No filters are active.
+>> ls mobile by1 Chung
++----------------------------------------------------------+---------------+-------+------+
+|                           title                          |  first author | venue | year |
++=========================================================================================+
+| Shadowtutor: Distributed Partial Distillation for Mobile | Jae-Won Chung | ICPP  | 2020 |
+| Video DNN Inference                                      |               |       |      |
++----------------------------------------------------------+---------------+-------+------+
+>> touch 'Hippo: Taming Hyper-parameter Optimization of Deep Learning with Stage Trees' by 'Ahnjae Shin, Do Yoon Kim, Joo Seong Jeong, Byung-Gon Chun' at arXiv in 2020 as Hippo
++--------------------------------------------------------------+--------------+-------+------+
+|                             title                            | first author | venue | year |
++============================================================================================+
+| Hippo: Taming Hyper-parameter Optimization of Deep Learning  | Ahnjae Shin  | arXiv | 2020 |
+| with Stage Trees                                             |              |       |      |
++--------------------------------------------------------------+--------------+-------+------+
 ```
 
-## Implementation
+Invoking `reason` will start a new command prompt. It accepts unix-like commands that instead work on research papers in your paperbase.
 
-- `rustylines`: Used to receive user input and provide completions for paper titles, names, and tags.
-- `serde` and `serde-yaml`: Use yaml to store paper metadata.
-- `mdbook`: Used to render and open notes.
+Many commands will become available over time:
+- `ls` filters and prints papers in table format. Default columns are title, first author(by1), venue(at), and year(in).
+- `cd` adds an AND filter to the default set of filters (which is empty upon startup).
+- `pwd` shows the current default filter set by `cd`.
+- `touch` creates a new entry in your paperbase.
+- `rm` removes entries from your paperbase.
+- `sort` sorts papers by given columns.
+- `set` sets attributes of papers.
+- `stat` prints the metadata and notes of papers.
+- `printf` creates an HTML page of your notes using `mdbook`.
+- `open` opens the paper with Zathura.
+- `read` opens the paper with Zathura and also your editor (defaulting to `vim` but abiding by `$EDITOR`), in which you can edit your notes.
+- `top` prints out a summary of your paperbase.
+- `sync` stores the paper metadata state to disk.
+- `man` plus a command will print documentation for that command.
+- `exit` or Ctrl-d quits `reason`.
 
+## Todo
 
+Shell-like experience
+- [x] Run commands.
+- [x] Support pipes between commands. A command passes a list of papers to the next command.
+- [x] GNU Readline features (up arrow, down arrow, Ctrl-A, Ctrl-E, Ctrl-L, etc).
 
-struct App {
-  state,
-  config,
-}
+Configuration
+- [x] Allowing configuration.
+- [ ] Tweaking table appearance.
+- [ ] Regex-related (?)
 
-impl App {
-  fn run_command();
-}
+Paper metadata
+- [ ] Support tags or labels (with keyword 'is'?)
 
-// Commands
-// allowed_positions piped_input -> command(argument_input) -> output
-1             ls(filter)         -> papers
-1             cd(filter)         -> message
-1             pwd()              -> message
-1             touch(filename)    -> papers
-1             rm(filter)         -> message
-1             top()              -> message
-1             exit()             -> message
-1             sync()             -> message
- 2 papers ->  rm()               -> message
-1             set(filter, attr)  -> papers
- 2 papers ->  set(attr)          -> papers
-1             stat(filter)       -> message
- 2 papers ->  stat()             -> message
-1             printf(filter)     -> exec
- 2 papers ->  printf()           -> exec
-1             open(filter)       -> exec
- 2 papers ->  open()             -> exec
-1             read(filter)       -> exec
- 2 papers ->  read()             -> exec
+Commands
+- [x] `ls`
+- [x] `cd`
+- [x] `pwd`
+- [x] `touch`
+- [x] `exit`
+- [ ] `rm`
+- [ ] `sort`
+- [ ] `set`
+- [ ] `stat`
+- [ ] `printf`
+- [ ] `open`
+- [ ] `read`
+- [ ] `top`
+- [ ] `sync`
+- [ ] `man`
+- [x] `exit`

@@ -54,6 +54,13 @@ impl FilterConfig {
 impl DisplayConfig {
     fn validate(&mut self) -> Result<(), Fallacy> {
         let allowed_columns = vec!["title", "authors", "first author", "venue", "year", "state"];
+
+        // Convert everything to lowercase.
+        for field in &mut self.table_columns {
+            *field = field.to_lowercase();
+        }
+
+        // Check table columns.
         for col in self.table_columns.iter() {
             if !allowed_columns.contains(&&col[..]) {
                 return Err(Fallacy::ConfigAuditError(format!(
@@ -109,7 +116,7 @@ impl Default for FilterConfig {
 
 impl Default for DisplayConfig {
     fn default() -> Self {
-        let table_columns = vec!["Title", "First Author", "Venue", "Year", "State"];
+        let table_columns = vec!["title", "first author", "venue", "year", "state"];
         let table_columns = table_columns.into_iter().map(|s| s.to_string()).collect();
 
         Self { table_columns }

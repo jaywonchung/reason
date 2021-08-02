@@ -159,7 +159,7 @@ impl Paper {
             "first author" => self.authors.first().unwrap().clone(),
             "venue" => self.venue.clone(),
             "year" => self.year.clone(),
-            "state" => self.state.first().unwrap().to_string(),
+            "state" => self.state.last().unwrap().to_string(),
             _ => "".to_string(),
         }
     }

@@ -13,7 +13,6 @@ pub struct PaperFilter {
     pub first_author: Vec<Regex>,
     pub venue: Vec<Regex>,
     pub year: Vec<Regex>,
-    // TODO: tags or labels
 }
 
 impl PaperFilter {
@@ -96,7 +95,7 @@ impl PaperFilter {
         checker!(title);
         checker!(nickname, getter => paper.nickname.as_ref().unwrap_or(&"".to_string()));
         checker!(author, vector => authors);
-        checker!(first_author, getter => paper.authors.first().unwrap_or(&"".to_string()));
+        checker!(first_author, getter => paper.authors.first().unwrap());
         checker!(venue);
         checker!(year);
 
