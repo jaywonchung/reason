@@ -1,6 +1,6 @@
 use std::fmt;
 
-use regex::Regex;
+use regex::{Regex, RegexBuilder};
 
 use crate::error::Fallacy;
 use crate::paper::Paper;
@@ -20,7 +20,7 @@ impl PaperFilter {
     /// Accepts filter arguments given to commands and builds an
     /// instance of `PaperFilter`. Remove the command (first argument)
     /// and pass the rest to this function.
-    pub fn from_args(args: &[String]) -> Result<Self, Fallacy> {
+    pub fn from_args(args: &[String], case_insensitive: bool) -> Result<Self, Fallacy> {
         let mut filter = Self::default();
         let mut arg_iter = args.iter();
         while let Some(arg) = arg_iter.next() {
@@ -36,7 +36,10 @@ impl PaperFilter {
                 Some(string) => string,
                 None => return Err(Fallacy::FilterKeywordNoMatch(arg.to_string())),
             };
-            match Regex::new(item) {
+            match RegexBuilder::new(item)
+                .case_insensitive(case_insensitive)
+                .build()
+            {
                 Ok(regex) => place.push(regex),
                 Err(e) => return Err(Fallacy::FilterBuildFailed(e)),
             }

@@ -18,6 +18,10 @@ pub enum Fallacy {
     HistoryStoreFailed(PathBuf, std::io::Error),
     #[error("Failed to store command history to '{0}': '{1}'")]
     RLHistoryStoreFailed(PathBuf, rustyline::error::ReadlineError),
+    #[error("Failed to load reason config: '{0}'")]
+    ConfigLoadFailed(#[from] confy::ConfyError),
+    #[error("Failed to read config: '{0}'")]
+    ConfigAuditError(String),
 
     // Non-critical errors
     #[error("Unknown command: '{0}'")]

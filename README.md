@@ -1,6 +1,11 @@
-# Reason is for Research
+# Reason: A Shell for Research Papers
 
-`reason` is a commandline tool for research paper management.
+- Did I ever read this paper?
+- Which OSDI 2021 papers did I read?
+- Which ones have the word 'Distributed' in their title?
+- How many papers in 2020 were co-authored by Professor Byung-Gon Chun?
+
+Well, ask `reason`!
 
 Invoking `reason` will start a new command prompt. It accepts unix-like commands that instead work on research papers in your paperbase.
 

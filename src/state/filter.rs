@@ -23,7 +23,11 @@ impl FilterInst {
     /// Accepts filter arguments given to commands and builds an
     /// instance of `FilterInst`. Remove the command (first argument)
     /// and pass the rest to this function.
-    pub fn from_args(args: &[String], reset_if_empty: bool) -> Result<Self, Fallacy> {
+    pub fn from_args(
+        args: &[String],
+        reset_if_empty: bool,
+        case_insensitive: bool,
+    ) -> Result<Self, Fallacy> {
         // No arguments given.
         if args.len() == 0 {
             if reset_if_empty {
@@ -38,12 +42,12 @@ impl FilterInst {
                 "." => Ok(Self::Here),
                 ".." => Ok(Self::Parent),
                 "-" => Ok(Self::Prev),
-                _ => Ok(Self::Add(PaperFilter::from_args(args)?)),
+                _ => Ok(Self::Add(PaperFilter::from_args(args, case_insensitive)?)),
             }
         }
         // A normal filter.
         else {
-            Ok(Self::Add(PaperFilter::from_args(args)?))
+            Ok(Self::Add(PaperFilter::from_args(args, case_insensitive)?))
         }
     }
 }

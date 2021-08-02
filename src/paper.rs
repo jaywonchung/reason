@@ -5,22 +5,23 @@ use chrono::prelude::*;
 use comfy_table::{Attribute, Cell, CellAlignment, ContentArrangement, Table};
 use serde::{Deserialize, Serialize};
 
-use crate::{error::Fallacy, state::State};
+use crate::config::Config;
+use crate::error::Fallacy;
+use crate::state::State;
 
 pub struct PaperList {
     pub selected: Vec<usize>,
 }
 
 impl PaperList {
-    pub fn into_string(self, state: &State) -> String {
+    pub fn into_string(self, state: &State, config: &Config) -> String {
         let mut table = Table::new();
 
         // Content width is dynamically arranged.
         table.set_content_arrangement(ContentArrangement::Dynamic);
 
         // Header line.
-        let header = vec!["Title", "First Author", "Venue", "Year", "State"];
-        let header = header.iter().map(|s| {
+        let header = config.display.table_columns.iter().map(|s| {
             Cell::new(s)
                 .set_alignment(CellAlignment::Center)
                 .add_attribute(Attribute::Bold)
@@ -30,13 +31,11 @@ impl PaperList {
         // One row per paper.
         for ind in self.selected {
             let p = &state.papers[ind];
-            table.add_row(vec![
-                &p.title,
-                &p.authors.first().unwrap_or(&"".to_string()),
-                &p.venue,
-                &p.year,
-                &p.state.last().unwrap().to_string(),
-            ]);
+            let mut row = Vec::new();
+            for col in config.display.table_columns.iter() {
+                row.push(p.field_as_string(col));
+            }
+            table.add_row(row);
         }
 
         table.to_string() + "\n"
@@ -150,6 +149,19 @@ impl Paper {
             state,
             filepath,
         })
+    }
+
+    pub fn field_as_string(&self, field: &str) -> String {
+        match field {
+            "title" => self.title.clone(),
+            "nickname" => self.nickname.clone().unwrap_or_default(),
+            "authors" => self.authors.join(", "),
+            "first author" => self.authors.first().unwrap().clone(),
+            "venue" => self.venue.clone(),
+            "year" => self.year.clone(),
+            "state" => self.state.first().unwrap().to_string(),
+            _ => "".to_string(),
+        }
     }
 }
 

@@ -5,10 +5,14 @@ use crate::state::FilterInst;
 pub fn execute(
     input: CommandInput,
     state: &mut State,
-    _config: &Config,
+    config: &Config,
 ) -> Result<CommandOutput, Fallacy> {
     // Convert arguments to a filter
-    let filter_inst = FilterInst::from_args(&input.args[1..], false)?;
+    let filter_inst = FilterInst::from_args(
+        &input.args[1..],
+        false,
+        config.filter.case_insensitive_regex,
+    )?;
 
     // Filter state + argument filter (without modifying the filter state).
     let filter = state.filters.observe(filter_inst);

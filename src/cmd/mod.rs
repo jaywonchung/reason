@@ -35,11 +35,11 @@ impl CommandInput {
 }
 
 impl CommandOutput {
-    pub fn into_string(self, state: &State) -> String {
+    pub fn into_string(self, state: &State, config: &Config) -> String {
         match self {
             CommandOutput::None => "".to_string(),
             CommandOutput::Message(s) => s,
-            CommandOutput::Papers(p) => p.into_string(state),
+            CommandOutput::Papers(p) => p.into_string(state, config),
         }
     }
 }

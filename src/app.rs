@@ -16,10 +16,13 @@ impl App {
     /// Initialize a new Reason app.
     pub fn init() -> Result<Self, Box<dyn std::error::Error>> {
         // Load reason configuration.
-        let config: Config = match home::home_dir() {
+        let mut config: Config = match home::home_dir() {
             Some(mut p) => {
                 p.push(".config/reason/config.toml");
-                confy::load_path(p)?
+                match confy::load_path(p) {
+                    Ok(config) => config,
+                    Err(e) => return Err(e.into()),
+                }
             }
             None => {
                 eprintln!("Failed to find your home directory. Using default configuration.");
@@ -27,19 +30,22 @@ impl App {
             }
         };
 
+        // Check and fix the contents of the config.
+        config.audit()?;
+
         // Load metadata state.
-        let state = State::load(&config.state_path)?;
+        let state = State::load(&config.storage.paper_metadata)?;
 
         // Setup readline.
         let builder = rustyline::config::Builder::default();
         let rlconfig = builder
-            .max_history_size(config.max_history_size)
+            .max_history_size(config.storage.max_history_size)
             .auto_add_history(true)
             .build();
         let mut editor = Editor::<()>::with_config(rlconfig);
 
         // Maybe create and load from command history file.
-        let history_path = &config.history_path;
+        let history_path = &config.storage.command_history;
         if !history_path.exists() {
             if let Err(e) = std::fs::File::create(history_path) {
                 eprintln!(
@@ -91,12 +97,12 @@ impl App {
     /// - Save readline history
     pub fn teardown(&mut self) {
         // Save state to state file.
-        if let Err(e) = self.state.store(&self.config.state_path) {
+        if let Err(e) = self.state.store(&self.config.storage.paper_metadata) {
             eprintln!("Error during teardown: {}", e);
         }
 
         // Save command history to history file.
-        let history_path = &self.config.history_path;
+        let history_path = &self.config.storage.command_history;
         if !history_path.exists() {
             if let Err(e) = std::fs::File::create(history_path) {
                 eprintln!(
@@ -123,7 +129,7 @@ impl App {
 
         // Run the command.
         self.run_command(commands)
-            .map(|output| output.into_string(&self.state))
+            .map(|output| output.into_string(&self.state, &self.config))
     }
 
     fn run_command(&mut self, mut commands: Vec<Vec<String>>) -> Result<CommandOutput, Fallacy> {
