@@ -1,11 +1,13 @@
-# Reason: A Shell for Research Papers
+<div align="center">
+<h1>Reason: A Shell for Research Papers</h1>
+</div>
 
 - Did I ever read this paper?
 - Which OSDI 2021 papers did I read?
 - Which ones have the word 'Distributed' in their title?
 - How many papers in 2020 were co-authored by Professor Byung-Gon Chun?
 
-Well, ask `reason`!
+Well, ask `reason`.
 
 ## How it works
 
@@ -50,7 +52,7 @@ $ reason
 >> cd 'Deep Learning'
 >> pwd
 title matches 'Deep Learning'
->> ls in NSDI
+>> ls at NSDI
 +-----------------------------------------------------------+--------------+-------+------+
 |                           title                           | first author | venue | year |
 +=========================================================================================+
