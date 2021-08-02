@@ -23,8 +23,8 @@ $ reason
 | Janus: Fast and Flexible Deep Learning via Symbolic      | Eunji Jeong    | NSDI    | 2019 |
 | Graph Execution of Imperative Programs                   |                |         |      |
 |----------------------------------------------------------+----------------+---------+------|
-| CloneCloud: elastic execution between mobile device and  | Byung-Gon Chun | EuroSys | 2011 |
-| cloud                                                    |                |         |      |
+| CloneCloud: Elastic Execution between Mobile Device and  | Byung-Gon Chun | EuroSys | 2011 |
+| Cloud                                                    |                |         |      |
 |----------------------------------------------------------+----------------+---------+------|
 | WindTunnel: Towards Differentiable ML Pipelines Beyond a | Gyeong-In Yu   | VLDB    | 2022 |
 | Single Model                                             |                |         |      |
