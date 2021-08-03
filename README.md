@@ -62,7 +62,7 @@ title matches 'Deep Learning'
 >> cd ..
 >> pwd
 No filters are active.
->> ls mobile by1 Chung
+>> ls Mobile by1 Chung
 +----------------------------------------------------------+---------------+-------+------+
 |                           title                          |  first author | venue | year |
 +=========================================================================================+
