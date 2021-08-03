@@ -128,5 +128,5 @@ Commands
 - [ ] `read`
 - [ ] `top`
 - [ ] `sync`
-- [ ] `man`
+- [x] `man`
 - [x] `exit`
