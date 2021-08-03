@@ -7,6 +7,7 @@ mod cd;
 mod exit;
 mod ls;
 pub mod prelude;
+mod man;
 mod pwd;
 mod touch;
 
@@ -51,6 +52,7 @@ pub fn to_executor(command: String) -> Result<ExecuteFn, Fallacy> {
         "ls" => Ok(ls::execute),
         "exit" => Ok(exit::execute),
         "touch" => Ok(touch::execute),
+        "man" => Ok(man::execute),
         _ => Err(Fallacy::UnknownCommand(command.to_owned())),
     }
 }
