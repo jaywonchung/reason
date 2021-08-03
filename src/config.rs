@@ -4,6 +4,35 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::Fallacy;
 
+pub static MAN: &'static str = "Reason configuration.
+
+Config file location: '~/.config/reason/config.toml'.
+If nothing is there, reason will create one populated
+with default settings.
+
+## Storage
+
+- paper_metadata: Path to store paper metadata.
+   (default: ~/.local/share/reason/metadata.yaml)
+- command_history: Path to store command history.
+   (default: ~/.local/share/reason/history.txt)
+- max_history_size: How many commands to keep in history.
+   (default: 1000)
+
+## Filter
+
+- case_insensitive_regex: Whether filter regexes match
+  in a case-insensitive manner.
+   (default: false)
+
+## Display
+
+- table_columns: Which paper attributes `ls` shows.
+  Allowed values are 'title', 'authors', 'first author',
+  'venue', 'year', and 'state'.
+   (default: ['title', 'first author', 'venue', 'year'])
+";
+
 #[derive(Serialize, Deserialize, Default)]
 pub struct Config {
     pub storage: StorageConfig,

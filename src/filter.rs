@@ -5,6 +5,33 @@ use regex::{Regex, RegexBuilder};
 use crate::error::Fallacy;
 use crate::paper::Paper;
 
+pub static MAN: &'static str = "Paper filters.
+
+Filters are a collection of regexes that match on paper
+metadata (See `man paper` for more on paper metadata).
+Especially, queryable fields and their corresponding
+propositional keywords are:
+- title (no keyword)
+- nickname (`as`)
+- authors (`by`)
+- first author (`by1`)
+- venue (`at`)
+- year (`in`)
+
+Reason allows users to describe paper filters naturally
+using propositional keywords.
+For instance:
+```
+>> cd shadowtutor at ICPP
+>> pwd
+title matches 'shadowtutor', venue matches 'ICPP'
+>> cd
+>> cd 'Deep Learning' by Chung by Jeong
+>> pwd
+title matches 'Deep Learning', author matches 'Chung' & 'Jeong'
+```
+";
+
 #[derive(Default, Debug, Clone)]
 pub struct PaperFilter {
     pub title: Vec<Regex>,
@@ -23,7 +50,7 @@ impl PaperFilter {
         let mut filter = Self::default();
         let mut arg_iter = args.iter();
         while let Some(arg) = arg_iter.next() {
-            let (place, item) = match arg.as_ref() {
+            let (mut place, item) = match arg.as_ref() {
                 "as" => (&mut filter.nickname, arg_iter.next()),
                 "by" => (&mut filter.author, arg_iter.next()),
                 "by1" => (&mut filter.first_author, arg_iter.next()),
@@ -33,7 +60,11 @@ impl PaperFilter {
             };
             let item = match item {
                 Some(string) => string,
-                None => return Err(Fallacy::FilterKeywordNoMatch(arg.to_string())),
+                None => {
+                    // If no matching regex is found, instead match title.
+                    place = &mut filter.title;
+                    arg
+                }
             };
             match RegexBuilder::new(item)
                 .case_insensitive(case_insensitive)
@@ -130,7 +161,7 @@ impl fmt::Display for PaperFilter {
             let joined = filter
                 .iter()
                 .map(|re| re.to_string())
-                .reduce(|a, b| format!("{}, {}", a, b));
+                .reduce(|a, b| format!("{}' & '{}", a, b));
             if let Some(joined) = joined {
                 ret.push(format!("{} matches '{}'", name, joined));
             }

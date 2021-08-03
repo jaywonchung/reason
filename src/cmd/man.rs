@@ -15,25 +15,23 @@ pub fn execute(
 ) -> Result<CommandOutput, Fallacy> {
     // Man accepts exactly one argument.
     if input.args.len() != 2 {
-        return Err(Fallacy::InvalidArgument(
-            "`man` receives exactly one argument.".to_owned(),
-        ));
+        return Err(Fallacy::ManInvalidArgument);
     }
 
     // Fetch the man string.
-    let cmd = input.args[1].as_ref();
-    let man_str = match cmd {
-        "command"=> crate::cmd::MAN,
-        "cd"     => crate::cmd::cd::MAN,
-        "exit"   => crate::cmd::exit::MAN,
-        "ls"     => crate::cmd::ls::MAN,
-        "man"    => crate::cmd::man::MAN,
-        "pwd"    => crate::cmd::pwd::MAN,
-        "touch"  => crate::cmd::touch::MAN,
-        // "config" => crate::config::MAN,
-        // "filter" => crate::filter::MAN,
-        // "paper"  => crate::paper::MAN,
-        _ => return Err(Fallacy::UnknownCommand(cmd.to_owned())),
+    let entry = input.args[1].as_ref();
+    let man_str = match entry {
+        "command" => crate::cmd::MAN,
+        "cd" => crate::cmd::cd::MAN,
+        "exit" => crate::cmd::exit::MAN,
+        "ls" => crate::cmd::ls::MAN,
+        "man" => crate::cmd::man::MAN,
+        "pwd" => crate::cmd::pwd::MAN,
+        "touch" => crate::cmd::touch::MAN,
+        "config" => crate::config::MAN,
+        "filter" => crate::filter::MAN,
+        "paper" => crate::paper::MAN,
+        _ => return Err(Fallacy::ManUnknownSubject(entry.to_owned())),
     };
 
     // Build CommandOutput

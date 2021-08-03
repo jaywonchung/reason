@@ -24,24 +24,28 @@ pub enum Fallacy {
     ConfigAuditError(String),
 
     // Non-critical errors
+    // general
     #[error("Unknown command: '{0}'")]
     UnknownCommand(String),
-    #[error("Invalid filter: '{0}'")]
-    InvalidFilter(#[from] regex::Error),
     #[error("Invalid command: {0}")]
     InvalidCommand(String),
+    // filter
     #[error("Failed to build filter from regex:\n{0}")]
     FilterBuildFailed(regex::Error),
-    #[error("No matching regex for keyword '{0}'")]
-    FilterKeywordNoMatch(String),
-    #[error("Duplicate field keyword specified: '{0}'")]
+    // paper
+    #[error("Duplicate paper field keyword specified: '{0}'")]
     PaperDuplicateField(String),
-    #[error("Required field keywords not given: {0}")]
+    #[error("Required paper fields not given: {0}")]
     PaperMissingFields(String),
+    // path
     #[error("Specified file path does not exist: '{0}'")]
-    PaperPathDoesNotExist(String),
+    PathDoesNotExist(String),
+    // exit
     #[error("Exit reason")]
     ExitReason,
-    #[error("Invalid argument: {0}")]
-    InvalidArgument(String),
+    // man
+    #[error("`man` receives exactly one argument.")]
+    ManInvalidArgument,
+    #[error("Unknown subject: '{0}'")]
+    ManUnknownSubject(String),
 }

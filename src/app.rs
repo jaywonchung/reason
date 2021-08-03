@@ -1,5 +1,10 @@
+use std::borrow::Cow;
+
 use rustyline::error::ReadlineError;
+use rustyline::highlight::Highlighter;
 use rustyline::Editor;
+use rustyline_derive::{Completer, Helper, Hinter, Validator};
+use ansi_term::Color;
 
 use crate::cmd::{parse_command, to_executor, CommandInput, CommandOutput};
 use crate::config::Config;
@@ -9,7 +14,24 @@ use crate::state::State;
 pub struct App {
     config: Config,
     state: State,
-    editor: Editor<()>,
+    editor: Editor<PromptHighlighter>,
+}
+
+#[derive(Completer, Helper, Validator, Hinter)]
+struct PromptHighlighter;
+
+impl Highlighter for PromptHighlighter {
+    fn highlight_prompt<'b, 's: 'b, 'p: 'b>(
+        &'s self,
+        prompt: &'p str,
+        default: bool,
+    ) -> Cow<'b, str> {
+        if default {
+            Cow::Owned(Color::Red.paint(prompt).to_string())
+        } else {
+            Cow::Borrowed(prompt)
+        }
+    }
 }
 
 impl App {
@@ -42,7 +64,8 @@ impl App {
             .max_history_size(config.storage.max_history_size)
             .auto_add_history(true)
             .build();
-        let mut editor = Editor::<()>::with_config(rlconfig);
+        let mut editor = Editor::with_config(rlconfig);
+        editor.set_helper(Some(PromptHighlighter {}));
 
         // Maybe create and load from command history file.
         let history_path = &config.storage.command_history;

@@ -9,6 +9,20 @@ use crate::config::Config;
 use crate::error::Fallacy;
 use crate::state::State;
 
+pub static MAN: &'static str = "Paper metadata.
+
+Reason keeps metadata for each paper in its paperpase.
+- title: The title of the paper, in full.
+- nickname: The nickname of the paper. For instance,
+   the name of the system.
+- authors: A list of authors, in order.
+- venue: Where the paper was published, excluding year.
+- year: The year when the paper was published.
+- filepath: The path to the PDF file of the paper.
+- state: The management state history of the paper.
+   Two states are supported: ADDED and READ.
+";
+
 pub struct PaperList {
     pub selected: Vec<usize>,
 }
@@ -57,7 +71,7 @@ pub struct Paper {
     /// Keyword: 'by', 'by1' (first author)
     pub authors: Vec<String>,
 
-    /// Where the paper was published, excluding the year. This field is queryable.
+    /// Where the paper was published, excluding year. This field is queryable.
     /// Keyword: 'at'
     pub venue: String,
 
@@ -139,6 +153,7 @@ impl Paper {
         let year = fields.remove("year").unwrap();
         let state = vec![PaperStatus::new()];
         let filepath = fields.remove("filepath");
+        // TODO: expand tilde if present.
 
         Ok(Paper {
             title,
