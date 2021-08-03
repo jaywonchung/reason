@@ -116,7 +116,7 @@ impl Default for FilterConfig {
 
 impl Default for DisplayConfig {
     fn default() -> Self {
-        let table_columns = vec!["title", "first author", "venue", "year", "state"];
+        let table_columns = vec!["title", "first author", "venue", "year"];
         let table_columns = table_columns.into_iter().map(|s| s.to_string()).collect();
 
         Self { table_columns }

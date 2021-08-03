@@ -3,6 +3,16 @@ use std::path::PathBuf;
 use crate::cmd::prelude::*;
 use crate::paper::{Paper, PaperList};
 
+pub static MAN: &'static str = "Usage: touch [paper]
+
+Adds a new paper to the paperbase. Papers can be
+specified like filters, except that the path to the
+paper file can be specified with the keyword '@'.
+
+Required fields are 'title', 'authors(by)', 'venue(at)',
+and 'year(in)'.
+";
+
 pub fn execute(
     input: CommandInput,
     state: &mut State,

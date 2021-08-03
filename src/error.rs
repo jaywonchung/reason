@@ -42,4 +42,6 @@ pub enum Fallacy {
     PaperPathDoesNotExist(String),
     #[error("Exit reason")]
     ExitReason,
+    #[error("Invalid argument: {0}")]
+    InvalidArgument(String),
 }
