@@ -119,7 +119,7 @@ Commands
 - [x] `pwd`
 - [x] `touch`
 - [x] `exit`
-- [ ] `rm`
+- [x] `rm`
 - [ ] `sort`
 - [ ] `set`
 - [ ] `stat`
