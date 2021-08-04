@@ -10,6 +10,7 @@ mod man;
 mod open;
 pub mod prelude;
 mod pwd;
+mod rm;
 mod touch;
 
 pub static MAN: &'static str = "The Reason command line.
@@ -45,6 +46,8 @@ further processing.
 
 For instance, `ls shadowtutor | open` will open all papers
 that have the word 'shadwotutor' in their titles.
+
+Commands that output paper lists are `ls`, `sort`, and `touch`.
 ";
 
 pub type ExecuteFn = fn(CommandInput, &mut State, &Config) -> Result<CommandOutput, Fallacy>;
@@ -84,12 +87,13 @@ impl CommandOutput {
 pub fn to_executor(command: String) -> Result<ExecuteFn, Fallacy> {
     match command.as_ref() {
         "cd" => Ok(cd::execute),
-        "pwd" => Ok(pwd::execute),
-        "ls" => Ok(ls::execute),
         "exit" => Ok(exit::execute),
-        "touch" => Ok(touch::execute),
+        "ls" => Ok(ls::execute),
         "man" => Ok(man::execute),
         "open" => Ok(open::execute),
+        "pwd" => Ok(pwd::execute),
+        "rm" => Ok(rm::execute),
+        "touch" => Ok(touch::execute),
         _ => Err(Fallacy::UnknownCommand(command.to_owned())),
     }
 }

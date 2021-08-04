@@ -7,7 +7,7 @@
     - Soomook Moon
   venue: ICPP
   year: "2020"
-  filepath: ~
+  filepath: "~/papers/Shadowtutor.pdf"
   state:
     - Read: "2021-07-31 03:48:24 PM"
 - title: "Janus: Fast and Flexible Deep Learning via Symbolic Graph Execution of Imperative Programs"
@@ -21,7 +21,7 @@
     - Byung-Gon Chun
   venue: NSDI
   year: "2019"
-  filepath: ~
+  filepath: "~/papers/Janus.pdf"
   state:
     - Added: "2021-07-31 05:02:58 PM"
 - title: "CloneCloud: Elastic Execution Between Mobile Device and Cloud"

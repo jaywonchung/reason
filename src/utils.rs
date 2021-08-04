@@ -1,4 +1,4 @@
-use std::io::Read;
+use std::io::Write;
 use std::path::PathBuf;
 
 use crate::error::Fallacy;
@@ -53,9 +53,10 @@ pub fn expand_tilde_string(path: &String) -> Result<String, Fallacy> {
 pub fn confirm(prompt: String, default: bool) -> Result<(), Fallacy> {
     let yn = if default { " [Y/n]" } else { " [y/N]" };
     print!("{}", prompt + yn);
+    std::io::stdout().flush()?;
 
     let mut buffer = String::new();
-    std::io::stdin().read_to_string(&mut buffer)?;
+    std::io::stdin().read_line(&mut buffer)?;
 
     let default = if default {
         Ok(())

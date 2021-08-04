@@ -5,7 +5,7 @@ use crate::utils::{confirm, expand_tilde_string};
 
 pub static MAN: &'static str = "Usage:
 1) alone: open [filter]
-2) pipe:  ls [filter] | open, touch [paper] | open
+2) pipe:  [paper list] | open
 
 The `open` command opens papers with a viewer program.
 You may configure the viewer to use by setting the
@@ -16,6 +16,9 @@ command line arguments are ignored. On the other hand,
 if nothing is given through pipe, `open` accepts filters
 though arguments, and the default filter is also applied.
 Thus, `ls | open` is equivalent to just `open`.
+
+See `man command` for more on which commands output
+paper lists.
 ";
 
 pub fn execute(
@@ -37,23 +40,35 @@ pub fn execute(
     };
 
     // Build a vector of file paths.
+    let num_papers = paper_list.selected.len();
     let files: Vec<_> = paper_list
         .selected
         .into_iter()
         .filter_map(|i| state.papers[i].filepath.as_ref())
         .collect();
 
+    // Some reports.
+    let num_open = files.len();
+    println!(
+        "Skipping papers without filepaths ({} out of {}).",
+        num_papers - num_open,
+        num_papers
+    );
+
     // Ask for confirmation.
-    if files.len() > 1 {
-        confirm(format!("Open {} papers?", files.len()), true)?;
+    if num_open > 1 {
+        confirm(format!("Open {} papers?", num_open), true)?;
     }
 
     // Open papers.
     for file in files {
         let file = expand_tilde_string(&file)?;
-        Command::new(&config.display.viewer_binary_path)
-            .arg(file)
-            .spawn();
+        if let Err(e) = Command::new(&config.display.viewer_binary_path)
+            .arg(&file)
+            .spawn()
+        {
+            println!("Failed to open {}: {}", file, e);
+        }
     }
 
     Ok(CommandOutput::None)
