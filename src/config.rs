@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use serde::{Deserialize, Serialize};
 
 use crate::error::Fallacy;
+use crate::utils::expand_tilde;
 
 pub static MAN: &'static str = "Reason configuration.
 
@@ -18,6 +19,10 @@ with default settings.
    (default: ~/.local/share/reason/history.txt)
 - max_history_size: How many commands to keep in history.
    (default: 1000)
+- file_base_dir: The base directory where paper files
+  are stored. If set, you can just specify the file path
+  relative to this directory with 'touch @'.
+   (default: None)
 
 ## Filter
 
@@ -31,6 +36,9 @@ with default settings.
   Allowed values are 'title', 'authors', 'first author',
   'venue', 'year', and 'state'.
    (default: ['title', 'first author', 'venue', 'year'])
+- viewer_binary_path: The path to the viewer that will
+  be used to open papers.
+   (default: /usr/bin/zathura)
 ";
 
 #[derive(Serialize, Deserialize, Default)]
@@ -45,6 +53,7 @@ pub struct StorageConfig {
     pub paper_metadata: PathBuf,
     pub command_history: PathBuf,
     pub max_history_size: usize,
+    pub file_base_dir: Option<PathBuf>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -55,6 +64,7 @@ pub struct FilterConfig {
 #[derive(Serialize, Deserialize)]
 pub struct DisplayConfig {
     pub table_columns: Vec<String>,
+    pub viewer_binary_path: PathBuf,
 }
 
 impl Config {
@@ -68,8 +78,11 @@ impl Config {
 
 impl StorageConfig {
     fn validate(&mut self) -> Result<(), Fallacy> {
-        expand_tilde(&mut self.paper_metadata)?;
-        expand_tilde(&mut self.command_history)?;
+        self.paper_metadata = expand_tilde(&self.paper_metadata)?;
+        self.command_history = expand_tilde(&self.command_history)?;
+        if let Some(dir) = &self.file_base_dir {
+            self.file_base_dir = Some(expand_tilde(dir)?);
+        }
         Ok(())
     }
 }
@@ -98,6 +111,9 @@ impl DisplayConfig {
                 )));
             }
         }
+
+        // Expand viewer binary path.
+        expand_tilde(&mut self.viewer_binary_path)?;
         Ok(())
     }
 }
@@ -127,10 +143,13 @@ impl Default for StorageConfig {
 
         let max_history_size = 1000;
 
+        let file_base_dir = None;
+
         Self {
             paper_metadata,
             command_history,
             max_history_size,
+            file_base_dir,
         }
     }
 }
@@ -147,38 +166,11 @@ impl Default for DisplayConfig {
     fn default() -> Self {
         let table_columns = vec!["title", "first author", "venue", "year"];
         let table_columns = table_columns.into_iter().map(|s| s.to_string()).collect();
+        let viewer_binary_path = PathBuf::from("/usr/bin/zathura");
 
-        Self { table_columns }
-    }
-}
-
-pub fn expand_tilde(path: &mut PathBuf) -> Result<(), Fallacy> {
-    if !path.starts_with("~") {
-        return Ok(());
-    }
-
-    let path_str = match path.to_str() {
-        Some(string) => string,
-        None => {
-            return Err(Fallacy::ConfigAuditError(
-                "Invalid UTF-8 character in path".to_owned(),
-            ))
-        }
-    };
-
-    match home::home_dir() {
-        Some(mut home) => {
-            // If the length of `path` was 1, it was just '~'.
-            if path_str.len() > 1 {
-                home.push(&path_str[2..]);
-            }
-            *path = home;
-            Ok(())
-        }
-        None => {
-            return Err(Fallacy::ConfigAuditError(
-                "Home directory not found.".to_owned(),
-            ))
+        Self {
+            table_columns,
+            viewer_binary_path,
         }
     }
 }

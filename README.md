@@ -124,7 +124,7 @@ Commands
 - [ ] `set`
 - [ ] `stat`
 - [ ] `printf`
-- [ ] `open`
+- [x] `open`
 - [ ] `read`
 - [ ] `top`
 - [ ] `sync`

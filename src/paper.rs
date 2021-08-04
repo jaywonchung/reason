@@ -153,7 +153,6 @@ impl Paper {
         let year = fields.remove("year").unwrap();
         let state = vec![PaperStatus::new()];
         let filepath = fields.remove("filepath");
-        // TODO: expand tilde if present.
 
         Ok(Paper {
             title,

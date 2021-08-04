@@ -5,6 +5,7 @@ mod error;
 mod filter;
 mod paper;
 mod state;
+mod utils;
 
 use crate::app::App;
 

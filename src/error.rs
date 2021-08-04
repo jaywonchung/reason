@@ -29,6 +29,12 @@ pub enum Fallacy {
     UnknownCommand(String),
     #[error("Invalid command: {0}")]
     InvalidCommand(String),
+    #[error("Failed to find home directory for user.")]
+    Homeless,
+    #[error("I/O error: '{0}'")]
+    IOError(#[from] std::io::Error),
+    #[error("{0}")]
+    FailedConfirmation(String),
     // filter
     #[error("Failed to build filter from regex:\n{0}")]
     FilterBuildFailed(regex::Error),
@@ -40,6 +46,8 @@ pub enum Fallacy {
     // path
     #[error("Specified file path does not exist: '{0}'")]
     PathDoesNotExist(String),
+    #[error("Invalid UTF-8 character in path: '{0}'")]
+    InvalidUTF8(PathBuf),
     // exit
     #[error("Exit reason")]
     ExitReason,

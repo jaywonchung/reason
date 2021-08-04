@@ -1,10 +1,10 @@
 use std::borrow::Cow;
 
+use ansi_term::Color;
 use rustyline::error::ReadlineError;
 use rustyline::highlight::Highlighter;
 use rustyline::Editor;
 use rustyline_derive::{Completer, Helper, Hinter, Validator};
-use ansi_term::Color;
 
 use crate::cmd::{parse_command, to_executor, CommandInput, CommandOutput};
 use crate::config::Config;

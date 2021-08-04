@@ -26,6 +26,7 @@ pub fn execute(
         "exit" => crate::cmd::exit::MAN,
         "ls" => crate::cmd::ls::MAN,
         "man" => crate::cmd::man::MAN,
+        "open" => crate::cmd::open::MAN,
         "pwd" => crate::cmd::pwd::MAN,
         "touch" => crate::cmd::touch::MAN,
         "config" => crate::config::MAN,

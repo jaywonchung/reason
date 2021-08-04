@@ -7,6 +7,7 @@ mod cd;
 mod exit;
 mod ls;
 mod man;
+mod open;
 pub mod prelude;
 mod pwd;
 mod touch;
@@ -34,6 +35,16 @@ Here are the basic rules by which commands are parsed:
   matches 'shadowtutor'.
 - Single-quote your commands to escape from the above rules.
   Ex) `ls 'shadow | tutor'` (still) consists of two arguments.
+
+## Piping commands
+
+As seen above, commands can be chained with pipes. When a
+previous command produces a list of papers, for instance `ls`,
+the list of papers can be passed to the next command for
+further processing.
+
+For instance, `ls shadowtutor | open` will open all papers
+that have the word 'shadwotutor' in their titles.
 ";
 
 pub type ExecuteFn = fn(CommandInput, &mut State, &Config) -> Result<CommandOutput, Fallacy>;
@@ -78,6 +89,7 @@ pub fn to_executor(command: String) -> Result<ExecuteFn, Fallacy> {
         "exit" => Ok(exit::execute),
         "touch" => Ok(touch::execute),
         "man" => Ok(man::execute),
+        "open" => Ok(open::execute),
         _ => Err(Fallacy::UnknownCommand(command.to_owned())),
     }
 }

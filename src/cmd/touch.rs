@@ -2,6 +2,7 @@ use std::path::PathBuf;
 
 use crate::cmd::prelude::*;
 use crate::paper::{Paper, PaperList};
+use crate::utils::expand_tilde_string;
 
 pub static MAN: &'static str = "Usage: touch [paper]
 
@@ -33,7 +34,8 @@ pub fn execute(
 
     // Verify file path.
     if let Some(filepath) = &paper.filepath {
-        if !PathBuf::from(filepath).exists() {
+        let path = expand_tilde_string(&filepath)?;
+        if !PathBuf::from(path).exists() {
             return Err(Fallacy::PathDoesNotExist(filepath.to_owned()));
         }
     }
