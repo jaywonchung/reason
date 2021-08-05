@@ -10,6 +10,7 @@ mod man;
 mod open;
 pub mod prelude;
 mod pwd;
+mod read;
 mod rm;
 mod touch;
 
@@ -47,7 +48,8 @@ further processing.
 For instance, `ls shadowtutor | open` will open all papers
 that have the word 'shadwotutor' in their titles.
 
-Commands that output paper lists are `ls`, `sort`, and `touch`.
+Most commands output a paper list - all those whose outputs
+are displayed as tables: `ls`, `open`, `read`, and `touch`.
 ";
 
 pub type ExecuteFn = fn(CommandInput, &mut State, &Config) -> Result<CommandOutput, Fallacy>;
@@ -92,6 +94,7 @@ pub fn to_executor(command: String) -> Result<ExecuteFn, Fallacy> {
         "man" => Ok(man::execute),
         "open" => Ok(open::execute),
         "pwd" => Ok(pwd::execute),
+        "read" => Ok(read::execute),
         "rm" => Ok(rm::execute),
         "touch" => Ok(touch::execute),
         _ => Err(Fallacy::UnknownCommand(command.to_owned())),

@@ -40,5 +40,5 @@ pub fn execute(
         }
     }
 
-    Ok(CommandOutput::Papers(PaperList { selected }))
+    Ok(CommandOutput::Papers(PaperList(selected)))
 }

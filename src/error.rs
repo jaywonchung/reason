@@ -47,7 +47,9 @@ pub enum Fallacy {
     #[error("Specified file path does not exist: '{0}'")]
     PathDoesNotExist(String),
     #[error("Invalid UTF-8 character in path: '{0}'")]
-    InvalidUTF8(PathBuf),
+    PathInvalidUTF8(PathBuf),
+    #[error("'{0}' is not executable.")]
+    PathNotExecutable(PathBuf),
     // exit
     #[error("Exit reason")]
     ExitReason,

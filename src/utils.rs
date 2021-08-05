@@ -12,7 +12,7 @@ pub fn expand_tilde(path: &PathBuf) -> Result<PathBuf, Fallacy> {
 
     let path_str = match path.to_str() {
         Some(string) => string,
-        None => return Err(Fallacy::InvalidUTF8(path.clone())),
+        None => return Err(Fallacy::PathInvalidUTF8(path.clone())),
     };
 
     match home::home_dir() {
@@ -42,7 +42,7 @@ pub fn expand_tilde_string(path: &String) -> Result<String, Fallacy> {
             }
             match home.to_str() {
                 Some(string) => Ok(string.to_string()),
-                None => Err(Fallacy::InvalidUTF8(home.clone())),
+                None => Err(Fallacy::PathInvalidUTF8(home.clone())),
             }
         }
         None => Err(Fallacy::Homeless),

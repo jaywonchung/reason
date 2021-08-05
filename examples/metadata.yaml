@@ -7,9 +7,10 @@
     - Soomook Moon
   venue: ICPP
   year: "2020"
-  filepath: "~/papers/Shadowtutor.pdf"
+  filepath: ~/papers/Shadowtutor.pdf
   state:
     - Read: "2021-07-31 03:48:24 PM"
+  notepath: ~
 - title: "Janus: Fast and Flexible Deep Learning via Symbolic Graph Execution of Imperative Programs"
   nickname: Janus
   authors:
@@ -21,9 +22,10 @@
     - Byung-Gon Chun
   venue: NSDI
   year: "2019"
-  filepath: "~/papers/Janus.pdf"
+  filepath: ~/papers/Janus.pdf
   state:
     - Added: "2021-07-31 05:02:58 PM"
+  notepath: ~
 - title: "CloneCloud: Elastic Execution Between Mobile Device and Cloud"
   nickname: CloneCloud
   authors:
@@ -37,6 +39,7 @@
   filepath: ~
   state:
     - Added: "2021-07-31 10:29:10 PM"
+  notepath: ~
 - title: "WindTunnel: Towards Differentiable ML Pipelines Beyond a Single Model"
   nickname: WindTunnel
   authors:
@@ -53,6 +56,7 @@
   filepath: ~
   state:
     - Added: "2021-07-31 10:30:01 PM"
+  notepath: ~
 - title: "Refurbish Your Training Data: Reusing Partially Augmented Samples for Faster Deep Neural Network Training"
   nickname: Data Refurbishing
   authors:
@@ -68,6 +72,7 @@
   filepath: ~
   state:
     - Added: "2021-07-31 11:22:59 PM"
+  notepath: ~
 - title: Finding Consensus Bugs in Etherium via Multi-transaction Differential Fuzzing
   nickname: Fluffy
   authors:
@@ -79,6 +84,7 @@
   filepath: ~
   state:
     - Added: "2021-07-31 11:23:01 PM"
+  notepath: ~
 - title: "Harmony: A Scheduling Framework Optimized for Multiple Distributed Machine Learning Jobs"
   nickname: Harmony
   authors:
@@ -93,6 +99,7 @@
   filepath: ~
   state:
     - Added: "2021-08-02 02:36:50 AM"
+  notepath: ~
 - title: "Nimble: Lightweight and Parallel GPU Task Scheduling for Deep Learning"
   nickname: Nimble
   authors:
@@ -105,6 +112,7 @@
   filepath: ~
   state:
     - Added: "2021-08-01 02:36:59 AM"
+  notepath: ~
 - title: "Hippo: Taming Hyper-parameter Optimization of Deep Learning with Stage Trees"
   nickname: Hippo
   authors:
@@ -117,3 +125,4 @@
   filepath: ~
   state:
     - Added: "2021-08-02 11:38:11 PM"
+  notepath: ~

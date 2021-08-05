@@ -22,7 +22,9 @@ with default settings.
 - file_base_dir: The base directory where paper files
   are stored. If set, you can just specify the file path
   relative to this directory with 'touch @'.
-   (default: None)
+   (Not specified by default.)
+- note_dir: The directory where markdown notes are stored.
+   (default: ~/.local/share/reason/notes)
 
 ## Filter
 
@@ -30,7 +32,7 @@ with default settings.
   in a case-insensitive manner.
    (default: false)
 
-## Display
+## Output
 
 - table_columns: Which paper attributes `ls` shows.
   Allowed values are 'title', 'authors', 'first author',
@@ -38,14 +40,17 @@ with default settings.
    (default: ['title', 'first author', 'venue', 'year'])
 - viewer_binary_path: The path to the viewer that will
   be used to open papers.
-   (default: /usr/bin/zathura)
+   (default: zathura)
+- editor_binary_path: The path to the editor that will be
+  used to edit notes.
+   (default: vim)
 ";
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Config {
     pub storage: StorageConfig,
     pub filter: FilterConfig,
-    pub display: DisplayConfig,
+    pub output: OutputConfig,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -54,6 +59,7 @@ pub struct StorageConfig {
     pub command_history: PathBuf,
     pub max_history_size: usize,
     pub file_base_dir: Option<PathBuf>,
+    pub note_dir: PathBuf,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -62,16 +68,17 @@ pub struct FilterConfig {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct DisplayConfig {
+pub struct OutputConfig {
     pub table_columns: Vec<String>,
     pub viewer_binary_path: PathBuf,
+    pub editor_binary_path: PathBuf,
 }
 
 impl Config {
     pub fn validate(&mut self) -> Result<(), Fallacy> {
         self.storage.validate()?;
         self.filter.validate()?;
-        self.display.validate()?;
+        self.output.validate()?;
         Ok(())
     }
 }
@@ -93,7 +100,7 @@ impl FilterConfig {
     }
 }
 
-impl DisplayConfig {
+impl OutputConfig {
     fn validate(&mut self) -> Result<(), Fallacy> {
         let allowed_columns = vec!["title", "authors", "first author", "venue", "year", "state"];
 
@@ -136,7 +143,7 @@ impl Default for StorageConfig {
             path
         };
         let command_history = {
-            let mut path = data_dir;
+            let mut path = data_dir.clone();
             path.push("history.txt");
             path
         };
@@ -145,11 +152,18 @@ impl Default for StorageConfig {
 
         let file_base_dir = None;
 
+        let note_dir = {
+            let mut path = data_dir;
+            path.push("notes");
+            path
+        };
+
         Self {
             paper_metadata,
             command_history,
             max_history_size,
             file_base_dir,
+            note_dir,
         }
     }
 }
@@ -162,15 +176,17 @@ impl Default for FilterConfig {
     }
 }
 
-impl Default for DisplayConfig {
+impl Default for OutputConfig {
     fn default() -> Self {
         let table_columns = vec!["title", "first author", "venue", "year"];
         let table_columns = table_columns.into_iter().map(|s| s.to_string()).collect();
-        let viewer_binary_path = PathBuf::from("/usr/bin/zathura");
+        let viewer_binary_path = PathBuf::from("zathura");
+        let editor_binary_path = PathBuf::from("vim");
 
         Self {
             table_columns,
             viewer_binary_path,
+            editor_binary_path,
         }
     }
 }

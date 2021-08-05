@@ -14,12 +14,13 @@ specified like filters. Differences are:
    comma-separated string.
 
 Required fields are 'title', 'authors(by)', 'venue(at)',
-and 'year(in)'.
+and 'year(in)'. Just like filters, they don't have to
+be in order.
 
 For instance:
 ```
 >> touch 'Reason: A Cool New System' by 'Jae-Won
-Chung, Mosharaf Chowdhury' at OSDI at 2022 as Reason
+Chung, Chaehyun Jeong' at OSDI at 2022 as Reason
 @ ~/workspace/papers/reason.pdf
 ```
 ";
@@ -43,7 +44,7 @@ pub fn execute(
     // Add paper to state.
     state.papers.push(paper);
 
-    Ok(CommandOutput::Papers(PaperList {
-        selected: vec![state.papers.len() - 1],
-    }))
+    Ok(CommandOutput::Papers(PaperList::new(
+        state.papers.len() - 1,
+    )))
 }

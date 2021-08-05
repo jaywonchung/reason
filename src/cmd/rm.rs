@@ -33,16 +33,19 @@ pub fn execute(
     };
 
     // Ask for confirmation.
-    let num_paper = paper_list.selected.len();
+    let num_paper = paper_list.0.len();
     if num_paper > 1 {
         confirm(format!("Remove {} papers?", num_paper), false)?;
     }
 
     // Remove papers.
-    paper_list.selected.reverse();
-    for ind in paper_list.selected {
+    paper_list.0.reverse();
+    for ind in paper_list.0 {
         state.papers.remove(ind);
     }
 
-    Ok(CommandOutput::Message(format!("Removed {} papers.", num_paper)))
+    Ok(CommandOutput::Message(format!(
+        "Removed {} papers.",
+        num_paper
+    )))
 }

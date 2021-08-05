@@ -62,7 +62,18 @@ title matches 'Deep Learning'
 >> cd ..
 >> pwd
 No filters are active.
->> ls Mobile by1 Chung
+>> ls Mobile
++----------------------------------------------------------+----------------+---------+------+
+|                           title                          |  first author  |  venue  | year |
++============================================================================================+
+| Shadowtutor: Distributed Partial Distillation for Mobile | Jae-Won Chung  | ICPP    | 2020 |
+| Video DNN Inference                                      |                |         |      |
+|----------------------------------------------------------+----------------+---------+------|
+| CloneCloud: Elastic Execution Between Mobile Device and  | Byung-Gon Chun | EuroSys | 2011 |
+| Cloud                                                    |                |         |      |
++----------------------------------------------------------+----------------+---------+------+
+>> ls Mobile by 'Byung-Gon Chun' | rm
+>> ls Mobile
 +----------------------------------------------------------+---------------+-------+------+
 |                           title                          |  first author | venue | year |
 +=========================================================================================+
@@ -97,6 +108,12 @@ Many commands will become available over time:
 - `sync` stores the paper metadata state to disk.
 - `man` plus a command will print documentation for that command.
 - `exit` or Ctrl-d quits `reason`.
+
+## Configuration
+
+The configuration file is kept at `~/.config/reason/config.toml`. If not present, `reason` will generate one populated with default settings.
+
+For more information, open `reason` and run `man config`.
 
 ## Todo
 

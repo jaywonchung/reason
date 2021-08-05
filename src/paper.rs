@@ -23,11 +23,13 @@ Reason keeps metadata for each paper in its paperpase.
    Two states are supported: ADDED and READ.
 ";
 
-pub struct PaperList {
-    pub selected: Vec<usize>,
-}
+pub struct PaperList(pub Vec<usize>);
 
 impl PaperList {
+    pub fn new(len: usize) -> Self {
+        Self((0..len).collect())
+    }
+
     pub fn into_string(self, state: &State, config: &Config) -> String {
         let mut table = Table::new();
 
@@ -35,7 +37,7 @@ impl PaperList {
         table.set_content_arrangement(ContentArrangement::Dynamic);
 
         // Header line.
-        let header = config.display.table_columns.iter().map(|s| {
+        let header = config.output.table_columns.iter().map(|s| {
             Cell::new(s)
                 .set_alignment(CellAlignment::Center)
                 .add_attribute(Attribute::Bold)
@@ -43,10 +45,10 @@ impl PaperList {
         table.set_header(header);
 
         // One row per paper.
-        for ind in self.selected {
+        for ind in self.0 {
             let p = &state.papers[ind];
             let mut row = Vec::new();
-            for col in config.display.table_columns.iter() {
+            for col in config.output.table_columns.iter() {
                 row.push(p.field_as_string(col));
             }
             table.add_row(row);
@@ -85,6 +87,11 @@ pub struct Paper {
 
     /// The management state history of the paper.
     pub state: Vec<PaperStatus>,
+
+    /// The path to the markdown note of the paper. File names are created with the
+    /// title of the paper. If collisions are detected, an integer will be appended
+    /// to the file name.
+    pub notepath: Option<String>,
 }
 
 impl Paper {
@@ -153,6 +160,7 @@ impl Paper {
         let year = fields.remove("year").unwrap();
         let state = vec![PaperStatus::new()];
         let filepath = fields.remove("filepath");
+        let notepath = None;
 
         Ok(Paper {
             title,
@@ -162,6 +170,7 @@ impl Paper {
             year,
             state,
             filepath,
+            notepath,
         })
     }
 
