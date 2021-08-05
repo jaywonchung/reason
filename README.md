@@ -20,17 +20,13 @@ $ reason
 | Shadowtutor: Distributed Partial Distillation for Mobile | Jae-Won Chung  | ICPP    | 2020 |
 | Video DNN Inference                                      |                |         |      |
 |----------------------------------------------------------+----------------+---------+------|
-| Janus: Fast and Flexible Deep Learning via Symbolic      | Eunji Jeong    | NSDI    | 2019 |
-| Graph Execution of Imperative Programs                   |                |         |      |
-|----------------------------------------------------------+----------------+---------+------|
-| CloneCloud: Elastic Execution between Mobile Device and  | Byung-Gon Chun | EuroSys | 2011 |
+| CloneCloud: Elastic Execution Between Mobile Device and  | Byung-Gon Chun | EuroSys | 2011 |
 | Cloud                                                    |                |         |      |
+|----------------------------------------------------------+----------------+---------+------|
+| Efficient Memory Disaggregation with Infiniswap          | Juncheng Gu    | NSDI    | 2017 |
 |----------------------------------------------------------+----------------+---------+------|
 | WindTunnel: Towards Differentiable ML Pipelines Beyond a | Gyeong-In Yu   | VLDB    | 2022 |
 | Single Model                                             |                |         |      |
-|----------------------------------------------------------+----------------+---------+------|
-| Nimble: Lightweight and Parallel GPU Task Scheduling for | Woosuk Kwon    | NeurIPS | 2020 |
-| Deep Learning                                            |                |         |      |
 |----------------------------------------------------------+----------------+---------+------|
 | Refurbish Your Training Data: Reusing Partially          | Gyewon Lee     | ATC     | 2021 |
 | Augmented Samples for Faster Deep Neural Network         |                |         |      |
@@ -38,13 +34,19 @@ $ reason
 |----------------------------------------------------------+----------------+---------+------|
 | Finding Consensus Bugs in Etherium via Multi-transaction | Youngseok Yang | OSDI    | 2021 |
 | Differential Fuzzing                                     |                |         |      |
+|----------------------------------------------------------+----------------+---------+------|
+| Tiresias: A GPU Cluster Manager for Distributed Deep     | Juncheng Gu    | NSDI    | 2019 |
+| Learning                                                 |                |         |      |
+|----------------------------------------------------------+----------------+---------+------|
+| Nimble: Lightweight and Parallel GPU Task Scheduling for | Woosuk Kwon    | NeurIPS | 2020 |
+| Deep Learning                                            |                |         |      |
 +----------------------------------------------------------+----------------+---------+------+
 >> ls 'Deep Learning'
 +------------------------------------------------------------+--------------+---------+------+
 |                            title                           | first author |  venue  | year |
 +============================================================================================+
-| Janus: Fast and Flexible Deep Learning via Symbolic Graph  | Eunji Jeong  | NSDI    | 2019 |
-| Execution of Imperative Programs                           |              |         |      |
+| Tiresias: A GPU Cluster Manager for Distributed Deep       | Juncheng Gu  | NSDI    | 2019 |
+| Learning                                                   |              |         |      |
 |------------------------------------------------------------+--------------+---------+------|
 | Nimble: Lightweight and Parallel GPU Task Scheduling for   | Woosuk Kwon  | NeurIPS | 2020 |
 | Deep Learning                                              |              |         |      |
@@ -52,17 +54,19 @@ $ reason
 >> cd 'Deep Learning'
 >> pwd
 title matches 'Deep Learning'
->> ls at NSDI
-+-----------------------------------------------------------+--------------+-------+------+
-|                           title                           | first author | venue | year |
-+=========================================================================================+
-| Janus: Fast and Flexible Deep Learning via Symbolic Graph | Eunji Jeong  | NSDI  | 2019 |
-| Execution of Imperative Programs                          |              |       |      |
-+-----------------------------------------------------------+--------------+-------+------+
->> cd ..
->> pwd
-No filters are active.
->> ls Mobile
+>> ls
++------------------------------------------------------------+--------------+---------+------+
+|                            title                           | first author |  venue  | year |
++============================================================================================+
+| Tiresias: A GPU Cluster Manager for Distributed Deep       | Juncheng Gu  | NSDI    | 2019 |
+| Learning                                                   |              |         |      |
+|------------------------------------------------------------+--------------+---------+------|
+| Nimble: Lightweight and Parallel GPU Task Scheduling for   | Woosuk Kwon  | NeurIPS | 2020 |
+| Deep Learning                                              |              |         |      |
++------------------------------------------------------------+--------------+---------+------+
+>> # Delete 'Tiresias'.
+>> ls at NSDI | rm
+>> ls ..
 +----------------------------------------------------------+----------------+---------+------+
 |                           title                          |  first author  |  venue  | year |
 +============================================================================================+
@@ -71,15 +75,22 @@ No filters are active.
 |----------------------------------------------------------+----------------+---------+------|
 | CloneCloud: Elastic Execution Between Mobile Device and  | Byung-Gon Chun | EuroSys | 2011 |
 | Cloud                                                    |                |         |      |
+|----------------------------------------------------------+----------------+---------+------|
+| Efficient Memory Disaggregation with Infiniswap          | Juncheng Gu    | NSDI    | 2017 |
+|----------------------------------------------------------+----------------+---------+------|
+| WindTunnel: Towards Differentiable ML Pipelines Beyond a | Gyeong-In Yu   | VLDB    | 2022 |
+| Single Model                                             |                |         |      |
+|----------------------------------------------------------+----------------+---------+------|
+| Refurbish Your Training Data: Reusing Partially          | Gyewon Lee     | ATC     | 2021 |
+| Augmented Samples for Faster Deep Neural Network         |                |         |      |
+| Training                                                 |                |         |      |
+|----------------------------------------------------------+----------------+---------+------|
+| Finding Consensus Bugs in Etherium via Multi-transaction | Youngseok Yang | OSDI    | 2021 |
+| Differential Fuzzing                                     |                |         |      |
+|----------------------------------------------------------+----------------+---------+------|
+| Nimble: Lightweight and Parallel GPU Task Scheduling for | Woosuk Kwon    | NeurIPS | 2020 |
+| Deep Learning                                            |                |         |      |
 +----------------------------------------------------------+----------------+---------+------+
->> ls Mobile by 'Byung-Gon Chun' | rm
->> ls Mobile
-+----------------------------------------------------------+---------------+-------+------+
-|                           title                          |  first author | venue | year |
-+=========================================================================================+
-| Shadowtutor: Distributed Partial Distillation for Mobile | Jae-Won Chung | ICPP  | 2020 |
-| Video DNN Inference                                      |               |       |      |
-+----------------------------------------------------------+---------------+-------+------+
 >> touch 'Hippo: Taming Hyper-parameter Optimization of Deep Learning with Stage Trees'
 by 'Ahnjae Shin, Do Yoon Kim, Joo Seong Jeong, Byung-Gon Chun' at arXiv in 2020 as Hippo
 +--------------------------------------------------------------+--------------+-------+------+

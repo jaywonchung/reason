@@ -11,21 +11,6 @@
   state:
     - Read: "2021-07-31 03:48:24 PM"
   notepath: ~
-- title: "Janus: Fast and Flexible Deep Learning via Symbolic Graph Execution of Imperative Programs"
-  nickname: Janus
-  authors:
-    - Eunji Jeong
-    - Sungwoo Cho
-    - Gyeong-In Yu
-    - Joo Seong Jeong
-    - Dong-Jin Shin
-    - Byung-Gon Chun
-  venue: NSDI
-  year: "2019"
-  filepath: ~/papers/Janus.pdf
-  state:
-    - Added: "2021-07-31 05:02:58 PM"
-  notepath: ~
 - title: "CloneCloud: Elastic Execution Between Mobile Device and Cloud"
   nickname: CloneCloud
   authors:
@@ -39,6 +24,20 @@
   filepath: ~
   state:
     - Added: "2021-07-31 10:29:10 PM"
+  notepath: ~
+- title: Efficient Memory Disaggregation with Infiniswap
+  nickname: Infiniswap
+  authors:
+    - Juncheng Gu
+    - Youngmoon Lee
+    - Yiwen Zhang
+    - Mosharaf Chowdhury
+    - Kang Shin
+  venue: NSDI
+  year: "2017"
+  filepath: ~
+  state:
+    - Added: "2021-08-05 04:21:03 PM"
   notepath: ~
 - title: "WindTunnel: Towards Differentiable ML Pipelines Beyond a Single Model"
   nickname: WindTunnel
@@ -85,17 +84,19 @@
   state:
     - Added: "2021-07-31 11:23:01 PM"
   notepath: ~
-- title: "Harmony: A Scheduling Framework Optimized for Multiple Distributed Machine Learning Jobs"
-  nickname: Harmony
+- title: "Tiresias: A GPU Cluster Manager for Distributed Deep Learning"
+  nickname: Tiresias
   authors:
-    - Woo-Yeon Lee
-    - Yunseong Lee
-    - Wonwook Song
-    - Yongseok Yang
-    - Joo Yeon Kim
-    - Byung-Gon Chun
-  venue: ICDCS
-  year: "2021"
+    - Juncheng Gu
+    - Mosharaf Chowdhury
+    - Kang G. Shin
+    - Yibo Zhu
+    - Myeongjae Jeon
+    - Junjie Qian
+    - Hongqiang Liu
+    - Chuanxiong Guo
+  venue: NSDI
+  year: "2019"
   filepath: ~
   state:
     - Added: "2021-08-02 02:36:50 AM"
@@ -124,5 +125,5 @@
   year: "2020"
   filepath: ~
   state:
-    - Added: "2021-08-02 11:38:11 PM"
+    - Added: "2021-08-05 04:23:49 PM"
   notepath: ~
