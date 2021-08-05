@@ -1,4 +1,7 @@
+use std::process::Command;
+
 use crate::cmd::prelude::*;
+use crate::utils::confirm;
 
 pub static MAN: &'static str = "Usage:
 1) alone: read [filter]
@@ -23,8 +26,38 @@ ls as Reason | open | read
 
 pub fn execute(
     input: CommandInput,
-    _state: &mut State,
-    _config: &Config,
+    state: &mut State,
+    config: &Config,
 ) -> Result<CommandOutput, Fallacy> {
+    // Build paper list from input.
+    let selected = match input.papers {
+        // Papers are given through pipe.
+        Some(list) => list.0,
+        // Papers are specified as filter.
+        None => {
+            match crate::cmd::ls::execute(input, state, config)? {
+                CommandOutput::Papers(paper_list) => paper_list.0,
+                // `ls` always returns CommandOutput::Papers.
+                _ => panic!(),
+            }
+        }
+    };
+
+    // Build a vector of note paths.
+    let num_papers = selected.len();
+    let notes: Vec<_> = selected
+        .iter()
+        .map(|&i| state.papers[i].note_path())
+        .collect();
+
+    // Ask for confirmation.
+    if num_papers > 1 {
+        confirm(format!("Open notes for {} paper?", num_papers), true)?;
+    }
+
+    // Open notes.
+    let mut handle = Command::new(&config.output.editor_binary_path).arg("-p").args(&notes[..]).spawn().unwrap();
+    println!("{:?}", handle.wait());
+
     Ok(CommandOutput::None)
 }

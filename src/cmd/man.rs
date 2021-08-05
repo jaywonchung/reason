@@ -5,7 +5,8 @@ pub static MAN: &'static str = "Usage: man [subject]
 Print the manual page of the given subject.
 
 Available subjects are:
-command, cd, exit, ls, man, pwd, touch, config, filter, paper
+command, cd, exit, ls, man, open, pwd, read, rm, touch,
+config, filter, paper
 ";
 
 pub fn execute(

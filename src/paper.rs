@@ -182,6 +182,10 @@ impl Paper {
             _ => "".to_string(),
         }
     }
+
+    pub fn note_path(&mut self) -> String {
+        String::new()
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
