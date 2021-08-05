@@ -44,7 +44,7 @@ pub fn execute(
     // Add paper to state.
     state.papers.push(paper);
 
-    Ok(CommandOutput::Papers(PaperList::new(
+    Ok(CommandOutput::Papers(PaperList(vec![
         state.papers.len() - 1,
-    )))
+    ])))
 }

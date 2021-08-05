@@ -26,10 +26,6 @@ Reason keeps metadata for each paper in its paperpase.
 pub struct PaperList(pub Vec<usize>);
 
 impl PaperList {
-    pub fn new(len: usize) -> Self {
-        Self((0..len).collect())
-    }
-
     pub fn into_string(self, state: &State, config: &Config) -> String {
         let mut table = Table::new();
 
