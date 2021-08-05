@@ -45,11 +45,9 @@ pub enum Fallacy {
     PaperMissingFields(String),
     // path
     #[error("Specified file path does not exist: '{0}'")]
-    PathDoesNotExist(String),
+    PathDoesNotExist(PathBuf),
     #[error("Invalid UTF-8 character in path: '{0}'")]
     PathInvalidUTF8(PathBuf),
-    #[error("'{0}' is not executable.")]
-    PathNotExecutable(PathBuf),
     #[error("Cannot resolve relative path '{0}' because the base directory was not given. See 'base_dir' in `man config`.")]
     PathRelativeWithoutBase(PathBuf),
     // exit

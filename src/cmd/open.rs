@@ -3,7 +3,7 @@ use std::process::{Command, Stdio};
 
 use crate::cmd::prelude::*;
 use crate::paper::PaperList;
-use crate::utils::{confirm, expand_tilde_string};
+use crate::utils::confirm;
 
 pub static MAN: &'static str = "Usage:
 1) alone: open [filter]
@@ -61,9 +61,10 @@ pub fn execute(
     // Some reports.
     let num_open = files.len();
     println!(
-        "Skipping papers without filepaths ({} out of {}).",
+        "{} {} selected. Skipping {} without file paths.",
+        num_papers,
+        if num_papers > 1 { "papers" } else { "paper" },
         num_papers - num_open,
-        num_papers
     );
 
     // Ask for confirmation.
@@ -72,37 +73,54 @@ pub fn execute(
     }
 
     // Open papers.
-    let mut selected = Vec::new();
     if config.output.viewer_batch {
-        // let command = build_viewer_command(files, config);
-        // spawn(command, // TODO: handle batched.
-    } else {
-        for (i, file) in files.into_iter() {
-            let command = build_viewer_command(&[file], config);
-            spawn(command, i, &mut selected);
+        let (selected, files): (Vec<usize>, Vec<PathBuf>) = files.into_iter().unzip();
+        if spawn(build_viewer_command(files.as_ref(), config)) {
+            Ok(CommandOutput::Papers(PaperList(selected)))
+        } else {
+            Ok(CommandOutput::Papers(PaperList(Vec::new())))
         }
+    } else {
+        let mut selected = Vec::new();
+        for (i, file) in files.into_iter() {
+            if spawn(build_viewer_command(&[file], config)) {
+                selected.push(i);
+            }
+        }
+        Ok(CommandOutput::Papers(PaperList(selected)))
     }
-
-    Ok(CommandOutput::Papers(PaperList(selected)))
 }
 
-fn spawn(mut command: Command, i: usize, selected: &mut Vec<usize>) {
+fn spawn(mut command: Command) -> bool {
     match command.spawn() {
-        Ok(_) => selected.push(i),
+        Ok(_) => true,
         Err(e) => {
             if matches!(e.kind(), std::io::ErrorKind::NotFound) {
                 println!("Invalid editor command: '{:?}'", e);
             } else {
                 println!("Failed to spawn subprocess: '{:?}'", e);
             }
+            false
         }
     }
 }
 
 fn build_viewer_command(files: &[PathBuf], config: &Config) -> Command {
-    let command = &config.output.viewer_command;
-    let mut ret = Command::new(&command[0]);
-    ret.args(&command[1..]).args(files);
-    ret.stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::null());
+    let mut ret = Command::new(&config.output.viewer_command[0]);
+    let mut curly = false;
+    for command in &config.output.viewer_command[1..] {
+        if command == "{}" {
+            ret.args(files);
+            curly = true;
+        } else {
+            ret.arg(command);
+        }
+    }
+    if !curly {
+        ret.args(files);
+    }
+    ret.stdin(Stdio::null())
+        .stdout(Stdio::null())
+        .stderr(Stdio::null());
     ret
 }

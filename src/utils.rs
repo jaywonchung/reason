@@ -1,6 +1,5 @@
 use std::io::Write;
 use std::path::PathBuf;
-use std::process::Command;
 
 use crate::error::Fallacy;
 

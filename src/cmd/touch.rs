@@ -1,8 +1,5 @@
-use std::path::PathBuf;
-
 use crate::cmd::prelude::*;
 use crate::paper::{Paper, PaperList};
-use crate::utils::expand_tilde_string;
 
 pub static MAN: &'static str = "Usage: touch [paper]
 
@@ -34,12 +31,8 @@ pub fn execute(
     let paper = Paper::from_args(input.args)?;
 
     // Verify file path.
-    if let Some(filepath) = &paper.filepath {
-        if let Some(base) = &config.storage.file_base_dir {
-
-        }
-        let path = expand_tilde_string(&filepath)?;
-        if !PathBuf::from(path).exists() {
+    if let Some(filepath) = paper.abs_filepath(config)? {
+        if !filepath.exists() {
             return Err(Fallacy::PathDoesNotExist(filepath.to_owned()));
         }
     }

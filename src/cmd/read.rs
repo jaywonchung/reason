@@ -70,7 +70,9 @@ pub fn execute(
 fn spawn(mut command: Command, block: bool) {
     match command.spawn() {
         Ok(mut handle) => {
-            if !block { return }
+            if !block {
+                return;
+            }
             if let Err(e) = handle.wait() {
                 println!("Failed to wait subprocess: {}", e);
             }

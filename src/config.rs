@@ -40,7 +40,10 @@ with default settings.
    (default: ['title', 'first author', 'venue', 'year'])
 - viewer_command: Command to use for the viewer to open
   papers. It is assumed that the viewer program is a
-  non-command line program.
+  non-command line program. If you place a set of curly
+  braces ('{}') in the list, the path to the file(s) will
+  be substituted in that location. Otherwise, the path(s)
+  will be placed at the end.
    (default: ['zathura'])
 - viewer_batch: Whether to open multiple papers with a
   single invocation of the viewer command. If true, the
@@ -50,7 +53,10 @@ with default settings.
    (default: false)
 - editor_command: Command to use for the editor to edit
   notes. It is assumed that the editor is a command line
-  program.
+  program. If you place a set of curly braces ('{}') in
+  the list, the path to the file(s) will be substituted
+  in that location. Otherwise, the path(s) will be placed
+  at the end.
    (default: ['vim', '-p'])
 - editor_batch: Whether to open multiple notes with a
   single invocation of the editor command. If true, the
@@ -137,7 +143,9 @@ impl OutputConfig {
 
         // Check viewer command and expand tilde.
         if self.viewer_command.len() == 0 {
-            return Err(Fallacy::ConfigAuditError("Viewer command cannot be empty.".to_owned()));
+            return Err(Fallacy::ConfigAuditError(
+                "Viewer command cannot be empty.".to_owned(),
+            ));
         }
         for path in self.viewer_command.iter_mut() {
             *path = expand_tilde_string(path)?;
@@ -145,7 +153,9 @@ impl OutputConfig {
 
         // Check editor command and expand tilde.
         if self.editor_command.len() == 0 {
-            return Err(Fallacy::ConfigAuditError("Editor command cannot be empty.".to_owned()));
+            return Err(Fallacy::ConfigAuditError(
+                "Editor command cannot be empty.".to_owned(),
+            ));
         }
         for path in self.editor_command.iter_mut() {
             *path = expand_tilde_string(path)?;
