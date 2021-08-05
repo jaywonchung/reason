@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::fmt;
+use std::path::PathBuf;
 
 use chrono::prelude::*;
 use comfy_table::{Attribute, Cell, CellAlignment, ContentArrangement, Table};
@@ -8,6 +9,7 @@ use serde::{Deserialize, Serialize};
 use crate::config::Config;
 use crate::error::Fallacy;
 use crate::state::State;
+use crate::utils::expand_tilde_string;
 
 pub static MAN: &'static str = "Paper metadata.
 
@@ -185,6 +187,28 @@ impl Paper {
 
     pub fn note_path(&mut self) -> String {
         String::new()
+    }
+
+    /// Create an absolute path to the paper file.
+    /// Returns Ok(None) if the paper does not have a filepath.
+    pub fn abs_filepath(&self, config: &Config) -> Result<Option<PathBuf>, Fallacy> {
+        if let Some(filepath) = self.filepath.as_ref() {
+            let path = PathBuf::from(expand_tilde_string(filepath)?);
+            // Path is already absolute.
+            if path.is_absolute() {
+                return Ok(Some(path));
+            }
+            // Relative path.
+            if let Some(base) = config.storage.file_base_dir.as_ref() {
+                let mut base = base.clone();
+                base.push(path);
+                Ok(Some(base))
+            } else {
+                Err(Fallacy::PathRelativeWithoutBase(path))
+            }
+        } else {
+            Ok(None)
+        }
     }
 }
 

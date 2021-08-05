@@ -10,7 +10,7 @@ pub static MAN: &'static str = "Usage:
 Open paper notes with a text editor and outputs
 the papers of successfully notes in the usual table format.
 You may configure the editor to use by setting the
-`output.editor_binary_path` entry in your config file.
+`output.editor_command` entry in your config file.
 
 When a paper list is given to `read` via pipe, all
 command line arguments are ignored. On the other hand,
@@ -56,8 +56,38 @@ pub fn execute(
     }
 
     // Open notes.
-    let mut handle = Command::new(&config.output.editor_binary_path).arg("-p").args(&notes[..]).spawn().unwrap();
-    println!("{:?}", handle.wait());
+    if config.output.editor_batch {
+        spawn(build_editor_command(notes.as_ref(), config), true);
+    } else {
+        for note in notes {
+            spawn(build_editor_command(&[note], config), false);
+        }
+    }
 
     Ok(CommandOutput::None)
+}
+
+fn spawn(mut command: Command, block: bool) {
+    match command.spawn() {
+        Ok(mut handle) => {
+            if !block { return }
+            if let Err(e) = handle.wait() {
+                println!("Failed to wait subprocess: {}", e);
+            }
+        }
+        Err(e) => {
+            if matches!(e.kind(), std::io::ErrorKind::NotFound) {
+                println!("Invalid editor command: '{:?}'", e);
+            } else {
+                println!("Failed to spawn subprocess: '{:?}'", e);
+            }
+        }
+    }
+}
+
+fn build_editor_command(notes: &[String], config: &Config) -> Command {
+    let command = &config.output.editor_command;
+    let mut ret = Command::new(&command[0]);
+    ret.args(&command[1..]).args(notes);
+    ret
 }

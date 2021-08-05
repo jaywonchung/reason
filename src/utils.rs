@@ -1,5 +1,6 @@
 use std::io::Write;
 use std::path::PathBuf;
+use std::process::Command;
 
 use crate::error::Fallacy;
 
@@ -49,7 +50,7 @@ pub fn expand_tilde_string(path: &String) -> Result<String, Fallacy> {
     }
 }
 
-/// Asks confirmation to the user.
+/// Ask confirmation to the user.
 pub fn confirm(prompt: String, default: bool) -> Result<(), Fallacy> {
     let yn = if default { " [Y/n]" } else { " [y/N]" };
     print!("{}", prompt + yn);

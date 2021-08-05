@@ -1,4 +1,5 @@
-use std::process::Command;
+use std::path::PathBuf;
+use std::process::{Command, Stdio};
 
 use crate::cmd::prelude::*;
 use crate::paper::PaperList;
@@ -11,7 +12,7 @@ pub static MAN: &'static str = "Usage:
 Open papers with a viewer program and outputs
 successfully opened papers in the usual table format.
 You may configure the viewer to use by setting the
-`output.viewer_binary_path` entry in your config file.
+`output.viewer_command` entry in your config file.
 
 When a paper list is given to `open` via pipe, all
 command line arguments are ignored. On the other hand,
@@ -50,13 +51,12 @@ pub fn execute(
         .into_iter()
         .filter(|&i| state.papers[i].filepath.is_some())
         .collect();
-    let files: Vec<_> = selected
-        .iter()
-        .filter_map(|&i| match state.papers[i].filepath.as_ref() {
-            Some(o) => Some((i, o)),
-            None => None,
-        })
-        .collect();
+    let mut files = Vec::new();
+    for &ind in selected.iter() {
+        if let Some(path) = state.papers[ind].abs_filepath(config)? {
+            files.push((ind, path));
+        }
+    }
 
     // Some reports.
     let num_open = files.len();
@@ -73,21 +73,36 @@ pub fn execute(
 
     // Open papers.
     let mut selected = Vec::new();
-    for (i, file) in files {
-        let file = expand_tilde_string(&file)?;
-        let mut command = Command::new(&config.output.viewer_binary_path);
-        match command.arg(&file).spawn() {
-            Ok(_) => selected.push(i),
-            Err(e) => {
-                if let std::io::ErrorKind::NotFound = e.kind() {
-                    println!("Binary not found: {:?}", config.output.viewer_binary_path);
-                    break;
-                } else {
-                    println!("Failed to spawn subprocess '{:?}': {}", command, e);
-                }
-            }
+    if config.output.viewer_batch {
+        // let command = build_viewer_command(files, config);
+        // spawn(command, // TODO: handle batched.
+    } else {
+        for (i, file) in files.into_iter() {
+            let command = build_viewer_command(&[file], config);
+            spawn(command, i, &mut selected);
         }
     }
 
     Ok(CommandOutput::Papers(PaperList(selected)))
+}
+
+fn spawn(mut command: Command, i: usize, selected: &mut Vec<usize>) {
+    match command.spawn() {
+        Ok(_) => selected.push(i),
+        Err(e) => {
+            if matches!(e.kind(), std::io::ErrorKind::NotFound) {
+                println!("Invalid editor command: '{:?}'", e);
+            } else {
+                println!("Failed to spawn subprocess: '{:?}'", e);
+            }
+        }
+    }
+}
+
+fn build_viewer_command(files: &[PathBuf], config: &Config) -> Command {
+    let command = &config.output.viewer_command;
+    let mut ret = Command::new(&command[0]);
+    ret.args(&command[1..]).args(files);
+    ret.stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::null());
+    ret
 }

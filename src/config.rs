@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use serde::{Deserialize, Serialize};
 
 use crate::error::Fallacy;
-use crate::utils::expand_tilde;
+use crate::utils::{expand_tilde, expand_tilde_string};
 
 pub static MAN: &'static str = "Reason configuration.
 
@@ -38,12 +38,26 @@ with default settings.
   Allowed values are 'title', 'authors', 'first author',
   'venue', 'year', and 'state'.
    (default: ['title', 'first author', 'venue', 'year'])
-- viewer_binary_path: The path to the viewer that will
-  be used to open papers.
-   (default: zathura)
-- editor_binary_path: The path to the editor that will be
-  used to edit notes.
-   (default: vim)
+- viewer_command: Command to use for the viewer to open
+  papers. It is assumed that the viewer program is a
+  non-command line program.
+   (default: ['zathura'])
+- viewer_batch: Whether to open multiple papers with a
+  single invocation of the viewer command. If true, the
+  command ran is: `viewer_command file1 file2 ...`.
+  Otherwise, the viewer command is invoked once for each
+  paper.
+   (default: false)
+- editor_command: Command to use for the editor to edit
+  notes. It is assumed that the editor is a command line
+  program.
+   (default: ['vim', '-p'])
+- editor_batch: Whether to open multiple notes with a
+  single invocation of the editor command. If true, the
+  command ran is: `viewer_command file1 file2 ...`.
+  Otherwise, the editor command is invoked once for each
+  paper.
+   (default: true)
 ";
 
 #[derive(Serialize, Deserialize, Default)]
@@ -70,8 +84,10 @@ pub struct FilterConfig {
 #[derive(Serialize, Deserialize)]
 pub struct OutputConfig {
     pub table_columns: Vec<String>,
-    pub viewer_binary_path: PathBuf,
-    pub editor_binary_path: PathBuf,
+    pub viewer_command: Vec<String>,
+    pub viewer_batch: bool,
+    pub editor_command: Vec<String>,
+    pub editor_batch: bool,
 }
 
 impl Config {
@@ -119,8 +135,22 @@ impl OutputConfig {
             }
         }
 
-        // Expand viewer binary path.
-        expand_tilde(&mut self.viewer_binary_path)?;
+        // Check viewer command and expand tilde.
+        if self.viewer_command.len() == 0 {
+            return Err(Fallacy::ConfigAuditError("Viewer command cannot be empty.".to_owned()));
+        }
+        for path in self.viewer_command.iter_mut() {
+            *path = expand_tilde_string(path)?;
+        }
+
+        // Check editor command and expand tilde.
+        if self.editor_command.len() == 0 {
+            return Err(Fallacy::ConfigAuditError("Editor command cannot be empty.".to_owned()));
+        }
+        for path in self.editor_command.iter_mut() {
+            *path = expand_tilde_string(path)?;
+        }
+
         Ok(())
     }
 }
@@ -180,13 +210,18 @@ impl Default for OutputConfig {
     fn default() -> Self {
         let table_columns = vec!["title", "first author", "venue", "year"];
         let table_columns = table_columns.into_iter().map(|s| s.to_string()).collect();
-        let viewer_binary_path = PathBuf::from("zathura");
-        let editor_binary_path = PathBuf::from("vim");
+        // TODO: See if Tabbed + Zathura works.
+        let viewer_command = vec![String::from("zathura")];
+        let viewer_batch = false;
+        let editor_command = vec![String::from("vim"), String::from("-p")];
+        let editor_batch = true;
 
         Self {
             table_columns,
-            viewer_binary_path,
-            editor_binary_path,
+            viewer_command,
+            viewer_batch,
+            editor_command,
+            editor_batch,
         }
     }
 }

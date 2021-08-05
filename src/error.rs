@@ -50,6 +50,8 @@ pub enum Fallacy {
     PathInvalidUTF8(PathBuf),
     #[error("'{0}' is not executable.")]
     PathNotExecutable(PathBuf),
+    #[error("Cannot resolve relative path '{0}' because the base directory was not given. See 'base_dir' in `man config`.")]
+    PathRelativeWithoutBase(PathBuf),
     // exit
     #[error("Exit reason")]
     ExitReason,

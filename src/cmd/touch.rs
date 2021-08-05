@@ -28,13 +28,16 @@ Chung, Chaehyun Jeong' at OSDI at 2022 as Reason
 pub fn execute(
     input: CommandInput,
     state: &mut State,
-    _config: &Config,
+    config: &Config,
 ) -> Result<CommandOutput, Fallacy> {
     // Parse input to paper metadata.
     let paper = Paper::from_args(input.args)?;
 
     // Verify file path.
     if let Some(filepath) = &paper.filepath {
+        if let Some(base) = &config.storage.file_base_dir {
+
+        }
         let path = expand_tilde_string(&filepath)?;
         if !PathBuf::from(path).exists() {
             return Err(Fallacy::PathDoesNotExist(filepath.to_owned()));
