@@ -114,7 +114,7 @@ Many commands will become available over time:
 - `stat` prints the metadata and notes of papers.
 - `printf` creates an HTML page of your notes using `mdbook`.
 - `open` opens the paper with Zathura.
-- `read` opens the paper with Zathura and also your editor (defaulting to `vim` but abiding by `$EDITOR`), in which you can edit your notes.
+- `ed` opens your editor (defaulting to `vim` but abiding by `$EDITOR`), in which you can edit your notes.
 - `top` prints out a summary of your paperbase.
 - `sync` stores the paper metadata state to disk.
 - `man` plus a command will print documentation for that command.
@@ -153,7 +153,7 @@ Commands
 - [ ] `stat`
 - [ ] `printf`
 - [x] `open`
-- [ ] `read`
+- [ ] `ed`
 - [ ] `top`
 - [ ] `sync`
 - [x] `man`

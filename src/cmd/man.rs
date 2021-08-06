@@ -5,7 +5,7 @@ pub static MAN: &'static str = "Usage: man [subject]
 Print the manual page of the given subject.
 
 Available subjects are:
-command, cd, exit, ls, man, open, pwd, read, rm, touch,
+command, cd, exit, ls, man, open, pwd, ed, rm, touch,
 config, filter, paper
 ";
 
@@ -29,7 +29,7 @@ pub fn execute(
         "man" => crate::cmd::man::MAN,
         "open" => crate::cmd::open::MAN,
         "pwd" => crate::cmd::pwd::MAN,
-        "read" => crate::cmd::read::MAN,
+        "ed" => crate::cmd::ed::MAN,
         "rm" => crate::cmd::rm::MAN,
         "touch" => crate::cmd::touch::MAN,
         "config" => crate::config::MAN,

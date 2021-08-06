@@ -22,7 +22,7 @@ Thus, `ls | open` is equivalent to just `open`.
 
 The following might come in handy:
 ```
-ls as Reason | open | read
+ls as Reason | open | ed
 ```
 ";
 
