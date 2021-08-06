@@ -225,7 +225,6 @@ impl Paper {
             if let Err(e) = std::fs::create_dir_all(&path.parent().unwrap()) {
                 return Err(e.into());
             }
-            println!("{:?}", path);
             match std::fs::File::create(&path) {
                 Ok(mut file) => {
                     if let Err(e) = write!(

@@ -66,39 +66,18 @@ title matches 'Deep Learning'
 +------------------------------------------------------------+--------------+---------+------+
 >> # Delete 'Tiresias'.
 >> ls at NSDI | rm
->> ls ..
-+----------------------------------------------------------+----------------+---------+------+
-|                           title                          |  first author  |  venue  | year |
-+============================================================================================+
-| Shadowtutor: Distributed Partial Distillation for Mobile | Jae-Won Chung  | ICPP    | 2020 |
-| Video DNN Inference                                      |                |         |      |
-|----------------------------------------------------------+----------------+---------+------|
-| CloneCloud: Elastic Execution Between Mobile Device and  | Byung-Gon Chun | EuroSys | 2011 |
-| Cloud                                                    |                |         |      |
-|----------------------------------------------------------+----------------+---------+------|
-| Efficient Memory Disaggregation with Infiniswap          | Juncheng Gu    | NSDI    | 2017 |
-|----------------------------------------------------------+----------------+---------+------|
-| WindTunnel: Towards Differentiable ML Pipelines Beyond a | Gyeong-In Yu   | VLDB    | 2022 |
-| Single Model                                             |                |         |      |
-|----------------------------------------------------------+----------------+---------+------|
-| Refurbish Your Training Data: Reusing Partially          | Gyewon Lee     | ATC     | 2021 |
-| Augmented Samples for Faster Deep Neural Network         |                |         |      |
-| Training                                                 |                |         |      |
-|----------------------------------------------------------+----------------+---------+------|
-| Finding Consensus Bugs in Etherium via Multi-transaction | Youngseok Yang | OSDI    | 2021 |
-| Differential Fuzzing                                     |                |         |      |
-|----------------------------------------------------------+----------------+---------+------|
-| Nimble: Lightweight and Parallel GPU Task Scheduling for | Woosuk Kwon    | NeurIPS | 2020 |
-| Deep Learning                                            |                |         |      |
-+----------------------------------------------------------+----------------+---------+------+
->> touch 'Hippo: Taming Hyper-parameter Optimization of Deep Learning with Stage Trees'
-by 'Ahnjae Shin, Do Yoon Kim, Joo Seong Jeong, Byung-Gon Chun' at arXiv in 2020 as Hippo
+>> touch 'Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate
+Shift' by 'Sergey Ioffe, Christian Szegedy' at ICML in 2015 as BN @ ~/papers/BatchNorm.pdf
 +--------------------------------------------------------------+--------------+-------+------+
 |                             title                            | first author | venue | year |
 +============================================================================================+
-| Hippo: Taming Hyper-parameter Optimization of Deep Learning  | Ahnjae Shin  | arXiv | 2020 |
-| with Stage Trees                                             |              |       |      |
+| Batch Normalization: Accelerating Deep Network Training by   | Sergey Ioffe | arXiv | 2015 |
+| Reducing Internal Covariate Shift                            |              |       |      |
 +--------------------------------------------------------------+--------------+-------+------+
+# Reset default filters.
+>> cd
+# Open BatchNorm with a PDF viewer ('open') and edit your markdown notes with an editor ('ed').
+>> ls as BN | open | ed
 ```
 
 Invoking `reason` will start a new command prompt. It accepts unix-like commands that instead work on research papers in your paperbase.
@@ -153,7 +132,7 @@ Commands
 - [ ] `stat`
 - [ ] `printf`
 - [x] `open`
-- [ ] `ed`
+- [x] `ed`
 - [ ] `top`
 - [ ] `sync`
 - [x] `man`

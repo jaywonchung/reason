@@ -10,7 +10,7 @@
   filepath: ~/papers/Shadowtutor.pdf
   state:
     - Read: "2021-07-31 03:48:24 PM"
-  notepath: ~
+  notepath: /home/jaywonchung/.local/share/reason/notes/Shadowtutor.md
 - title: "CloneCloud: Elastic Execution Between Mobile Device and Cloud"
   nickname: CloneCloud
   authors:
