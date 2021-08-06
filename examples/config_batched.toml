@@ -1,0 +1,20 @@
+[storage]
+paper_metadata = '~/.local/share/reason/metadata.yaml'
+command_history = '~/.local/share/reason/history.txt'
+max_history_size = 1000
+note_dir = "~/.local/share/reason/notes"
+
+[filter]
+case_insensitive_regex = true
+
+[output]
+table_columns = [
+    'title',
+    'first author',
+    'venue',
+    'year',
+]
+viewer_command = ['tabbed', '-c', 'zathura', '{}', '-e']
+viewer_batch = true
+editor_command = ['nvim', '-p']
+editor_batch = true
