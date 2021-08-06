@@ -11,6 +11,8 @@ Well, ask `reason`.
 
 ## How it works
 
+For actual demos, refer to the [wiki](https://github.com/jaywonchung/reason/wiki).
+
 ```bash
 $ reason
 >> ls
