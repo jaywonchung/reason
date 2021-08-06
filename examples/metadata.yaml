@@ -40,7 +40,7 @@
     - Added: "2021-08-05 04:21:03 PM"
   notepath: ~
 - title: "WindTunnel: Towards Differentiable ML Pipelines Beyond a Single Model"
-  nickname: WindTunnel
+  nickname: ~
   authors:
     - Gyeong-In Yu
     - Saeed Amizadeh
@@ -73,7 +73,7 @@
     - Added: "2021-07-31 11:22:59 PM"
   notepath: ~
 - title: Finding Consensus Bugs in Etherium via Multi-transaction Differential Fuzzing
-  nickname: Fluffy
+  nickname: ~
   authors:
     - Youngseok Yang
     - Taesoo Kim

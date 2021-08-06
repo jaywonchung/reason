@@ -4,13 +4,13 @@ use crate::paper::PaperList;
 use crate::state::State;
 
 mod cd;
+mod ed;
 mod exit;
 mod ls;
 mod man;
 mod open;
 pub mod prelude;
 mod pwd;
-mod ed;
 mod rm;
 mod touch;
 

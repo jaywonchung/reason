@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::fmt;
+use std::io::Write;
 use std::path::PathBuf;
 
 use chrono::prelude::*;
@@ -23,6 +24,7 @@ Reason keeps metadata for each paper in its paperpase.
 - filepath: The path to the PDF file of the paper.
 - state: The management state history of the paper.
    Two states are supported: ADDED and READ.
+- notepath: 
 ";
 
 pub struct PaperList(pub Vec<usize>);
@@ -185,8 +187,68 @@ impl Paper {
         }
     }
 
-    pub fn note_path(&mut self) -> String {
-        String::new()
+    pub fn note_path(&mut self, note_dir: &PathBuf) -> Result<String, Fallacy> {
+        // No notes for this paper. Create one!
+        if self.notepath.is_none() {
+            // Generate a unique filepath for this paper.
+            // By default the nickname of the paper + .md.
+            // If the paper doesn't have a nickname, the title is used.
+            let file = match self.nickname.clone() {
+                Some(string) => string,
+                None => self
+                    .title
+                    .clone()
+                    .replace(|c: char| c.is_whitespace(), "-")
+                    .replace(|c: char| c != '-' && !c.is_ascii_alphanumeric(), ""),
+            };
+
+            // Find a filename that doesn't exist.
+            let mut attempt = 0usize;
+            let path = loop {
+                let mut path = note_dir.clone();
+                let mut filename = file.clone();
+                if attempt == 0 {
+                    filename.push_str(".md");
+                } else {
+                    let formatted = format!("-{}.md", attempt);
+                    filename.push_str(&formatted);
+                }
+                path.push(filename);
+                if !path.exists() {
+                    break path;
+                } else {
+                    attempt += 1;
+                }
+            };
+
+            // Create the note file and initialize it with some metadata.
+            if let Err(e) = std::fs::create_dir_all(&path.parent().unwrap()) {
+                return Err(e.into());
+            }
+            println!("{:?}", path);
+            match std::fs::File::create(&path) {
+                Ok(mut file) => {
+                    if let Err(e) = write!(
+                        file,
+                        "- {}\n- {}\n- {} {}\n\n",
+                        self.title,
+                        self.authors.join(", "),
+                        self.venue,
+                        self.year
+                    ) {
+                        return Err(e.into());
+                    }
+                    drop(file);
+                }
+                Err(e) => return Err(e.into()),
+            };
+
+            match path.to_str() {
+                Some(path) => self.notepath.replace(path.to_owned()),
+                None => return Err(Fallacy::PathInvalidUTF8(path)),
+            };
+        }
+        Ok(self.notepath.clone().unwrap())
     }
 
     /// Create an absolute path to the paper file.

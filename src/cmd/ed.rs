@@ -45,10 +45,10 @@ pub fn execute(
 
     // Build a vector of note paths.
     let num_papers = selected.len();
-    let notes: Vec<_> = selected
-        .iter()
-        .map(|&i| state.papers[i].note_path())
-        .collect();
+    let mut notes = Vec::new();
+    for i in selected {
+        notes.push(state.papers[i].note_path(&config.storage.note_dir)?);
+    }
 
     // Ask for confirmation.
     if num_papers > 1 {

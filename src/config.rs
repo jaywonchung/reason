@@ -112,6 +112,7 @@ impl StorageConfig {
         if let Some(dir) = &self.file_base_dir {
             self.file_base_dir = Some(expand_tilde(dir)?);
         }
+        self.note_dir = expand_tilde(&self.note_dir)?;
         Ok(())
     }
 }
