@@ -11,7 +11,7 @@ Well, ask `reason`.
 
 ## How it works
 
-For actual demos, refer to the [wiki](https://github.com/jaywonchung/reason/wiki).
+For actual demos, refer to the [wiki](https://github.com/jaywonchung/reason/wiki/Demo).
 
 ```bash
 $ reason
