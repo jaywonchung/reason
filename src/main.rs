@@ -19,8 +19,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         eprintln!("Error during main loop: {}\nRunning teardown ...", e);
     }
 
-    // Teardown Reason.
-    reason.teardown();
+    // Terminate Reason.
+    reason.terminate();
 
     Ok(())
 }

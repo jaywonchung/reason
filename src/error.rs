@@ -5,7 +5,7 @@ use thiserror::Error;
 /// A use of invalid or faulty reason.
 #[derive(Error, Debug)]
 pub enum Fallacy {
-    // Critical errors
+    // Critical errors that terminate the program.
     #[error("Failed to load paper metadata from '{0}': '{1}'")]
     StateLoadFailed(PathBuf, std::io::Error),
     #[error("Failed to parse paper metadata loaded from '{0}': '{1}'")]
@@ -23,14 +23,12 @@ pub enum Fallacy {
     #[error("Failed to read config: '{0}'")]
     ConfigAuditError(String),
 
-    // Non-critical errors
+    // Non-critical errors that are caught by the main loop.
     // general
     #[error("Unknown command: '{0}'")]
     UnknownCommand(String),
     #[error("Invalid command: {0}")]
     InvalidCommand(String),
-    #[error("Failed to find home directory for user.")]
-    Homeless,
     #[error("I/O error: '{0}'")]
     IOError(#[from] std::io::Error),
     #[error("{0}")]
@@ -50,10 +48,12 @@ pub enum Fallacy {
     PathInvalidUTF8(PathBuf),
     #[error("Cannot resolve relative path '{0}' because the base directory was not given. See 'base_dir' in `man config`.")]
     PathRelativeWithoutBase(PathBuf),
+    #[error("Failed to find home directory for user.")]
+    Homeless,
     // exit
     #[error("Exit reason")]
     ExitReason,
-    // man
+    // man command
     #[error("`man` receives exactly one argument.")]
     ManInvalidArgument,
     #[error("Unknown subject: '{0}'")]

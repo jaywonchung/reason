@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 use crate::config::Config;
 use crate::error::Fallacy;
 use crate::state::State;
-use crate::utils::expand_tilde_string;
+use crate::utils::expand_tilde;
 
 pub static MAN: &'static str = "Paper metadata.
 
@@ -83,7 +83,7 @@ pub struct Paper {
 
     /// The path to the PDF file of the paper. The user may choose not to specify one.
     /// Keyword: '@'
-    pub filepath: Option<String>,
+    pub filepath: Option<PathBuf>,
 
     /// The management state history of the paper.
     pub state: Vec<PaperStatus>,
@@ -159,7 +159,7 @@ impl Paper {
         let venue = fields.remove("venue").unwrap();
         let year = fields.remove("year").unwrap();
         let state = vec![PaperStatus::new()];
-        let filepath = fields.remove("filepath");
+        let filepath = fields.remove("filepath").map(|s| PathBuf::from(s));
         let notepath = None;
 
         Ok(Paper {
@@ -254,7 +254,7 @@ impl Paper {
     /// Returns Ok(None) if the paper does not have a filepath.
     pub fn abs_filepath(&self, config: &Config) -> Result<Option<PathBuf>, Fallacy> {
         if let Some(filepath) = self.filepath.as_ref() {
-            let path = PathBuf::from(expand_tilde_string(filepath)?);
+            let path = expand_tilde(filepath)?;
             // Path is already absolute.
             if path.is_absolute() {
                 return Ok(Some(path));

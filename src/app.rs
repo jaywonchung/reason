@@ -118,7 +118,7 @@ impl App {
     /// This function only prints errors to stderr and does not fail immediately.
     /// - Save paper metadata state
     /// - Save readline history
-    pub fn teardown(&mut self) {
+    pub fn terminate(&mut self) {
         // Save state to state file.
         if let Err(e) = self.state.store(&self.config.storage.paper_metadata) {
             eprintln!("Error during teardown: {}", e);

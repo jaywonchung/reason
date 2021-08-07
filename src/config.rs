@@ -221,7 +221,6 @@ impl Default for OutputConfig {
     fn default() -> Self {
         let table_columns = vec!["title", "first author", "venue", "year"];
         let table_columns = table_columns.into_iter().map(|s| s.to_string()).collect();
-        // TODO: See if Tabbed + Zathura works.
         let viewer_command = vec![String::from("zathura")];
         let viewer_batch = false;
         let editor_command = vec![String::from("vim"), String::from("-p")];
