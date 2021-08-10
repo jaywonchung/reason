@@ -17,4 +17,3 @@ The following might come in handy:
 ```
 ls as Reason | open | ed
 ```
-";
