@@ -85,6 +85,11 @@ title matches 'Deep Learning'
 >> cd ..
 >> # Open with a PDF viewer (`open`) and edit markdown notes with your editor (`ed`).
 >> ls 'Why Not Both' | open | ed
++------------------------------------------+--------------+-------+------+
+|                   title                  | first author | venue | year |
++========================================================================+
+| Ship Compute or Ship Data? Why Not Both? | Jie You      | NSDI  | 2021 |
++------------------------------------------+--------------+-------+------+
 ```
 
 Invoking `reason` will start a new command prompt. It accepts unix-like commands that instead work on research papers in your paperbase.
