@@ -139,7 +139,7 @@ Commands
 - [x] `cd`
 - [x] `pwd`
 - [x] `touch`
-- [ ] `curl`
+- [x] `curl`
 - [x] `exit`
 - [x] `rm`
 - [ ] `sort`
