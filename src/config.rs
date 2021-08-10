@@ -3,68 +3,9 @@ use std::path::PathBuf;
 use serde::{Deserialize, Serialize};
 
 use crate::error::Fallacy;
-use crate::utils::{expand_tilde, expand_tilde_string};
+use crate::utils::{expand_tilde, expand_tilde_str};
 
-pub static MAN: &'static str = "Reason configuration.
-
-Config file location: '~/.config/reason/config.toml'.
-If nothing is there, reason will create one populated
-with default settings.
-
-## Storage
-
-- paper_metadata: Path to store paper metadata.
-   (default: ~/.local/share/reason/metadata.yaml)
-- command_history: Path to store command history.
-   (default: ~/.local/share/reason/history.txt)
-- max_history_size: How many commands to keep in history.
-   (default: 1000)
-- file_base_dir: The base directory where paper files
-  are stored. If set, you can just specify the file path
-  relative to this directory with 'touch @'.
-   (Not specified by default.)
-- note_dir: The directory where markdown notes are stored.
-   (default: ~/.local/share/reason/notes)
-
-## Filter
-
-- case_insensitive_regex: Whether filter regexes match
-  in a case-insensitive manner.
-   (default: false)
-
-## Output
-
-- table_columns: Which paper attributes `ls` shows.
-  Allowed values are 'title', 'authors', 'first author',
-  'venue', 'year', and 'state'.
-   (default: ['title', 'first author', 'venue', 'year'])
-- viewer_command: Command to use for the viewer to open
-  papers. It is assumed that the viewer program is a
-  non-command line program. If you place a set of curly
-  braces ('{}') in the list, the path to the file(s) will
-  be substituted in that location. Otherwise, the path(s)
-  will be placed at the end.
-   (default: ['zathura'])
-- viewer_batch: Whether to open multiple papers with a
-  single invocation of the viewer command. If true, the
-  command ran is: `viewer_command file1 file2 ...`.
-  Otherwise, the viewer command is invoked once for each
-  paper.
-   (default: false)
-- editor_command: Command to use for the editor to edit
-  notes. It is assumed that the editor is a command line
-  program. If you place a set of curly braces ('{}') in
-  the list, the path to the file(s) will be substituted
-  in that location. Otherwise, the path(s) will be placed
-  at the end.
-   (default: ['vim', '-p'])
-- editor_batch: Whether to open multiple notes with a
-  single invocation of the editor command. If true, the
-  command ran is: `viewer_command file1 file2 ...`.
-  Otherwise, the editor command is invoked once for each
-  paper.
-   (default: true)
-";
+pub static MAN: &str = include_str!("../man/config.md");
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Config {
@@ -78,7 +19,7 @@ pub struct StorageConfig {
     pub paper_metadata: PathBuf,
     pub command_history: PathBuf,
     pub max_history_size: usize,
-    pub file_base_dir: Option<PathBuf>,
+    pub file_dir: PathBuf,
     pub note_dir: PathBuf,
 }
 
@@ -109,9 +50,7 @@ impl StorageConfig {
     fn validate(&mut self) -> Result<(), Fallacy> {
         self.paper_metadata = expand_tilde(&self.paper_metadata)?;
         self.command_history = expand_tilde(&self.command_history)?;
-        if let Some(dir) = &self.file_base_dir {
-            self.file_base_dir = Some(expand_tilde(dir)?);
-        }
+        self.file_dir = expand_tilde(&self.file_dir)?;
         self.note_dir = expand_tilde(&self.note_dir)?;
         Ok(())
     }
@@ -143,23 +82,23 @@ impl OutputConfig {
         }
 
         // Check viewer command and expand tilde.
-        if self.viewer_command.len() == 0 {
+        if self.viewer_command.is_empty() {
             return Err(Fallacy::ConfigAuditError(
                 "Viewer command cannot be empty.".to_owned(),
             ));
         }
         for path in self.viewer_command.iter_mut() {
-            *path = expand_tilde_string(path)?;
+            *path = expand_tilde_str(path)?;
         }
 
         // Check editor command and expand tilde.
-        if self.editor_command.len() == 0 {
+        if self.editor_command.is_empty() {
             return Err(Fallacy::ConfigAuditError(
                 "Editor command cannot be empty.".to_owned(),
             ));
         }
         for path in self.editor_command.iter_mut() {
-            *path = expand_tilde_string(path)?;
+            *path = expand_tilde_str(path)?;
         }
 
         Ok(())
@@ -191,7 +130,11 @@ impl Default for StorageConfig {
 
         let max_history_size = 1000;
 
-        let file_base_dir = None;
+        let file_base_dir = {
+            let mut path = data_dir.clone();
+            path.push("files");
+            path
+        };
 
         let note_dir = {
             let mut path = data_dir;
@@ -203,7 +146,7 @@ impl Default for StorageConfig {
             paper_metadata,
             command_history,
             max_history_size,
-            file_base_dir,
+            file_dir: file_base_dir,
             note_dir,
         }
     }

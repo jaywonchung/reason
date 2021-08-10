@@ -29,7 +29,7 @@ impl FilterInst {
         case_insensitive: bool,
     ) -> Result<Self, Fallacy> {
         // No arguments given.
-        if args.len() == 0 {
+        if args.is_empty() {
             if reset_if_empty {
                 Ok(FilterInst::Reset)
             } else {

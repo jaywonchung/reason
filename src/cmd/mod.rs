@@ -4,6 +4,7 @@ use crate::paper::PaperList;
 use crate::state::State;
 
 mod cd;
+mod curl;
 mod ed;
 mod exit;
 mod ls;
@@ -14,43 +15,7 @@ mod pwd;
 mod rm;
 mod touch;
 
-pub static MAN: &'static str = "The Reason command line.
-
-## Shell-like experience
-
-Reason provides a real shell-like experience. You can press
-- <Up> to load the previous command in history
-- <Down> to load the next command in history
-- <Ctrl-a> to move the cursor to the beginning of the line
-- <Ctrl-e> to move the cursor to the end of the line
-- <Ctrl-l> to clear the screen
-- <Ctrl-u> to kill the entire line
-and more!
-
-## Running commands
-
-Here are the basic rules by which commands are parsed:
-- Whitespaces separate arguments.
-  Ex) `ls shadowtutor` consists of two arguments.
-- Pipes separate commands. Papers are passed to the next command.
-  Ex) `ls shadowtutor | rm` will remove all papers whose title
-  matches 'shadowtutor'.
-- Single-quote your commands to escape from the above rules.
-  Ex) `ls 'shadow | tutor'` (still) consists of two arguments.
-
-## Piping commands
-
-As seen above, commands can be chained with pipes. When a
-previous command produces a list of papers, for instance `ls`,
-the list of papers can be passed to the next command for
-further processing.
-
-For instance, `ls shadowtutor | open` will open all papers
-that have the word 'shadwotutor' in their titles.
-
-Most commands output a paper list - all those whose outputs
-are displayed as tables: `ls`, `open`, `ed`, and `touch`.
-";
+pub static MAN: &str = include_str!("../../man/command.md");
 
 pub type ExecuteFn = fn(CommandInput, &mut State, &Config) -> Result<CommandOutput, Fallacy>;
 
@@ -89,6 +54,7 @@ impl CommandOutput {
 pub fn to_executor(command: String) -> Result<ExecuteFn, Fallacy> {
     match command.as_ref() {
         "cd" => Ok(cd::execute),
+        "curl" => Ok(curl::execute),
         "exit" => Ok(exit::execute),
         "ls" => Ok(ls::execute),
         "man" => Ok(man::execute),
@@ -158,12 +124,12 @@ pub fn parse_command(command: &str) -> Result<Vec<Vec<String>>, Fallacy> {
                 current_piece.push(c);
             } else {
                 // Wrap up the previous command and start a new one.
-                if current_piece.len() != 0 {
+                if !current_piece.is_empty() {
                     current_cmd.push(String::new());
                     std::mem::swap(current_cmd.last_mut().unwrap(), &mut current_piece);
                 }
                 // Pipe encountered when `current_cmd` is empty: double pipes!
-                if current_cmd.len() == 0 {
+                if current_cmd.is_empty() {
                     return Err(Fallacy::InvalidCommand("Invalid use of pipes.".to_owned()));
                 }
                 parsed_cmds.push(Vec::new());
@@ -181,7 +147,7 @@ pub fn parse_command(command: &str) -> Result<Vec<Vec<String>>, Fallacy> {
                 consume_whitespace(&mut command_iter);
 
                 // Wrap up the previous piece and start a new one.
-                if current_piece.len() != 0 {
+                if !current_piece.is_empty() {
                     current_cmd.push(String::new());
                     std::mem::swap(current_cmd.last_mut().unwrap(), &mut current_piece);
                 }
@@ -193,11 +159,11 @@ pub fn parse_command(command: &str) -> Result<Vec<Vec<String>>, Fallacy> {
         }
     }
     // No need to push empty pieces.
-    if current_piece.len() != 0 {
+    if !current_piece.is_empty() {
         current_cmd.push(current_piece);
     }
     // Command ended with a pipe.
-    if current_cmd.len() == 0 && parsed_cmds.len() != 0 {
+    if current_cmd.is_empty() && !parsed_cmds.is_empty() {
         return Err(Fallacy::InvalidCommand(
             "Command cannot end with a dangling pipe.".to_owned(),
         ));

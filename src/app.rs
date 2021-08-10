@@ -76,13 +76,11 @@ impl App {
                     history_path, e
                 );
             }
-        } else {
-            if let Err(e) = editor.load_history(history_path) {
-                eprintln!(
-                    "Failed to load command history from {:?}: {}",
-                    history_path, e
-                );
-            }
+        } else if let Err(e) = editor.load_history(history_path) {
+            eprintln!(
+                "Failed to load command history from {:?}: {}",
+                history_path, e
+            );
         }
 
         Ok(Self {
@@ -157,13 +155,13 @@ impl App {
 
     fn run_command(&mut self, mut commands: Vec<Vec<String>>) -> Result<CommandOutput, Fallacy> {
         // Probably impossible.
-        if commands.len() == 0 {
+        if commands.is_empty() {
             return Ok(CommandOutput::None);
         }
         // A single command.
         if commands.len() == 1 {
             // An empty line.
-            if commands[0].len() == 0 {
+            if commands[0].is_empty() {
                 return Ok(CommandOutput::None);
             } else {
                 // Skip comments.
@@ -175,14 +173,14 @@ impl App {
                     args: commands.remove(0),
                     papers: None,
                 };
-                return executor(input, &mut self.state, &self.config).map(|o| o.into());
+                return executor(input, &mut self.state, &self.config);
             }
         }
         // A chained command.
         let mut output = CommandOutput::None;
         for command in commands.into_iter() {
             // The command shouldn't be empty.
-            if command.len() == 0 {
+            if command.is_empty() {
                 return Err(Fallacy::InvalidCommand(
                     "Command cannot be empty.".to_owned(),
                 ));
@@ -195,6 +193,6 @@ impl App {
             let input = CommandInput::from_output(command, output);
             output = executor(input, &mut self.state, &self.config)?;
         }
-        return Ok(output);
+        Ok(output)
     }
 }

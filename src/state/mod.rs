@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::path::PathBuf;
+use std::path::Path;
 
 mod filter;
 pub use crate::state::filter::{FilterInst, FilterState};
@@ -14,7 +14,7 @@ pub struct State {
 }
 
 impl State {
-    pub fn load(state_path: &PathBuf) -> Result<Self, Fallacy> {
+    pub fn load(state_path: &Path) -> Result<Self, Fallacy> {
         if state_path.exists() {
             // Open file for reading.
             let file = match File::open(state_path) {
@@ -47,7 +47,7 @@ impl State {
         }
     }
 
-    pub fn store(&self, state_path: &PathBuf) -> Result<(), Fallacy> {
+    pub fn store(&self, state_path: &Path) -> Result<(), Fallacy> {
         let emergency_button = |state: &State| {
             eprintln!("Could not save state. Dumping to stderr!");
             eprintln!("== Debug string ==\n{:#?}\n", state);
@@ -66,7 +66,7 @@ impl State {
         let file = match File::create(state_path) {
             Ok(f) => f,
             Err(e) => {
-                emergency_button(&self);
+                emergency_button(self);
                 return Err(Fallacy::StateStoreFailed(state_path.to_owned(), e));
             }
         };
@@ -75,8 +75,8 @@ impl State {
         match serde_yaml::to_writer(file, &self.papers) {
             Ok(()) => Ok(()),
             Err(e) => {
-                emergency_button(&self);
-                return Err(Fallacy::StateSerializeFailed(state_path.to_owned(), e));
+                emergency_button(self);
+                Err(Fallacy::StateSerializeFailed(state_path.to_owned(), e))
             }
         }
     }

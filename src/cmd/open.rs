@@ -5,26 +5,7 @@ use crate::cmd::prelude::*;
 use crate::paper::PaperList;
 use crate::utils::confirm;
 
-pub static MAN: &'static str = "Usage:
-1) alone: open [filter]
-2) pipe:  [paper list] | open
-
-Open papers with a viewer program and outputs
-successfully opened papers in the usual table format.
-You may configure the viewer to use by setting the
-`output.viewer_command` entry in your config file.
-
-When a paper list is given to `open` via pipe, all
-command line arguments are ignored. On the other hand,
-if nothing is given through pipe, `open` accepts filters
-though arguments, and the default filter is also applied.
-Thus, `ls | open` is equivalent to just `open`.
-
-The following might come in handy:
-```
-ls as Reason | open | ed
-```
-";
+pub static MAN: &str = include_str!("../../man/open.md");
 
 pub fn execute(
     input: CommandInput,
@@ -53,19 +34,21 @@ pub fn execute(
         .collect();
     let mut files = Vec::new();
     for &ind in selected.iter() {
-        if let Some(path) = state.papers[ind].abs_filepath(config)? {
+        if let Some(path) = state.papers[ind].filepath(config) {
             files.push((ind, path));
         }
     }
 
     // Some reports.
     let num_open = files.len();
-    println!(
-        "{} {} selected. Skipping {} without file paths.",
-        num_papers,
-        if num_papers > 1 { "papers" } else { "paper" },
-        num_papers - num_open,
-    );
+    if num_papers - num_open > 0 {
+        println!(
+            "{} {} selected. Skipping {} without file paths.",
+            num_papers,
+            if num_papers > 1 { "papers" } else { "paper" },
+            num_papers - num_open,
+        );
+    }
 
     // Ask for confirmation.
     if num_open > 1 {

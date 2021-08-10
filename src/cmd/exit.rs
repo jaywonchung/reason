@@ -1,11 +1,6 @@
 use crate::cmd::prelude::*;
 
-pub static MAN: &'static str = "Usage: exit
-
-Synchronizes the in-memory paper metadata to disk and quits
-reason. This is equivalent to pressing <Ctrl-d> in the
-command line.
-";
+pub static MAN: &str = include_str!("../../man/exit.md");
 
 pub fn execute(
     _input: CommandInput,

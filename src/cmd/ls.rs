@@ -2,13 +2,7 @@ use crate::cmd::prelude::*;
 use crate::paper::PaperList;
 use crate::state::FilterInst;
 
-pub static MAN: &'static str = "Usage: ls [filter]
-
-Filter papers in the paperbase and print them in a
-pretty table.
-
-See `man filter` for more on filters.
-";
+pub static MAN: &str = include_str!("../../man/ls.md");
 
 pub fn execute(
     input: CommandInput,

@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::fmt;
 use std::io::Write;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use chrono::prelude::*;
 use comfy_table::{Attribute, Cell, CellAlignment, ContentArrangement, Table};
@@ -10,22 +10,9 @@ use serde::{Deserialize, Serialize};
 use crate::config::Config;
 use crate::error::Fallacy;
 use crate::state::State;
-use crate::utils::expand_tilde;
+use crate::utils::{as_filename, confirm};
 
-pub static MAN: &'static str = "Paper metadata.
-
-Reason keeps metadata for each paper in its paperpase.
-- title: The title of the paper, in full.
-- nickname: The nickname of the paper. For instance,
-   the name of the system.
-- authors: A list of authors, in order.
-- venue: Where the paper was published, excluding year.
-- year: The year when the paper was published.
-- filepath: The path to the PDF file of the paper.
-- state: The management state history of the paper.
-   Two states are supported: ADDED and READ.
-- notepath: 
-";
+pub static MAN: &str = include_str!("../man/paper.md");
 
 pub struct PaperList(pub Vec<usize>);
 
@@ -91,7 +78,7 @@ pub struct Paper {
     /// The path to the markdown note of the paper. File names are created with the
     /// title of the paper. If collisions are detected, an integer will be appended
     /// to the file name.
-    pub notepath: Option<String>,
+    pub notepath: Option<PathBuf>,
 }
 
 impl Paper {
@@ -143,7 +130,7 @@ impl Paper {
         }
 
         // Report error if there are missing fields.
-        if missing.len() != 0 {
+        if !missing.is_empty() {
             return Err(Fallacy::PaperMissingFields(missing.join(", ")));
         }
 
@@ -158,8 +145,8 @@ impl Paper {
             .collect();
         let venue = fields.remove("venue").unwrap();
         let year = fields.remove("year").unwrap();
-        let state = vec![PaperStatus::new()];
-        let filepath = fields.remove("filepath").map(|s| PathBuf::from(s));
+        let state = vec![PaperStatus::added()];
+        let filepath = fields.remove("filepath").map(PathBuf::from);
         let notepath = None;
 
         Ok(Paper {
@@ -187,25 +174,19 @@ impl Paper {
         }
     }
 
-    pub fn note_path(&mut self, note_dir: &PathBuf) -> Result<String, Fallacy> {
+    pub fn note_path(&mut self, note_dir: &Path) -> Result<PathBuf, Fallacy> {
         // No notes for this paper. Create one!
         if self.notepath.is_none() {
-            // Generate a unique filepath for this paper.
-            // By default the nickname of the paper + .md.
-            // If the paper doesn't have a nickname, the title is used.
+            // Generate a filename for this paper.
             let file = match self.nickname.clone() {
                 Some(string) => string,
-                None => self
-                    .title
-                    .clone()
-                    .replace(|c: char| c.is_whitespace(), "-")
-                    .replace(|c: char| c != '-' && !c.is_ascii_alphanumeric(), ""),
+                None => as_filename(&self.title),
             };
 
             // Find a filename that doesn't exist.
             let mut attempt = 0usize;
             let path = loop {
-                let mut path = note_dir.clone();
+                let mut path = note_dir.to_path_buf();
                 let mut filename = file.clone();
                 if attempt == 0 {
                     filename.push_str(".md");
@@ -213,63 +194,69 @@ impl Paper {
                     let formatted = format!("-{}.md", attempt);
                     filename.push_str(&formatted);
                 }
-                path.push(filename);
+                path.push(&filename);
                 if !path.exists() {
+                    // Record in state.
+                    self.notepath.replace(PathBuf::from(filename));
                     break path;
                 } else {
                     attempt += 1;
                 }
             };
 
-            // Create the note file and initialize it with some metadata.
-            if let Err(e) = std::fs::create_dir_all(&path.parent().unwrap()) {
-                return Err(e.into());
-            }
-            match std::fs::File::create(&path) {
-                Ok(mut file) => {
-                    if let Err(e) = write!(
-                        file,
-                        "- {}\n- {}\n- {} {}\n\n",
-                        self.title,
-                        self.authors.join(", "),
-                        self.venue,
-                        self.year
-                    ) {
-                        return Err(e.into());
-                    }
-                    drop(file);
-                }
-                Err(e) => return Err(e.into()),
-            };
-
-            match path.to_str() {
-                Some(path) => self.notepath.replace(path.to_owned()),
-                None => return Err(Fallacy::PathInvalidUTF8(path)),
-            };
+            self.create_note(&path)?;
         }
-        Ok(self.notepath.clone().unwrap())
+
+        // Unwrap will never fail.
+        let relative = self.notepath.as_ref().unwrap();
+        let mut path = note_dir.to_path_buf();
+        path.push(relative);
+
+        // Notepath exists, but the file doesn't actually exist.
+        if !path.exists() {
+            confirm(
+                format!(
+                    "Note file {:?} does not exist. Create a new one here?",
+                    path
+                ),
+                true,
+            )?;
+            self.create_note(&path)?;
+        }
+
+        Ok(path)
     }
 
-    /// Create an absolute path to the paper file.
-    /// Returns Ok(None) if the paper does not have a filepath.
-    pub fn abs_filepath(&self, config: &Config) -> Result<Option<PathBuf>, Fallacy> {
-        if let Some(filepath) = self.filepath.as_ref() {
-            let path = expand_tilde(filepath)?;
-            // Path is already absolute.
-            if path.is_absolute() {
-                return Ok(Some(path));
-            }
-            // Relative path.
-            if let Some(base) = config.storage.file_base_dir.as_ref() {
-                let mut base = base.clone();
-                base.push(path);
-                Ok(Some(base))
-            } else {
-                Err(Fallacy::PathRelativeWithoutBase(path))
-            }
-        } else {
-            Ok(None)
+    fn create_note(&self, path: &Path) -> Result<(), Fallacy> {
+        if let Err(e) = std::fs::create_dir_all(&path.parent().unwrap()) {
+            return Err(e.into());
         }
+        match std::fs::File::create(&path) {
+            Ok(mut file) => {
+                if let Err(e) = write!(
+                    file,
+                    "- {}\n- {}\n- {} {}\n\n",
+                    self.title,
+                    self.authors.join(", "),
+                    self.venue,
+                    self.year
+                ) {
+                    return Err(e.into());
+                }
+            }
+            Err(e) => return Err(e.into()),
+        };
+        Ok(())
+    }
+
+    /// Return the absolute path to the paper file.
+    /// Returns None if the paper does not have a filepath.
+    pub fn filepath(&self, config: &Config) -> Option<PathBuf> {
+        self.filepath.as_ref().map(|filepath| {
+            let mut base = config.storage.file_dir.clone();
+            base.push(filepath);
+            base
+        })
     }
 }
 
@@ -280,12 +267,12 @@ pub enum PaperStatus {
 }
 
 impl PaperStatus {
-    pub fn new() -> Self {
+    pub fn added() -> Self {
         Self::Added(Local::now().format("%F %r").to_string())
     }
 
-    pub fn read(&mut self) {
-        *self = Self::Read(Local::now().format("%F %r").to_string());
+    pub fn read() -> Self {
+        Self::Read(Local::now().format("%F %r").to_string())
     }
 }
 

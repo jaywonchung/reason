@@ -1,9 +1,6 @@
 use crate::cmd::prelude::*;
 
-pub static MAN: &'static str = "Usage: pwd
-
-Print the current default filter set by `cd`.
-";
+pub static MAN: &str = include_str!("../../man/pwd.md");
 
 pub fn execute(
     _input: CommandInput,

@@ -7,23 +7,9 @@
     - Soomook Moon
   venue: ICPP
   year: "2020"
-  filepath: ~/papers/Shadowtutor.pdf
+  filepath: Shadowtutor.pdf
   state:
     - Read: "2021-07-31 03:48:24 PM"
-  notepath: ~
-- title: "CloneCloud: Elastic Execution Between Mobile Device and Cloud"
-  nickname: CloneCloud
-  authors:
-    - Byung-Gon Chun
-    - Shunghwan Ihm
-    - Petros Maniatis
-    - Mayur Naik
-    - Ashwin Patti
-  venue: EuroSys
-  year: "2011"
-  filepath: ~
-  state:
-    - Added: "2021-07-31 10:29:10 PM"
   notepath: ~
 - title: Efficient Memory Disaggregation with Infiniswap
   nickname: Infiniswap
@@ -38,23 +24,6 @@
   filepath: ~
   state:
     - Added: "2021-08-05 04:21:03 PM"
-  notepath: ~
-- title: "WindTunnel: Towards Differentiable ML Pipelines Beyond a Single Model"
-  nickname: ~
-  authors:
-    - Gyeong-In Yu
-    - Saeed Amizadeh
-    - Sehoon Kim
-    - Artidoro Pagnoni
-    - Ce Zhang
-    - Byung-Gon Chun
-    - Markus Weimer
-    - Matteo Interlandi
-  venue: VLDB
-  year: "2022"
-  filepath: ~
-  state:
-    - Added: "2021-07-31 10:30:01 PM"
   notepath: ~
 - title: "Refurbish Your Training Data: Reusing Partially Augmented Samples for Faster Deep Neural Network Training"
   nickname: Data Refurbishing
@@ -72,18 +41,6 @@
   state:
     - Added: "2021-07-31 11:22:59 PM"
   notepath: ~
-- title: Finding Consensus Bugs in Etherium via Multi-transaction Differential Fuzzing
-  nickname: ~
-  authors:
-    - Youngseok Yang
-    - Taesoo Kim
-    - Byung-Gon Chun
-  venue: OSDI
-  year: "2021"
-  filepath: ~
-  state:
-    - Added: "2021-07-31 11:23:01 PM"
-  notepath: ~
 - title: "Tiresias: A GPU Cluster Manager for Distributed Deep Learning"
   nickname: Tiresias
   authors:
@@ -97,7 +54,7 @@
     - Chuanxiong Guo
   venue: NSDI
   year: "2019"
-  filepath: ~/papers/Tiresias.pdf
+  filepath: Tiresias.pdf
   state:
     - Added: "2021-08-02 02:36:50 AM"
   notepath: ~
@@ -114,16 +71,27 @@
   state:
     - Added: "2021-08-01 02:36:59 AM"
   notepath: ~
-- title: "Hippo: Taming Hyper-parameter Optimization of Deep Learning with Stage Trees"
-  nickname: Hippo
+- title: "Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift"
+  nickname: ~
   authors:
-    - Ahnjae Shin
-    - Do Yoon Kim
-    - Joo Seong Jeong
-    - Byung-Gon Chun
+    - Sergey Ioffe
+    - Christian Szegedy
   venue: arXiv
-  year: "2020"
-  filepath: ~
+  year: "2015"
+  filepath: Batch-Normalization-Accelerating-Deep-Network-Training-by-Reducing-Internal-Covariate-Shift.pdf
   state:
-    - Added: "2021-08-05 04:23:49 PM"
+    - Added: "2021-08-10 06:15:53 PM"
+  notepath: ~
+- title: Ship Compute or Ship Data? Why Not Both?
+  nickname: ~
+  authors:
+    - Jie You
+    - Jingfeng Wu
+    - Xin Jin
+    - Mosharaf Chowdhury
+  venue: NSDI
+  year: "2021"
+  filepath: Ship-Compute-or-Ship-Data-Why-Not-Both.pdf
+  state:
+    - Added: "2021-08-10 06:25:25 PM"
   notepath: ~

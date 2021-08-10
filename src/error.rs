@@ -32,7 +32,7 @@ pub enum Fallacy {
     #[error("I/O error: '{0}'")]
     IOError(#[from] std::io::Error),
     #[error("{0}")]
-    FailedConfirmation(String),
+    FailedUserInteraction(String),
     // filter
     #[error("Failed to build filter from regex:\n{0}")]
     FilterBuildFailed(regex::Error),
@@ -46,16 +46,29 @@ pub enum Fallacy {
     PathDoesNotExist(PathBuf),
     #[error("Invalid UTF-8 character in path: '{0}'")]
     PathInvalidUTF8(PathBuf),
-    #[error("Cannot resolve relative path '{0}' because the base directory was not given. See 'base_dir' in `man config`.")]
-    PathRelativeWithoutBase(PathBuf),
     #[error("Failed to find home directory for user.")]
     Homeless,
     // exit
     #[error("Exit reason")]
     ExitReason,
     // man command
-    #[error("`man` receives exactly one argument.")]
+    #[error("`man` accepts exactly one argument.")]
     ManInvalidArgument,
     #[error("Unknown subject: '{0}'")]
     ManUnknownSubject(String),
+    // curl command
+    #[error("`curl` accepts exactly one argument as source.")]
+    CurlNoSource,
+    #[error("Unknown source: '{0}'")]
+    CurlUnknownSource(String),
+    #[error("Invalid source: '{0}'. Refer to `man curl`.")]
+    CurlInvalidSourceUrl(String),
+    #[error("Failed to parse source url: '{0}'")]
+    CurlURLParseError(#[from] url::ParseError),
+    #[error("Failed to fetch from url: '{0}'")]
+    CurlGetFailed(#[from] reqwest::Error),
+    #[error("Failed to parse title. {0}")]
+    CurlCannotFindTitle(String),
+    #[error("Failed to parse author list. {0}")]
+    CurlCannotFindAuthor(String),
 }

@@ -1,18 +1,18 @@
 use std::io::Write;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use crate::error::Fallacy;
 
 /// Expands the leading tilde (~) in the given `PathBuf` with the
 /// current user's home directory.
-pub fn expand_tilde(path: &PathBuf) -> Result<PathBuf, Fallacy> {
+pub fn expand_tilde(path: &Path) -> Result<PathBuf, Fallacy> {
     if !path.starts_with("~") {
-        return Ok(path.clone());
+        return Ok(path.to_path_buf());
     }
 
     let path_str = match path.to_str() {
         Some(string) => string,
-        None => return Err(Fallacy::PathInvalidUTF8(path.clone())),
+        None => return Err(Fallacy::PathInvalidUTF8(path.to_path_buf())),
     };
 
     match home::home_dir() {
@@ -29,9 +29,9 @@ pub fn expand_tilde(path: &PathBuf) -> Result<PathBuf, Fallacy> {
 
 /// Expands the leading tilde (~) in the given `String` with the
 /// current user's home directory.
-pub fn expand_tilde_string(path: &String) -> Result<String, Fallacy> {
-    if !path.starts_with("~") {
-        return Ok(path.clone());
+pub fn expand_tilde_str(path: &str) -> Result<String, Fallacy> {
+    if !path.starts_with('~') {
+        return Ok(path.to_string());
     }
 
     match home::home_dir() {
@@ -51,23 +51,66 @@ pub fn expand_tilde_string(path: &String) -> Result<String, Fallacy> {
 
 /// Ask confirmation to the user.
 pub fn confirm(prompt: String, default: bool) -> Result<(), Fallacy> {
-    let yn = if default { " [Y/n]" } else { " [y/N]" };
+    // Ask
+    let yn = if default { " [Y/n] " } else { " [y/N] " };
     print!("{}", prompt + yn);
     std::io::stdout().flush()?;
 
+    // Get input
     let mut buffer = String::new();
     std::io::stdin().read_line(&mut buffer)?;
 
     let default = if default {
         Ok(())
     } else {
-        Err(Fallacy::FailedConfirmation("".to_owned()))
+        Err(Fallacy::FailedUserInteraction("".to_owned()))
     };
 
     match buffer.to_ascii_lowercase().trim() {
         "y" | "yes" => Ok(()),
-        "n" | "no" => Err(Fallacy::FailedConfirmation("".to_owned())),
+        "n" | "no" => Err(Fallacy::FailedUserInteraction("".to_owned())),
         "" => default,
-        _ => Err(Fallacy::FailedConfirmation("Invalid input.".to_owned())),
+        _ => Err(Fallacy::FailedUserInteraction("Invalid input.".to_owned())),
     }
+}
+
+/// Ask the user to select among candidates.
+pub fn select<'i, I>(prompt: &str, candidate: I) -> Result<usize, Fallacy>
+where
+    I: Iterator<Item = &'i str>,
+{
+    // Ask
+    print!("{}", prompt);
+    let mut len = 0;
+    for (index, cand) in candidate.enumerate() {
+        len += 1;
+        print!(" {}) {}.", index, cand);
+    }
+    print!("\n: ");
+    std::io::stdout().flush()?;
+
+    // Get input
+    let mut buffer = String::new();
+    std::io::stdin().read_line(&mut buffer)?;
+
+    match buffer.trim().parse() {
+        Ok(num) => {
+            if num >= len {
+                Err(Fallacy::FailedUserInteraction(
+                    "Input out of range.".to_owned(),
+                ))
+            } else {
+                Ok(num)
+            }
+        }
+        Err(e) => Err(Fallacy::FailedUserInteraction(e.to_string())),
+    }
+}
+
+/// Generate an appropriate filename from a papaer title.
+/// Remove all non-alphanumeric characters and replace whitespaces to hyphens.
+pub fn as_filename(title: &str) -> String {
+    title
+        .replace(|c: char| c.is_whitespace(), "-")
+        .replace(|c: char| c != '-' && !c.is_ascii_alphanumeric(), "")
 }

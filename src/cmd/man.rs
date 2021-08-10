@@ -1,13 +1,6 @@
 use crate::cmd::prelude::*;
 
-pub static MAN: &'static str = "Usage: man [subject]
-
-Print the manual page of the given subject.
-
-Available subjects are:
-command, cd, exit, ls, man, open, pwd, ed, rm, touch,
-config, filter, paper
-";
+pub static MAN: &str = include_str!("../../man/man.md");
 
 pub fn execute(
     input: CommandInput,
@@ -24,12 +17,13 @@ pub fn execute(
     let man_str = match entry {
         "command" => crate::cmd::MAN,
         "cd" => crate::cmd::cd::MAN,
+        "curl" => crate::cmd::curl::MAN,
+        "ed" => crate::cmd::ed::MAN,
         "exit" => crate::cmd::exit::MAN,
         "ls" => crate::cmd::ls::MAN,
         "man" => crate::cmd::man::MAN,
         "open" => crate::cmd::open::MAN,
         "pwd" => crate::cmd::pwd::MAN,
-        "ed" => crate::cmd::ed::MAN,
         "rm" => crate::cmd::rm::MAN,
         "touch" => crate::cmd::touch::MAN,
         "config" => crate::config::MAN,

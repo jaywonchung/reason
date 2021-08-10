@@ -1,28 +1,10 @@
+use std::path::PathBuf;
 use std::process::Command;
 
 use crate::cmd::prelude::*;
 use crate::utils::confirm;
 
-pub static MAN: &'static str = "Usage:
-1) alone: ed [filter]
-2) pipe:  [paper list] | ed
-
-Open paper notes with a text editor and outputs
-the papers of successfully notes in the usual table format.
-You may configure the editor to use by setting the
-`output.editor_command` entry in your config file.
-
-When a paper list is given to `ed` via pipe, all
-command line arguments are ignored. On the other hand,
-if nothing is given through pipe, `ed` accepts filters
-though arguments, and the default filter is also applied.
-Thus, `ls | ed` is equivalent to just `ed`.
-
-The following might come in handy:
-```
-ls as Reason | open | ed
-```
-";
+pub static MAN: &str = include_str!("../../man/ed.md");
 
 pub fn execute(
     input: CommandInput,
@@ -87,7 +69,7 @@ fn spawn(mut command: Command, block: bool) {
     }
 }
 
-fn build_editor_command(notes: &[String], config: &Config) -> Command {
+fn build_editor_command(notes: &[PathBuf], config: &Config) -> Command {
     let command = &config.output.editor_command;
     let mut ret = Command::new(&command[0]);
     ret.args(&command[1..]).args(notes);
