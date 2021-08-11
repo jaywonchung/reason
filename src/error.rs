@@ -71,4 +71,7 @@ pub enum Fallacy {
     CurlCannotFindTitle(String),
     #[error("Failed to parse author list. {0}")]
     CurlCannotFindAuthor(String),
+    // printf command
+    #[error("Failed to build book: '{0}'")]
+    PrintfBuildError(#[from] mdbook::errors::Error),
 }

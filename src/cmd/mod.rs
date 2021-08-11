@@ -11,6 +11,7 @@ mod ls;
 mod man;
 mod open;
 pub mod prelude;
+mod printf;
 mod pwd;
 mod rm;
 mod touch;
@@ -59,6 +60,7 @@ pub fn to_executor(command: String) -> Result<ExecuteFn, Fallacy> {
         "ls" => Ok(ls::execute),
         "man" => Ok(man::execute),
         "open" => Ok(open::execute),
+        "printf" => Ok(printf::execute),
         "pwd" => Ok(pwd::execute),
         "ed" => Ok(ed::execute),
         "rm" => Ok(rm::execute),

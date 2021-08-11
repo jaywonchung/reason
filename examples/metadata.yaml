@@ -10,7 +10,7 @@
   filepath: Shadowtutor.pdf
   state:
     - Read: "2021-07-31 03:48:24 PM"
-  notepath: ~
+  notepath: Shadowtutor.md
 - title: Efficient Memory Disaggregation with Infiniswap
   nickname: Infiniswap
   authors:
@@ -24,7 +24,7 @@
   filepath: ~
   state:
     - Added: "2021-08-05 04:21:03 PM"
-  notepath: ~
+  notepath: Infiniswap.md
 - title: "Refurbish Your Training Data: Reusing Partially Augmented Samples for Faster Deep Neural Network Training"
   nickname: Data Refurbishing
   authors:
@@ -40,7 +40,7 @@
   filepath: ~
   state:
     - Added: "2021-07-31 11:22:59 PM"
-  notepath: ~
+  notepath: Data-Refurbishing.md
 - title: "Tiresias: A GPU Cluster Manager for Distributed Deep Learning"
   nickname: Tiresias
   authors:
@@ -57,7 +57,7 @@
   filepath: Tiresias.pdf
   state:
     - Added: "2021-08-02 02:36:50 AM"
-  notepath: ~
+  notepath: Tiresias.md
 - title: "Nimble: Lightweight and Parallel GPU Task Scheduling for Deep Learning"
   nickname: Nimble
   authors:
@@ -70,7 +70,7 @@
   filepath: ~
   state:
     - Added: "2021-08-01 02:36:59 AM"
-  notepath: ~
+  notepath: Nimble.md
 - title: "Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift"
   nickname: ~
   authors:
@@ -81,7 +81,7 @@
   filepath: Batch-Normalization-Accelerating-Deep-Network-Training-by-Reducing-Internal-Covariate-Shift.pdf
   state:
     - Added: "2021-08-10 06:15:53 PM"
-  notepath: ~
+  notepath: Batch-Normalization-Accelerating-Deep-Network-Training-by-Reducing-Internal-Covariate-Shift.md
 - title: Ship Compute or Ship Data? Why Not Both?
   nickname: ~
   authors:
@@ -94,4 +94,17 @@
   filepath: Ship-Compute-or-Ship-Data-Why-Not-Both.pdf
   state:
     - Added: "2021-08-10 06:25:25 PM"
+  notepath: Ship-Compute-or-Ship-Data-Why-Not-Both.md
+- title: "FedScale: Benchmarking Model and System Performance of Federated Learning"
+  nickname: ~
+  authors:
+    - Fan Lai
+    - Yinwei Dai
+    - Xiangfeng Zhu
+    - Mosharaf Chowdhury
+  venue: arXiv
+  year: "2021"
+  filepath: FedScale-Benchmarking-Model-and-System-Performance-of-Federated-Learning.pdf
+  state:
+    - Added: "2021-08-11 04:55:15 PM"
   notepath: ~

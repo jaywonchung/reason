@@ -13,9 +13,11 @@ Well, ask `reason`.
 
 For actual demos, refer to the [wiki](https://github.com/jaywonchung/reason/wiki/Demo).
 
+### Filter and list papers
+
 ```bash
 $ reason
->> # Show all papers in the paperbase.
+>> # Show all papers.
 >> ls
 +----------------------------------------------------------+----------------+---------+------+
 |                           title                          |  first author  |  venue  | year |
@@ -50,11 +52,64 @@ $ reason
 | Deep Learning                                              |              |         |      |
 +------------------------------------------------------------+--------------+---------+------+
 >> # You may set default filters with `cd`.
+>> # BTW, `cd .`, `cd ..`, `cd -`, and `cd` are supported, too.
 >> cd 'Deep Learning'
 >> pwd
 title matches 'Deep Learning'
 >> # Default filter are automatically applied.
->> ls
+>> # Infiniswap (NSDI'17) is not shown, because its title doesn't match 'Deep Learning'.
+>> ls at NSDI
++------------------------------------------------------------+--------------+---------+------+
+|                            title                           | first author |  venue  | year |
++============================================================================================+
+| Tiresias: A GPU Cluster Manager for Distributed Deep       | Juncheng Gu  | NSDI    | 2019 |
+| Learning                                                   |              |         |      |
++------------------------------------------------------------+--------------+---------+------+
+>> # Delete Tiresias.
+>> ls at NSDI | rm
+Removed 1 paper.
+```
+
+### Import new papers
+
+```bash
+>> # Import directly from arXiv and USENIX. This will also download paper PDFs.
+>> curl https://arxiv.org/abs/2105.11367
++--------------------------------------------------------+--------------+-------+------+
+|                          title                         | first author | venue | year |
++======================================================================================+
+| FedScale: Benchmarking Model and System Performance of | Fan Lai      | arXiv | 2021 |
+| Federated Learning                                     |              |       |      |
++--------------------------------------------------------+--------------+-------+------+
+>> curl https://www.usenix.org/conference/nsdi21/presentation/you
++------------------------------------------+--------------+-------+------+
+|                   title                  | first author | venue | year |
++========================================================================+
+| Ship Compute or Ship Data? Why Not Both? | Jie You      | NSDI  | 2021 |
++------------------------------------------+--------------+-------+------+
+>> # Or, import manually.
+>> touch 'Batch Normalization: Accelerating Deep Network Training by Reducing Internal
+Covariate Shift' by 'Sergey Ioffe, Christian Szegedy' at ICML in 2015 as BN @ BatchNorm.pdf
++--------------------------------------------------------------+--------------+-------+------+
+|                             title                            | first author | venue | year |
++============================================================================================+
+| Batch Normalization: Accelerating Deep Network Training by   | Sergey Ioffe | ICML  | 2015 |
+| Reducing Internal Covariate Shift                            |              |       |      |
++--------------------------------------------------------------+--------------+-------+------+
+```
+
+### Read, take notes, and create books!
+
+```bash
+>> # Open with a PDF viewer (`open`) and edit markdown notes with your editor (`ed`).
+>> ls 'Why Not Both' | open | ed
++------------------------------------------+--------------+-------+------+
+|                   title                  | first author | venue | year |
++========================================================================+
+| Ship Compute or Ship Data? Why Not Both? | Jie You      | NSDI  | 2021 |
++------------------------------------------+--------------+-------+------+
+>> # Format your markdown notes into an HTML book, and open it in your browser.
+>> ls 'Deep Learning' | printf
 +------------------------------------------------------------+--------------+---------+------+
 |                            title                           | first author |  venue  | year |
 +============================================================================================+
@@ -64,33 +119,9 @@ title matches 'Deep Learning'
 | Nimble: Lightweight and Parallel GPU Task Scheduling for   | Woosuk Kwon  | NeurIPS | 2020 |
 | Deep Learning                                              |              |         |      |
 +------------------------------------------------------------+--------------+---------+------+
->> # Delete Tiresias (NSDI'19), but not Infiniswap (NSDI'17).
->> ls at NSDI | rm
->>
->> # Import directly from arXiv and USENIX. This will also download paper PDFs.
->> curl https://arxiv.org/abs/1502.03167
-+--------------------------------------------------------------+--------------+-------+------+
-|                             title                            | first author | venue | year |
-+============================================================================================+
-| Batch Normalization: Accelerating Deep Network Training by   | Sergey Ioffe | arXiv | 2015 |
-| Reducing Internal Covariate Shift                            |              |       |      |
-+--------------------------------------------------------------+--------------+-------+------+
->> curl https://www.usenix.org/conference/nsdi21/presentation/you
-+------------------------------------------+--------------+-------+------+
-|                   title                  | first author | venue | year |
-+========================================================================+
-| Ship Compute or Ship Data? Why Not Both? | Jie You      | NSDI  | 2021 |
-+------------------------------------------+--------------+-------+------+
->> # Return to parent default filter (which was empty).
->> cd ..
->> # Open with a PDF viewer (`open`) and edit markdown notes with your editor (`ed`).
->> ls 'Why Not Both' | open | ed
-+------------------------------------------+--------------+-------+------+
-|                   title                  | first author | venue | year |
-+========================================================================+
-| Ship Compute or Ship Data? Why Not Both? | Jie You      | NSDI  | 2021 |
-+------------------------------------------+--------------+-------+------+
 ```
+
+## Commands
 
 Invoking `reason` will start a new command prompt. It accepts unix-like commands that instead work on research papers in your paperbase.
 
@@ -145,7 +176,7 @@ Commands
 - [ ] `sort`
 - [ ] `set`
 - [ ] `stat`
-- [ ] `printf`
+- [x] `printf`
 - [x] `open`
 - [x] `ed`
 - [ ] `top`

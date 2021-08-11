@@ -57,3 +57,9 @@ with default settings.
   Otherwise, the editor command is invoked once for each
   paper.
    (default: true)
+- browser_command: Command to use for the web browser to
+  open formatted HTML notes. If you place a set of curly
+  braces ('{}') in the list, the path to `index.html`
+  will be substituted in that location. Otherwise, the
+  path to `index.html` will be placed at the end.
+   (default: ['google-chrome-stable']

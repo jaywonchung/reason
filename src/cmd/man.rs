@@ -23,6 +23,7 @@ pub fn execute(
         "ls" => crate::cmd::ls::MAN,
         "man" => crate::cmd::man::MAN,
         "open" => crate::cmd::open::MAN,
+        "printf" => crate::cmd::printf::MAN,
         "pwd" => crate::cmd::pwd::MAN,
         "rm" => crate::cmd::rm::MAN,
         "touch" => crate::cmd::touch::MAN,

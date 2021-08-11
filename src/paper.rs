@@ -179,7 +179,7 @@ impl Paper {
         if self.notepath.is_none() {
             // Generate a filename for this paper.
             let file = match self.nickname.clone() {
-                Some(string) => string,
+                Some(string) => as_filename(&string),
                 None => as_filename(&self.title),
             };
 
@@ -235,7 +235,7 @@ impl Paper {
             Ok(mut file) => {
                 if let Err(e) = write!(
                     file,
-                    "- {}\n- {}\n- {} {}\n\n",
+                    "# {}\n\n- {}\n- {} {}\n\n",
                     self.title,
                     self.authors.join(", "),
                     self.venue,

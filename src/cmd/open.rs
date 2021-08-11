@@ -61,7 +61,7 @@ pub fn execute(
         if spawn(build_viewer_command(files.as_ref(), config)) {
             Ok(CommandOutput::Papers(PaperList(selected)))
         } else {
-            Ok(CommandOutput::Papers(PaperList(Vec::new())))
+            Ok(CommandOutput::None)
         }
     } else {
         let mut selected = Vec::new();

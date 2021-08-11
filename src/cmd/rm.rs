@@ -34,7 +34,8 @@ pub fn execute(
     }
 
     Ok(CommandOutput::Message(format!(
-        "Removed {} papers.",
-        num_paper
+        "Removed {} {}.",
+        num_paper,
+        if num_paper != 1 { "papers" } else { "paper" },
     )))
 }

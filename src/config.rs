@@ -35,6 +35,7 @@ pub struct OutputConfig {
     pub viewer_batch: bool,
     pub editor_command: Vec<String>,
     pub editor_batch: bool,
+    pub browser_command: Vec<String>,
 }
 
 impl Config {
@@ -98,6 +99,16 @@ impl OutputConfig {
             ));
         }
         for path in self.editor_command.iter_mut() {
+            *path = expand_tilde_str(path)?;
+        }
+
+        // Check browser command and expand tilde.
+        if self.browser_command.is_empty() {
+            return Err(Fallacy::ConfigAuditError(
+                "Browser command cannot be emtpy.".to_owned(),
+            ));
+        }
+        for path in self.browser_command.iter_mut() {
             *path = expand_tilde_str(path)?;
         }
 
@@ -168,6 +179,7 @@ impl Default for OutputConfig {
         let viewer_batch = false;
         let editor_command = vec![String::from("vim"), String::from("-p")];
         let editor_batch = true;
+        let browser_command = vec![String::from("google-chrome-stable")];
 
         Self {
             table_columns,
@@ -175,6 +187,7 @@ impl Default for OutputConfig {
             viewer_batch,
             editor_command,
             editor_batch,
+            browser_command,
         }
     }
 }
