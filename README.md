@@ -125,23 +125,25 @@ Covariate Shift' by 'Sergey Ioffe, Christian Szegedy' at ICML in 2015 as BN @ Ba
 
 Invoking `reason` will start a new command prompt. It accepts unix-like commands that instead work on research papers in your paperbase.
 
-Many commands will become available over time:
+Works now:
 - `ls` filters and prints papers in table format. Default columns are title, first author(by1), venue(at), and year(in).
 - `cd` adds an AND filter to the default set of filters (which is empty upon startup).
 - `pwd` shows the current default filter set by `cd`.
 - `touch` creates a new entry in your paperbase.
 - `curl` imports papers from the web, e.g. arXiv or usenix.org. It also downloads paper PDFs if available.
 - `rm` removes entries from your paperbase.
-- `sort` sorts papers by given columns.
-- `set` sets attributes of papers.
-- `stat` prints the metadata and notes of papers.
 - `printf` creates an HTML page of your notes using `mdbook`.
 - `open` opens the paper with Zathura.
 - `ed` opens your editor (defaulting to `vim` but abiding by `$EDITOR`), in which you can edit your notes.
-- `top` prints out a summary of your paperbase.
-- `sync` stores the paper metadata state to disk.
 - `man` plus a command will print documentation for that command.
 - `exit` or Ctrl-d quits `reason`.
+
+Not yet, but hopefully soon:
+- `sort` sorts papers by given columns.
+- `set` sets attributes of papers.
+- `stat` prints the metadata and notes of papers.
+- `top` prints out a summary of your paperbase.
+- `sync` stores the paper metadata state to disk.
 
 ## Configuration
 
