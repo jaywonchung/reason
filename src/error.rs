@@ -74,4 +74,7 @@ pub enum Fallacy {
     // printf command
     #[error("Failed to build book: '{0}'")]
     PrintfBuildError(#[from] mdbook::errors::Error),
+    // set command
+    #[error("No papers given through pipe.")]
+    SetNoPapers,
 }

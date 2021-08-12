@@ -132,6 +132,7 @@ Works now:
 - `touch` creates a new entry in your paperbase.
 - `curl` imports papers from the web, e.g. arXiv or usenix.org. It also downloads paper PDFs if available.
 - `rm` removes entries from your paperbase.
+- `set` sets attributes of papers.
 - `printf` creates an HTML page of your notes using `mdbook`.
 - `open` opens the paper with Zathura.
 - `ed` opens your editor (defaulting to `vim` but abiding by `$EDITOR`), in which you can edit your notes.
@@ -139,8 +140,8 @@ Works now:
 - `exit` or Ctrl-d quits `reason`.
 
 Not yet, but hopefully soon:
+- `grep` returns a list of papers whose notes contain the query string that you specify.
 - `sort` sorts papers by given columns.
-- `set` sets attributes of papers.
 - `stat` prints the metadata and notes of papers.
 - `top` prints out a summary of your paperbase.
 - `sync` stores the paper metadata state to disk.
@@ -175,8 +176,9 @@ Commands
 - [x] `curl`
 - [x] `exit`
 - [x] `rm`
+- [ ] `grep`
 - [ ] `sort`
-- [ ] `set`
+- [x] `set`
 - [ ] `stat`
 - [x] `printf`
 - [x] `open`

@@ -14,6 +14,7 @@ pub mod prelude;
 mod printf;
 mod pwd;
 mod rm;
+mod set;
 mod touch;
 
 pub static MAN: &str = include_str!("../../man/command.md");
@@ -64,6 +65,7 @@ pub fn to_executor(command: String) -> Result<ExecuteFn, Fallacy> {
         "pwd" => Ok(pwd::execute),
         "ed" => Ok(ed::execute),
         "rm" => Ok(rm::execute),
+        "set" => Ok(set::execute),
         "touch" => Ok(touch::execute),
         _ => Err(Fallacy::UnknownCommand(command.to_owned())),
     }

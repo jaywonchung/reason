@@ -102,7 +102,7 @@ impl Paper {
                     map.insert(arg, arg_iter.next());
                 }
                 _ => {
-                    if map.contains_key("title") {
+                    if map.contains_key("_") {
                         return Err(Fallacy::PaperDuplicateField("title".to_owned()));
                     }
                     map.insert("_".to_owned(), Some(arg));
@@ -153,7 +153,7 @@ impl Paper {
         let state = vec![PaperStatus::added()];
         let labels = fields
             .remove("labels")
-            .map(|l| l.split(", ").map(String::from).collect())
+            .map(|l| l.split(',').map(|s| s.trim().to_string()).collect())
             .unwrap_or_default();
         let filepath = fields.remove("filepath").map(PathBuf::from);
         let notepath = None;
@@ -169,6 +169,61 @@ impl Paper {
             filepath,
             notepath,
         })
+    }
+
+    pub fn apply_from_args(&mut self, args: &[String]) -> Result<(), Fallacy> {
+        // Collect a mapping of keyword -> Option<argument>.
+        let mut map = HashMap::new();
+        let mut arg_iter = args.iter().cloned();
+        while let Some(arg) = arg_iter.next() {
+            match arg.as_ref() {
+                "as" | "by" | "at" | "in" | "is" | "not" => {
+                    if map.contains_key(arg.as_str()) {
+                        return Err(Fallacy::PaperDuplicateField(arg));
+                    }
+                    if let Some(field) = arg_iter.next() {
+                        map.insert(arg, field);
+                    } else {
+                        map.insert("_".to_owned(), arg);
+                    }
+                }
+                _ => {
+                    if map.contains_key("_") {
+                        return Err(Fallacy::PaperDuplicateField("title".to_owned()));
+                    }
+                    map.insert("_".to_owned(), arg);
+                }
+            }
+        }
+
+        // Apply changes.
+        if let Some(title) = map.remove("_") {
+            self.title = title;
+        }
+        if let Some(nickname) = map.remove("as") {
+            self.nickname = Some(nickname);
+        }
+        if let Some(authors) = map.remove("by") {
+            self.authors = authors.split(',').map(|s| s.trim().to_string()).collect();
+        }
+        if let Some(venue) = map.remove("at") {
+            self.venue = venue;
+        }
+        if let Some(year) = map.remove("in") {
+            self.year = year;
+        }
+        if let Some(labels) = map.remove("is") {
+            for label in labels.split(',') {
+                self.labels.insert(label.trim().to_string());
+            }
+        }
+        if let Some(labels) = map.remove("not") {
+            for label in labels.split(',') {
+                self.labels.remove(&label.trim().to_string());
+            }
+        }
+
+        Ok(())
     }
 
     pub fn field_as_string(&self, field: &str) -> String {

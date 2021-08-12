@@ -26,6 +26,7 @@ pub fn execute(
         "printf" => crate::cmd::printf::MAN,
         "pwd" => crate::cmd::pwd::MAN,
         "rm" => crate::cmd::rm::MAN,
+        "set" => crate::cmd::set::MAN,
         "touch" => crate::cmd::touch::MAN,
         "config" => crate::config::MAN,
         "filter" => crate::filter::MAN,

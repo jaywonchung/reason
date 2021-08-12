@@ -1,19 +1,16 @@
 Usage: touch [paper]
 
-Adds a new paper to the paperbase. Papers can be
-specified like filters. Differences are:
-- The path to the paper file can be specified with the
-   keyword '@'.
-- Authors should be specified with a single-quoted
-   comma-separated string.
-
+Adds a new paper to the paperbase. For more information
+on how papers are specified in [paper], see `man paper`.
 Required fields are 'title', 'authors(by)', 'venue(at)',
-and 'year(in)'. Just like filters, they don't have to
-be in order.
+and 'year(in)'.
+
+When specifying authors(by) and labels(is), use a single
+comma-separated list.
 
 For instance:
 ```
 >> touch 'Reason: A Cool New System' by 'Jae-Won
-Chung, Chaehyun Jeong' at OSDI at 2022 as Reason
+Chung, Chaehyun Jeong' at OSDI in 2022 as Reason
 @ reason.pdf
 ```
