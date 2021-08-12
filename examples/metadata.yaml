@@ -8,6 +8,10 @@
   venue: ICPP
   year: "2020"
   filepath: Shadowtutor.pdf
+  labels:
+    - inference
+    - mine
+    - mobile
   state:
     - Read: "2021-07-31 03:48:24 PM"
   notepath: Shadowtutor.md
@@ -22,6 +26,8 @@
   venue: NSDI
   year: "2017"
   filepath: ~
+  labels:
+    - disaggregation
   state:
     - Added: "2021-08-05 04:21:03 PM"
   notepath: Infiniswap.md
@@ -38,6 +44,8 @@
   venue: ATC
   year: "2021"
   filepath: ~
+  labels:
+    - training
   state:
     - Added: "2021-07-31 11:22:59 PM"
   notepath: Data-Refurbishing.md
@@ -55,6 +63,8 @@
   venue: NSDI
   year: "2019"
   filepath: Tiresias.pdf
+  labels:
+    - scheduling
   state:
     - Added: "2021-08-02 02:36:50 AM"
   notepath: Tiresias.md
@@ -68,6 +78,8 @@
   venue: NeurIPS
   year: "2020"
   filepath: ~
+  labels:
+    - inference
   state:
     - Added: "2021-08-01 02:36:59 AM"
   notepath: Nimble.md
@@ -79,6 +91,9 @@
   venue: arXiv
   year: "2015"
   filepath: Batch-Normalization-Accelerating-Deep-Network-Training-by-Reducing-Internal-Covariate-Shift.pdf
+  labels:
+    - training
+    - DL
   state:
     - Added: "2021-08-10 06:15:53 PM"
   notepath: Batch-Normalization-Accelerating-Deep-Network-Training-by-Reducing-Internal-Covariate-Shift.md
@@ -92,6 +107,7 @@
   venue: NSDI
   year: "2021"
   filepath: Ship-Compute-or-Ship-Data-Why-Not-Both.pdf
+  labels: []
   state:
     - Added: "2021-08-10 06:25:25 PM"
   notepath: Ship-Compute-or-Ship-Data-Why-Not-Both.md
@@ -105,6 +121,9 @@
   venue: arXiv
   year: "2021"
   filepath: FedScale-Benchmarking-Model-and-System-Performance-of-Federated-Learning.pdf
+  labels:
+    - training
+    - federated
   state:
     - Added: "2021-08-11 04:55:15 PM"
   notepath: ~

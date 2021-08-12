@@ -15,6 +15,8 @@ pub struct PaperFilter {
     pub first_author: Vec<Regex>,
     pub venue: Vec<Regex>,
     pub year: Vec<Regex>,
+    pub is_label: Vec<Regex>,
+    pub not_label: Vec<Regex>,
 }
 
 impl PaperFilter {
@@ -31,6 +33,8 @@ impl PaperFilter {
                 "by1" => (&mut filter.first_author, arg_iter.next()),
                 "at" => (&mut filter.venue, arg_iter.next()),
                 "in" => (&mut filter.year, arg_iter.next()),
+                "is" => (&mut filter.is_label, arg_iter.next()),
+                "not" => (&mut filter.not_label, arg_iter.next()),
                 _ => (&mut filter.title, Some(arg)),
             };
             let item = match item {
@@ -62,6 +66,8 @@ impl PaperFilter {
             merged.first_author.extend(filter.first_author.clone());
             merged.venue.extend(filter.venue.clone());
             merged.year.extend(filter.year.clone());
+            merged.is_label.extend(filter.is_label.clone());
+            merged.not_label.extend(filter.not_label.clone());
         }
         merged
     }
@@ -69,6 +75,7 @@ impl PaperFilter {
     /// Check if the filter matches the given paper.
     pub fn matches(&self, paper: &Paper) -> bool {
         macro_rules! checker {
+            // A field value should match all regexes in the filter.
             ($regex_field:ident) => {
                 if !self
                     .$regex_field
@@ -78,6 +85,17 @@ impl PaperFilter {
                     return false;
                 }
             };
+            // Same as above, but with a custom field getter.
+            ($regex_field:ident, getter => $field_getter:expr) => {
+                if !self
+                    .$regex_field
+                    .iter()
+                    .all(|regex| regex.is_match($field_getter))
+                {
+                    return false;
+                }
+            };
+            // At least one element in the vector field should match all regexes in the filter.
             ($regex_field:ident, vector => $vec_field:ident) => {
                 if !self
                     .$regex_field
@@ -87,11 +105,12 @@ impl PaperFilter {
                     return false;
                 }
             };
-            ($regex_field:ident, getter => $field_getter:expr) => {
+            // None of the elements in the vector field should match any regex in the filter.
+            ($regex_field:ident, vector =!> $vec_field:ident) => {
                 if !self
                     .$regex_field
                     .iter()
-                    .all(|regex| regex.is_match($field_getter))
+                    .all(|regex| paper.$vec_field.iter().all(|field| !regex.is_match(field)))
                 {
                     return false;
                 }
@@ -104,6 +123,8 @@ impl PaperFilter {
         checker!(first_author, getter => paper.authors.first().unwrap());
         checker!(venue);
         checker!(year);
+        checker!(is_label, vector => labels);
+        checker!(not_label, vector =!> labels);
 
         true
     }
@@ -112,7 +133,7 @@ impl PaperFilter {
     pub fn is_empty(&self) -> bool {
         macro_rules! checker {
             ($field:ident) => {
-                if self.$field.len() != 0 {
+                if !self.$field.is_empty() {
                     return false;
                 }
             };
@@ -124,6 +145,8 @@ impl PaperFilter {
         checker!(first_author);
         checker!(venue);
         checker!(year);
+        checker!(is_label);
+        checker!(not_label);
 
         true
     }
@@ -132,22 +155,29 @@ impl PaperFilter {
 impl fmt::Display for PaperFilter {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut segments = Vec::new();
-        let displayer = |ret: &mut Vec<String>, filter: &Vec<Regex>, name: &str| {
+        let displayer = |ret: &mut Vec<String>, filter: &Vec<Regex>, name: &str, matches: bool| {
             let joined = filter
                 .iter()
                 .map(|re| re.to_string())
                 .reduce(|a, b| format!("{}' & '{}", a, b));
             if let Some(joined) = joined {
-                ret.push(format!("{} matches '{}'", name, joined));
+                ret.push(format!(
+                    "{} {} '{}'",
+                    name,
+                    if matches { "matches" } else { "does not match" },
+                    joined
+                ));
             }
         };
 
-        displayer(&mut segments, &self.title, "title");
-        displayer(&mut segments, &self.nickname, "nickname");
-        displayer(&mut segments, &self.author, "author");
-        displayer(&mut segments, &self.first_author, "first_author");
-        displayer(&mut segments, &self.venue, "venue");
-        displayer(&mut segments, &self.year, "year");
+        displayer(&mut segments, &self.title, "title", true);
+        displayer(&mut segments, &self.nickname, "nickname", true);
+        displayer(&mut segments, &self.author, "author", true);
+        displayer(&mut segments, &self.first_author, "first_author", true);
+        displayer(&mut segments, &self.venue, "venue", true);
+        displayer(&mut segments, &self.year, "year", true);
+        displayer(&mut segments, &self.is_label, "label", true);
+        displayer(&mut segments, &self.not_label, "label", false);
 
         if segments.is_empty() {
             writeln!(f, "No filters are active.")

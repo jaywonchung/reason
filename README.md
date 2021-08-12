@@ -165,7 +165,7 @@ Configuration
 - [ ] Regex-related (?)
 
 Paper metadata
-- [ ] Support tags or labels (with keyword 'is'?)
+- [x] Support labels (with keyword 'is' and 'not').
 
 Commands
 - [x] `ls`

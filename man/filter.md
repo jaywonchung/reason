@@ -10,6 +10,8 @@ propositional keywords are:
 - first author (`by1`)
 - venue (`at`)
 - year (`in`)
+- label to include (`is`)
+- label to exclude (`not`)
 
 Reason allows users to describe paper filters naturally
 using propositional keywords.

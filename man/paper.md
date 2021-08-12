@@ -8,6 +8,7 @@ Reason keeps metadata for each paper in its paperpase.
 - venue: Where the paper was published, excluding year.
 - year: The year when the paper was published.
 - filepath: The path to the PDF file of the paper.
+- labels: A set of labels assigned to this paper.
 - state: The management state history of the paper.
    Two states are supported: ADDED and READ.
 - notepath: The path to the markdown note file of the

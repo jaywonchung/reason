@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fmt;
 use std::io::Write;
 use std::path::{Path, PathBuf};
@@ -72,6 +72,10 @@ pub struct Paper {
     /// Keyword: '@'
     pub filepath: Option<PathBuf>,
 
+    /// Labels assigned to this paper.
+    /// Keyword: 'is', 'not'
+    pub labels: HashSet<String>,
+
     /// The management state history of the paper.
     pub state: Vec<PaperStatus>,
 
@@ -91,7 +95,7 @@ impl Paper {
         let mut arg_iter = args.into_iter();
         while let Some(arg) = arg_iter.next() {
             match arg.as_ref() {
-                "as" | "by" | "at" | "in" | "@" => {
+                "as" | "by" | "at" | "in" | "@" | "is" => {
                     if map.contains_key(arg.as_str()) {
                         return Err(Fallacy::PaperDuplicateField(arg));
                     }
@@ -116,6 +120,7 @@ impl Paper {
             ("_", "title", true),
             ("as", "nickname", false),
             ("@", "filepath", false),
+            ("is", "labels", false),
         ] {
             match map.remove(keyword) {
                 Some(Some(string)) => {
@@ -146,6 +151,10 @@ impl Paper {
         let venue = fields.remove("venue").unwrap();
         let year = fields.remove("year").unwrap();
         let state = vec![PaperStatus::added()];
+        let labels = fields
+            .remove("labels")
+            .map(|l| l.split(", ").map(String::from).collect())
+            .unwrap_or_default();
         let filepath = fields.remove("filepath").map(PathBuf::from);
         let notepath = None;
 
@@ -156,6 +165,7 @@ impl Paper {
             venue,
             year,
             state,
+            labels,
             filepath,
             notepath,
         })

@@ -119,13 +119,12 @@ fn from_arxiv(url: &str, config: &Config) -> Result<Paper, Fallacy> {
 
     Ok(Paper {
         title,
-        nickname: None,
         authors,
         venue,
         year,
         filepath: Some(filepath),
         state: vec![PaperStatus::added()],
-        notepath: None,
+        ..Paper::default()
     })
 }
 
@@ -248,12 +247,11 @@ fn from_usenix(url: &str, config: &Config) -> Result<Paper, Fallacy> {
     // Create a `Paper` object and return it.
     Ok(Paper {
         title,
-        nickname: None,
         authors,
         venue,
         year,
         filepath,
         state: vec![PaperStatus::added()],
-        notepath: None,
+        ..Paper::default()
     })
 }

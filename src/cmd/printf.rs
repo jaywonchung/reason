@@ -52,7 +52,7 @@ pub fn execute(
             Ok(path) => path,
             Err(Fallacy::FailedUserInteraction(_)) => {
                 println!("Skipping!");
-                continue
+                continue;
             }
             Err(_) => continue,
         };
