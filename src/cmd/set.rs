@@ -14,7 +14,7 @@ pub fn execute(
 
     // Apply changes.
     for &ind in input.papers.as_ref().unwrap().0.iter() {
-        state.papers[ind].apply_from_args(input.args.as_ref())?;
+        state.papers[ind].apply_from_args(&input.args[1..])?;
     }
 
     Ok(CommandOutput::Papers(input.papers.unwrap()))

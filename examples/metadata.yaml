@@ -9,8 +9,8 @@
   year: "2020"
   filepath: Shadowtutor.pdf
   labels:
-    - inference
     - mine
+    - inference
     - mobile
   state:
     - Read: "2021-07-31 03:48:24 PM"
@@ -98,7 +98,7 @@
     - Added: "2021-08-10 06:15:53 PM"
   notepath: Batch-Normalization-Accelerating-Deep-Network-Training-by-Reducing-Internal-Covariate-Shift.md
 - title: Ship Compute or Ship Data? Why Not Both?
-  nickname: ~
+  nickname: Kayak
   authors:
     - Jie You
     - Jingfeng Wu
