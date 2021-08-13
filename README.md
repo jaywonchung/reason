@@ -87,6 +87,8 @@ Removed 1 paper.
 +========================================================================+
 | Ship Compute or Ship Data? Why Not Both? | Jie You      | NSDI  | 2021 |
 +------------------------------------------+--------------+-------+------+
+>> # Modify paper metadata.
+>> ls ship | set as Kayak
 >> # Or, import manually.
 >> touch 'Batch Normalization: Accelerating Deep Network Training by Reducing Internal
 Covariate Shift' by 'Sergey Ioffe, Christian Szegedy' at ICML in 2015 as BN @ BatchNorm.pdf
