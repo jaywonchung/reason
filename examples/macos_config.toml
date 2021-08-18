@@ -1,0 +1,27 @@
+[storage]
+paper_metadata = '~/.local/share/reason/metadata.yaml'
+command_history = '~/.local/share/reason/history.txt'
+max_history_size = 1000
+note_dir = '~/.local/share/reason/notes'
+file_dir = '~/.local/share/reason'
+
+[filter]
+case_insensitive_regex = true
+
+[output]
+table_columns = [
+    'title',
+    'first author',
+    'venue',
+    'year',
+]
+viewer_command = [
+  '/Applications/PDF Expert.app/Contents/MacOS/PDF Expert',
+]
+viewer_batch = false
+editor_command = [
+  'nvim',
+  '-p'
+]
+editor_batch = true
+browser_command = ['/Applications/Whale.app/Contents/MacOS/Whale']
