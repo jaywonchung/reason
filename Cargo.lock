@@ -1853,7 +1853,6 @@ name = "reason"
 version = "0.1.0"
 dependencies = [
  "ansi_term 0.12.1",
- "chrono",
  "comfy-table",
  "confy",
  "directories-next",

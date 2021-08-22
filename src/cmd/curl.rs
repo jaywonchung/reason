@@ -4,7 +4,7 @@ use std::path::PathBuf;
 use std::time::Duration;
 
 use crate::cmd::prelude::*;
-use crate::paper::{Paper, PaperList, PaperStatus};
+use crate::paper::{Paper, PaperList};
 use crate::utils::{as_filename, select};
 
 use soup::prelude::*;
@@ -130,8 +130,7 @@ fn from_arxiv(url: &str, config: &Config) -> Result<Paper, Fallacy> {
         venue,
         year,
         filepath: Some(filepath),
-        state: vec![PaperStatus::added()],
-        ..Paper::default()
+        ..Default::default()
     })
 }
 
@@ -259,7 +258,6 @@ fn from_usenix(url: &str, config: &Config) -> Result<Paper, Fallacy> {
         venue,
         year,
         filepath,
-        state: vec![PaperStatus::added()],
-        ..Paper::default()
+        ..Default::default()
     })
 }

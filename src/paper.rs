@@ -1,9 +1,7 @@
 use std::collections::{HashMap, HashSet};
-use std::fmt;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
-use chrono::prelude::*;
 use comfy_table::{Attribute, Cell, CellAlignment, ContentArrangement, Table};
 use serde::{Deserialize, Serialize};
 
@@ -76,9 +74,6 @@ pub struct Paper {
     /// Keyword: 'is', 'not'
     pub labels: HashSet<String>,
 
-    /// The management state history of the paper.
-    pub state: Vec<PaperStatus>,
-
     /// The path to the markdown note of the paper. File names are created with the
     /// title of the paper. If collisions are detected, an integer will be appended
     /// to the file name.
@@ -150,7 +145,6 @@ impl Paper {
             .collect();
         let venue = fields.remove("venue").unwrap();
         let year = fields.remove("year").unwrap();
-        let state = vec![PaperStatus::added()];
         let labels = fields
             .remove("labels")
             .map(|l| l.split(',').map(|s| s.trim().to_string()).collect())
@@ -164,7 +158,6 @@ impl Paper {
             authors,
             venue,
             year,
-            state,
             labels,
             filepath,
             notepath,
@@ -234,7 +227,6 @@ impl Paper {
             "first author" => self.authors.first().unwrap().clone(),
             "venue" => self.venue.clone(),
             "year" => self.year.clone(),
-            "state" => self.state.last().unwrap().to_string(),
             _ => "".to_string(),
         }
     }
@@ -320,30 +312,5 @@ impl Paper {
             base.push(filepath);
             base
         })
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub enum PaperStatus {
-    Added(String),
-    Read(String),
-}
-
-impl PaperStatus {
-    pub fn added() -> Self {
-        Self::Added(Local::now().format("%F %r").to_string())
-    }
-
-    pub fn read() -> Self {
-        Self::Read(Local::now().format("%F %r").to_string())
-    }
-}
-
-impl fmt::Display for PaperStatus {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            PaperStatus::Added(datetime) => write!(f, "ADDED {}", datetime),
-            PaperStatus::Read(datetime) => write!(f, "READ  {}", datetime),
-        }
     }
 }

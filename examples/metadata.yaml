@@ -12,8 +12,6 @@
     - mine
     - inference
     - mobile
-  state:
-    - Read: "2021-07-31 03:48:24 PM"
   notepath: Shadowtutor.md
 - title: Efficient Memory Disaggregation with Infiniswap
   nickname: Infiniswap
@@ -28,8 +26,6 @@
   filepath: ~
   labels:
     - disaggregation
-  state:
-    - Added: "2021-08-05 04:21:03 PM"
   notepath: Infiniswap.md
 - title: "Refurbish Your Training Data: Reusing Partially Augmented Samples for Faster Deep Neural Network Training"
   nickname: Data Refurbishing
@@ -46,8 +42,6 @@
   filepath: ~
   labels:
     - training
-  state:
-    - Added: "2021-07-31 11:22:59 PM"
   notepath: Data-Refurbishing.md
 - title: "Tiresias: A GPU Cluster Manager for Distributed Deep Learning"
   nickname: Tiresias
@@ -65,8 +59,6 @@
   filepath: Tiresias.pdf
   labels:
     - scheduling
-  state:
-    - Added: "2021-08-02 02:36:50 AM"
   notepath: Tiresias.md
 - title: "Nimble: Lightweight and Parallel GPU Task Scheduling for Deep Learning"
   nickname: Nimble
@@ -80,8 +72,6 @@
   filepath: ~
   labels:
     - inference
-  state:
-    - Added: "2021-08-01 02:36:59 AM"
   notepath: Nimble.md
 - title: "Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift"
   nickname: ~
@@ -94,8 +84,6 @@
   labels:
     - training
     - DL
-  state:
-    - Added: "2021-08-10 06:15:53 PM"
   notepath: Batch-Normalization-Accelerating-Deep-Network-Training-by-Reducing-Internal-Covariate-Shift.md
 - title: Ship Compute or Ship Data? Why Not Both?
   nickname: Kayak
@@ -108,8 +96,6 @@
   year: "2021"
   filepath: Ship-Compute-or-Ship-Data-Why-Not-Both.pdf
   labels: []
-  state:
-    - Added: "2021-08-10 06:25:25 PM"
   notepath: Ship-Compute-or-Ship-Data-Why-Not-Both.md
 - title: "FedScale: Benchmarking Model and System Performance of Federated Learning"
   nickname: ~
@@ -124,6 +110,4 @@
   labels:
     - training
     - federated
-  state:
-    - Added: "2021-08-11 04:55:15 PM"
   notepath: ~
