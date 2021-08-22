@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::Cursor;
 use std::path::PathBuf;
+use std::time::Duration;
 
 use crate::cmd::prelude::*;
 use crate::paper::{Paper, PaperList, PaperStatus};
@@ -114,7 +115,13 @@ fn from_arxiv(url: &str, config: &Config) -> Result<Paper, Fallacy> {
     let mut path = config.storage.file_dir.clone();
     path.push(&filepath);
     let mut file = File::create(path)?;
-    let mut cursor = Cursor::new(client.get(pdf).send()?.bytes()?);
+    let mut cursor = Cursor::new(
+        client
+            .get(pdf)
+            .timeout(Duration::from_secs(90))  // arXiv download is pretty slow
+            .send()?
+            .bytes()?,
+    );
     std::io::copy(&mut cursor, &mut file)?;
 
     Ok(Paper {
