@@ -52,7 +52,9 @@ impl StorageConfig {
         self.paper_metadata = expand_tilde(&self.paper_metadata)?;
         self.command_history = expand_tilde(&self.command_history)?;
         self.file_dir = expand_tilde(&self.file_dir)?;
+        std::fs::create_dir_all(&self.file_dir)?;
         self.note_dir = expand_tilde(&self.note_dir)?;
+        std::fs::create_dir_all(&self.note_dir)?;
         Ok(())
     }
 }

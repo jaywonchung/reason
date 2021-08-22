@@ -293,9 +293,7 @@ impl Paper {
     }
 
     fn create_note(&self, path: &Path) -> Result<(), Fallacy> {
-        if let Err(e) = std::fs::create_dir_all(&path.parent().unwrap()) {
-            return Err(e.into());
-        }
+        // Parent directory was already created during config validation.
         match std::fs::File::create(&path) {
             Ok(mut file) => {
                 if let Err(e) = write!(
