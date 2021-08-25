@@ -144,7 +144,7 @@ Not yet, but hopefully soon:
 - `sort` sorts papers by given columns.
 - `stat` prints the metadata and notes of papers.
 - `top` prints out a summary of your paperbase.
-- `sync` stores the paper metadata state to disk.
+- `sync` stores the paper metadata state to disk. (Changes are kept in memory and are committed to disk on exit.)
 
 ## Configuration
 
