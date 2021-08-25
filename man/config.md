@@ -29,7 +29,7 @@ with default settings.
 
 - table_columns: Which paper attributes `ls` shows.
   Allowed values are 'title', 'authors', 'first author',
-  'venue', 'year', and 'state'.
+  'venue', and 'year'.
    (default: ['title', 'first author', 'venue', 'year'])
 - viewer_command: Command to use for the viewer to open
   papers. It is assumed that the viewer program is a
