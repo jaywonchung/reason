@@ -146,44 +146,14 @@ Not yet, but hopefully soon:
 - `top` prints out a summary of your paperbase.
 - `sync` stores the paper metadata state to disk. (Changes are kept in memory and are committed to disk on exit.)
 
+## Documentation
+
+If you already have reason, run `man man` to view the top-level documentation.
+
+If you're just exploring whether to use reason, take a look at the `man` directory.
+
 ## Configuration
 
 The configuration file is kept at `~/.config/reason/config.toml`. If not present, `reason` will generate one populated with default settings.
 
 For more information, open `reason` and run `man config`.
-
-## Todo
-
-Shell-like experience
-- [x] Run commands.
-- [x] Support pipes between commands. A command passes a list of papers to the next command.
-- [x] GNU Readline features (up arrow, down arrow, Ctrl-A, Ctrl-E, Ctrl-L, etc).
-- [ ] Allow scripting, e.g. `reason import.re` will run `import.re` line-by-line.
-
-Configuration
-- [x] Allowing configuration.
-- [ ] Tweaking table appearance.
-- [ ] Regex-related (?)
-
-Paper metadata
-- [x] Support labels (with keyword 'is' and 'not').
-
-Commands
-- [x] `ls`
-- [x] `cd`
-- [x] `pwd`
-- [x] `touch`
-- [x] `curl`
-- [x] `exit`
-- [x] `rm`
-- [ ] `grep`
-- [ ] `sort`
-- [x] `set`
-- [ ] `stat`
-- [x] `printf`
-- [x] `open`
-- [x] `ed`
-- [ ] `top`
-- [ ] `sync`
-- [x] `man`
-- [x] `exit`
