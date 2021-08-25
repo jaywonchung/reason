@@ -121,6 +121,12 @@ Covariate Shift' by 'Sergey Ioffe, Christian Szegedy' at ICML in 2015 as BN @ Ba
 +------------------------------------------------------------+--------------+---------+------+
 ```
 
+## `printf`
+
+`printf` will create an HTML book from your notes.
+
+![printf](/examples/printf.png)
+
 ## Commands
 
 Invoking `reason` will start a new command prompt. It accepts unix-like commands that instead work on research papers in your paperbase.
