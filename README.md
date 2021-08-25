@@ -4,8 +4,8 @@
 
 - Did I ever read this paper?
 - Which OSDI 2021 papers did I read?
-- Which ones have the word 'Distributed' in their title?
-- How many papers in 2020 were co-authored by Professor Byung-Gon Chun?
+- Which ones have the word 'Distributed' in their titles?
+- How many papers in 2020 were co-authored by Professor Mosharaf Chowdhury?
 
 Well, ask `reason`.
 
