@@ -40,7 +40,8 @@ pub fn execute(
         create-missing = false
         
         [output.html]
-        mathjax-support = true";
+        mathjax-support = true
+    ";
     let book_config = MDBookConfig::from_str(config_str)?;
 
     // Build summary.
@@ -48,14 +49,7 @@ pub fn execute(
     let mut summary = Summary::default();
     for (sec, idx) in selected.into_iter().enumerate() {
         let p = &mut state.papers[idx];
-        let notepath = match p.note_path(&config.storage.note_dir) {
-            Ok(path) => path,
-            Err(Fallacy::FailedUserInteraction(_)) => {
-                println!("Skipping!");
-                continue;
-            }
-            Err(_) => continue,
-        };
+        let notepath = p.notepath(config, true)?.unwrap();
         summary.numbered_chapters.push(SummaryItem::Link(Link {
             name: p.title.clone(),
             location: Some(notepath),

@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 use std::io::Write;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use comfy_table::{Attribute, Cell, CellAlignment, ContentArrangement, Table};
 use serde::{Deserialize, Serialize};
@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use crate::config::Config;
 use crate::error::Fallacy;
 use crate::state::State;
-use crate::utils::{as_filename, confirm};
+use crate::utils::as_filename;
 
 pub static MAN: &str = include_str!("../man/paper.md");
 
@@ -231,81 +231,89 @@ impl Paper {
         }
     }
 
-    pub fn note_path(&mut self, note_dir: &Path) -> Result<PathBuf, Fallacy> {
-        // No notes for this paper. Create one!
-        if self.notepath.is_none() {
-            // Generate a filename for this paper.
-            let file = match self.nickname.clone() {
-                Some(string) => as_filename(&string),
-                None => as_filename(&self.title),
+    /// Return the absolute path to the note file.
+    /// If the file doesn't exist or the note path itself is `None`, the note
+    /// file does not exist for this paper. In this case, if `create` is `true`,
+    /// a new note file is created and filled with some default content.
+    pub fn notepath(
+        &mut self,
+        config: &Config,
+        create: bool
+    ) -> Result<Option<PathBuf>, Fallacy> {
+        let note;
+        // Paper has note path.
+        if let Some(notepath) = self.notepath.as_ref() {
+            note = {
+                let mut base = config.storage.note_dir.clone();
+                base.push(notepath);
+                base
             };
-
-            // Find a filename that doesn't exist.
-            let mut attempt = 0usize;
-            let path = loop {
-                let mut path = note_dir.to_path_buf();
-                let mut filename = file.clone();
-                if attempt == 0 {
-                    filename.push_str(".md");
-                } else {
-                    let formatted = format!("-{}.md", attempt);
-                    filename.push_str(&formatted);
-                }
-                path.push(&filename);
-                if !path.exists() {
-                    // Record in state.
-                    self.notepath.replace(PathBuf::from(filename));
-                    break path;
-                } else {
-                    attempt += 1;
-                }
-            };
-
-            self.create_note(&path)?;
-        }
-
-        // Unwrap will never fail.
-        let relative = self.notepath.as_ref().unwrap();
-        let mut path = note_dir.to_path_buf();
-        path.push(relative);
-
-        // Notepath exists, but the file doesn't actually exist.
-        if !path.exists() {
-            confirm(
-                format!(
-                    "Note file {:?} does not exist. Create a new one here?",
-                    path
-                ),
-                true,
-            )?;
-            self.create_note(&path)?;
-        }
-
-        Ok(path)
-    }
-
-    fn create_note(&self, path: &Path) -> Result<(), Fallacy> {
-        // Parent directory was already created during config validation.
-        match std::fs::File::create(&path) {
-            Ok(mut file) => {
-                if let Err(e) = write!(
-                    file,
-                    "# {}\n\n- {}\n- {} {}\n\n",
-                    self.title,
-                    self.authors.join(", "),
-                    self.venue,
-                    self.year
-                ) {
-                    return Err(e.into());
-                }
+            // A file exists at that path.
+            if note.exists() {
+                return Ok(Some(note));
             }
-            Err(e) => return Err(e.into()),
-        };
-        Ok(())
+        }
+        // Paper doesn't have a note path.
+        else {
+            if !create {
+                return Ok(None);
+            } else {
+                // Generate filename with nickname, if possible.
+                let file = match self.nickname.clone() {
+                    Some(string) => as_filename(&string),
+                    None => as_filename(&self.title),
+                };
+
+                // Find a filename that doesn't exist.
+                let mut attempt = 0usize;
+                note = loop {
+                    let mut note = config.storage.note_dir.clone();
+                    let mut filename = file.clone();
+                    if attempt == 0 {
+                        filename.push_str(".md");
+                    } else {
+                        let formatted = format!("-{}.md", attempt);
+                        filename.push_str(&formatted);
+                    }
+                    note.push(&filename);
+                    if !note.exists() {
+                        // Record in state.
+                        self.notepath.replace(PathBuf::from(filename));
+                        break note;
+                    } else {
+                        attempt += 1;
+                    }
+                };
+            }
+        }
+
+        // Either `self.notepath.is_some()` but the file doesn't exist, or
+        // `self.notepath.is_none()`.
+        if !create {
+            Ok(None)
+        } else {
+            // Create/truncate the note file and fill with default content.
+            match std::fs::File::create(&note) {
+                Ok(mut file) => {
+                    if let Err(e) = write!(
+                        file,
+                        "# {}\n\n- {}\n- {} {}\n\n",
+                        self.title,
+                        self.authors.join(", "),
+                        self.venue,
+                        self.year
+                        ) {
+                        return Err(e.into());
+                    }
+                }
+                Err(e) => return Err(e.into()),
+            };
+            Ok(Some(note))
+        }
     }
 
     /// Return the absolute path to the paper file.
-    /// Returns None if the paper does not have a filepath.
+    /// Returns `None` if the paper does not have a filepath.
     pub fn filepath(&self, config: &Config) -> Option<PathBuf> {
         self.filepath.as_ref().map(|filepath| {
             let mut base = config.storage.file_dir.clone();

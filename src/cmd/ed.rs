@@ -20,7 +20,7 @@ pub fn execute(
             match crate::cmd::ls::execute(input, state, config)? {
                 CommandOutput::Papers(paper_list) => paper_list.0,
                 // `ls` always returns CommandOutput::Papers.
-                _ => panic!(),
+                _ => panic!("internal ls invocation returned output variant"),
             }
         }
     };
@@ -29,7 +29,7 @@ pub fn execute(
     let num_papers = selected.len();
     let mut notes = Vec::new();
     for i in selected {
-        notes.push(state.papers[i].note_path(&config.storage.note_dir)?);
+        notes.push(state.papers[i].notepath(config, true)?.unwrap());
     }
 
     // Ask for confirmation.
