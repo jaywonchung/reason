@@ -150,7 +150,7 @@ Not yet, but hopefully soon:
 
 If you already have reason, run `man man` to view the top-level documentation.
 
-If you're just exploring whether to use reason, take a look at the `man` directory.
+If you're just exploring whether to use reason, take a look at the [`man`](/man) directory.
 
 ## Configuration
 
