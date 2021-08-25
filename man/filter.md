@@ -1,6 +1,6 @@
 Paper filters.
 
-Filters are a collection of regexes that match on paper
+Filters are a collection of **regexes** that match on paper
 metadata (See `man paper` for more on paper metadata).
 Especially, queryable fields and their corresponding
 propositional keywords are:
@@ -17,9 +17,9 @@ Reason allows users to describe paper filters naturally
 using propositional keywords.
 For instance:
 ```
->> cd shadowtutor at ICPP
+>> cd ^shadowtutor at ICPP
 >> pwd
-title matches 'shadowtutor', venue matches 'ICPP'
+title matches '^shadowtutor', venue matches 'ICPP'
 >> cd
 >> cd 'Deep Learning' by Chung by Jeong
 >> pwd

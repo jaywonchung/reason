@@ -38,8 +38,8 @@ $ reason
 | Nimble: Lightweight and Parallel GPU Task Scheduling for | Woosuk Kwon    | NeurIPS | 2020 |
 | Deep Learning                                            |                |         |      |
 +----------------------------------------------------------+----------------+---------+------+
->> # Filter by 'title'.
->> ls 'Deep Learning'
+>> # Filter by 'title'. All these are regexes!
+>> ls 'Deep Learning$'
 +------------------------------------------------------------+--------------+---------+------+
 |                            title                           | first author |  venue  | year |
 +============================================================================================+
@@ -51,11 +51,11 @@ $ reason
 +------------------------------------------------------------+--------------+---------+------+
 >> # You may set default filters with `cd`.
 >> # BTW, `cd .`, `cd ..`, `cd -`, and `cd` are supported, too.
->> cd 'Deep Learning'
+>> cd 'Deep Learning$'
 >> pwd
-title matches 'Deep Learning'
+title matches 'Deep Learning$'
 >> # Default filter are automatically applied.
->> # Infiniswap (NSDI'17) is not shown, because its title doesn't match 'Deep Learning'.
+>> # Infiniswap (NSDI'17) is not shown, because its title doesn't match 'Deep Learning$'.
 >> ls at NSDI
 +------------------------------------------------------------+--------------+---------+------+
 |                            title                           | first author |  venue  | year |
