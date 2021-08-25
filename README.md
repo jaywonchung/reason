@@ -11,8 +11,6 @@ Well, ask `reason`.
 
 ## How it works
 
-For actual demos, refer to the [wiki](https://github.com/jaywonchung/reason/wiki/Demo).
-
 ### Filter and list papers
 
 ```bash
