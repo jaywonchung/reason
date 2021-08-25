@@ -156,4 +156,4 @@ If you're just exploring whether to use reason, take a look at the [`man`](/man)
 
 The configuration file is kept at `~/.config/reason/config.toml`. If not present, `reason` will generate one populated with default settings.
 
-For more information, open `reason` and run `man config`.
+For more information, open `reason` and run `man config`, or read [`man/config.md`](/man/config.md).
