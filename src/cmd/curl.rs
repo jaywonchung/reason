@@ -201,7 +201,7 @@ fn from_usenix(url: &str, config: &Config) -> Result<Paper, Fallacy> {
         .flat_map(|child| {
             child
                 .display()
-                .replace("and", "")
+                .replace("and", ",")
                 .split(',')
                 .map(|s| s.trim().to_owned())
                 .filter(|s| !s.is_empty())
