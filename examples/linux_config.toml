@@ -2,7 +2,7 @@
 paper_metadata = '~/.local/share/reason/metadata.yaml'
 command_history = '~/.local/share/reason/history.txt'
 max_history_size = 1000
-note_dir = "~/.local/share/reason/notes"
+note_dir = '~/.local/share/reason/notes'
 
 [filter]
 case_insensitive_regex = true
