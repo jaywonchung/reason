@@ -152,6 +152,10 @@ Not yet, but hopefully soon:
 - `top` prints out a summary of your paperbase.
 - `sync` stores the paper metadata state to disk. (Changes are kept in memory and are committed to disk on exit.)
 
+## Installation
+
+You can grab binaries from Releases, or you can run `cargo install reason-shell`.
+
 ## Documentation
 
 If you already have reason, run `man man` to view the top-level documentation.
