@@ -1,6 +1,6 @@
 [package]
 name = "reason"
-version = "0.1.0"
+version = "0.3.2"
 authors = ["Jae-Won Chung <jwnchung@umich.edu>"]
 edition = "2018"
 
