@@ -1,8 +1,11 @@
 [package]
 name = "reason"
-version = "0.3.2"
+description = "A Shell for Research Papers"
 authors = ["Jae-Won Chung <jwnchung@umich.edu>"]
+license-file = "LICENSE"
+repository = "https://github.com/jaywonchung/reason"
 edition = "2018"
+version = "0.3.2"
 
 [dependencies]
 rustyline = "8.2"
