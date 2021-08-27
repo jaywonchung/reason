@@ -13,7 +13,7 @@ Well, ask `reason`.
 
 ### Filter and list papers
 
-```bash
+```
 $ reason
 >> # Show all papers.
 >> ls
@@ -70,7 +70,7 @@ Removed 1 paper.
 
 ### Import new papers
 
-```bash
+```
 >> # Import directly from arXiv and USENIX. This will also download paper PDFs.
 >> curl https://arxiv.org/abs/2105.11367
 +--------------------------------------------------------+--------------+-------+------+
@@ -100,7 +100,7 @@ Covariate Shift' by 'Sergey Ioffe, Christian Szegedy' at ICML in 2015 as BN @ Ba
 
 ### Read, take notes, and create books!
 
-```bash
+```
 >> # Open with a PDF viewer (`open`) and edit markdown notes with your editor (`ed`).
 >> ls 'Why Not Both' | open | ed
 +------------------------------------------+--------------+-------+------+
