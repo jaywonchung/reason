@@ -235,11 +235,7 @@ impl Paper {
     /// If the file doesn't exist or the note path itself is `None`, the note
     /// file does not exist for this paper. In this case, if `create` is `true`,
     /// a new note file is created and filled with some default content.
-    pub fn notepath(
-        &mut self,
-        config: &Config,
-        create: bool
-    ) -> Result<Option<PathBuf>, Fallacy> {
+    pub fn notepath(&mut self, config: &Config, create: bool) -> Result<Option<PathBuf>, Fallacy> {
         let note;
         // Paper has note path.
         if let Some(notepath) = self.notepath.as_ref() {
@@ -302,7 +298,7 @@ impl Paper {
                         self.authors.join(", "),
                         self.venue,
                         self.year
-                        ) {
+                    ) {
                         return Err(e.into());
                     }
                 }

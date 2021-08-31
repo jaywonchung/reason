@@ -2,10 +2,10 @@
 name = "reason-shell"
 description = "Reason: A Shell for Research Papers"
 authors = ["Jae-Won Chung <jwnchung@umich.edu>"]
-license-file = "LICENSE"
+license = "MIT"
 repository = "https://github.com/jaywonchung/reason"
 edition = "2018"
-version = "0.3.2"
+version = "0.3.3"
 
 [[bin]]
 name = "reason"

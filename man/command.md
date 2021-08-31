@@ -32,5 +32,5 @@ further processing.
 For instance, `ls shadowtutor | open` will open all papers
 that have the word 'shadwotutor' in their titles.
 
-Most commands output a paper list - all those whose outputs
-are displayed as tables: `ls`, `open`, `ed`, and `touch`.
+Paper lists are displayed as tables when not piped to the next
+command. Most commands produce paper lists as their output.

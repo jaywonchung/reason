@@ -24,7 +24,10 @@ pub fn execute(
     // Ask for confirmation.
     let num_paper = paper_list.0.len();
     if num_paper > 1 {
-        confirm(format!("Remove {} papers, including files and notes?", num_paper), false)?;
+        confirm(
+            format!("Remove {} papers, including files and notes?", num_paper),
+            false,
+        )?;
     }
 
     // Remove files and notes.

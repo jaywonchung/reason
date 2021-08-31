@@ -118,7 +118,7 @@ fn from_arxiv(url: &str, config: &Config) -> Result<Paper, Fallacy> {
     let mut cursor = Cursor::new(
         client
             .get(pdf)
-            .timeout(Duration::from_secs(90))  // arXiv download is pretty slow
+            .timeout(Duration::from_secs(90)) // arXiv download is pretty slow
             .send()?
             .bytes()?,
     );
