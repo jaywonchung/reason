@@ -82,12 +82,12 @@ pub struct Paper {
 
 impl Paper {
     /// Accepts arguments given to commands and builds an instance
-    /// of `Paper`. Remove the command (first argument) and pass the
-    /// rest to this function.
+    /// of `Paper`.
     pub fn from_args(args: Vec<String>) -> Result<Self, Fallacy> {
         // Collect a mapping of keyword -> Option<argument>.
         let mut map = HashMap::new();
         let mut arg_iter = args.into_iter();
+        arg_iter.next();  // Skip the command.
         while let Some(arg) = arg_iter.next() {
             match arg.as_ref() {
                 "as" | "by" | "at" | "in" | "@" | "is" => {

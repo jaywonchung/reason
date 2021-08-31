@@ -11,7 +11,6 @@ Reason keeps metadata for each paper in its paperbase.
 | year     | in      | yes   | The year when the paper was published.         |
 | filepath | @       | yes   | The path to the PDF file of the paper.         |
 | labels   | is/not  | yes   | A set of labels assigned to this paper.        |
-| state    |         | no    | The management state history. ADDED or READ.   |
 | notepath |         | no    | The path to the markdown note file.            |
 
 'filepath' and 'notepath' are specified as relative paths,
