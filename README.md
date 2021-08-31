@@ -156,6 +156,13 @@ Not yet, but hopefully soon:
 
 You can grab binaries from Releases, or you can run `cargo install reason-shell`.
 
+
+## Cross-Platform Support
+
+`reason` currently supports Linux and MacOS. Windows is excluded because the owner does not currently own a Windows machine.
+
+In order to share data between multiple platforms, users are encouraged to locate `reason` metadata, PDF files, and markdown notes in a location synced by cloud storage services such as Google Drive. I use the official Google Drive app on MacOS and Insync on Linux. This offers an extra benefit - you can read PDFs with your iPad, also synced with the cloud storage.
+
 ## Documentation
 
 If you already have reason, run `man man` to view the top-level documentation.
