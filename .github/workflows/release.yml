@@ -13,6 +13,12 @@ jobs:
       - uses: taiki-e/create-gh-release-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish to crates.io
+        env:
+          TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
+        run: |
+          cargo login "$TOKEN"
+          cargo publish
 
   upload-assets:
     strategy:
