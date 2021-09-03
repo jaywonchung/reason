@@ -109,6 +109,15 @@ fn download_pdf(
                 .expect(format!("Failed to read symlink {}.", &path.display()).as_str()),
         ));
     } else {
+        // remove broken links under directory
+        for entry in config.storage.file_dir.read_dir().unwrap() {
+            if let Ok(entry) = entry {
+                if entry.metadata()?.file_type().is_symlink() && !entry.path().exists() {
+                    std::fs::remove_file(entry.path())?;
+                }
+            }
+        }
+
         let mut file = File::create(&path)?;
         let mut cursor = Cursor::new(
             client
