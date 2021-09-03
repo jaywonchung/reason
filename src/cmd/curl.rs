@@ -1,7 +1,9 @@
+use md5;
 use std::fs::File;
-use std::io::Cursor;
+use std::io::{stdin, stdout, Cursor, Write};
 use std::path::PathBuf;
 use std::time::Duration;
+use symlink::symlink_file;
 
 use crate::cmd::prelude::*;
 use crate::paper::{Paper, PaperList};
@@ -28,6 +30,8 @@ pub fn execute(
         from_arxiv(url.as_ref(), config)?
     } else if url.contains("usenix") {
         from_usenix(url.as_ref(), config)?
+    } else if url.contains("pdf") {
+        from_pdf(url.as_ref(), config)?
     } else {
         return Err(Fallacy::CurlUnknownSource(url));
     };
@@ -38,6 +42,108 @@ pub fn execute(
     Ok(CommandOutput::Papers(PaperList(vec![
         state.papers.len() - 1,
     ])))
+}
+
+/// Extract metadata from a PDF file.
+/// If not succeed, ask it from user.
+fn extract_and_then_prompt(pdf: &pdf::file::File<Vec<u8>>, key: &str, name: &str) -> String {
+    fn parse_value<T>(s: T) -> String
+    where
+        T: ToString,
+    {
+        let s = s.to_string().trim().to_owned();
+        let s = s.strip_prefix("\"").unwrap_or(&s).to_owned();
+        s.strip_suffix("\"").unwrap_or(&s).to_owned()
+    }
+
+    let value = pdf
+        .trailer
+        .info_dict
+        .as_ref()
+        .and_then(|d| d.get(key).map(parse_value))
+        .unwrap_or(String::new());
+
+    let mut buffer = String::new();
+
+    loop {
+        print!("{0} (default: \"{1}\"): ", &name, &value);
+        let _ = stdout().flush();
+        match stdin().read_line(&mut buffer) {
+            Ok(_) => break,
+            _ => buffer.clear(),
+        }
+    }
+
+    buffer = buffer.trim().to_owned();
+
+    (if buffer.is_empty() { value } else { buffer })
+        .trim()
+        .to_string()
+}
+
+enum Title<'a> {
+    Just(&'a str),
+    Parser(&'a mut dyn FnMut(&PathBuf) -> Result<String, Fallacy>),
+}
+
+/// Download PDF file to local storage with the title as its name.
+/// If the title is not given, parse it from the downloaded PDF file.
+/// If fails, ask user to input a title.
+/// If the URL has already been downloaded, don't overwrite but raise an error.
+/// The URL will be remembered by creating a symlink to the PDF file named with its MD5 digest.
+fn download_pdf(
+    url: &str,
+    title: Title,
+    client: &reqwest::blocking::Client,
+    config: &Config,
+) -> Result<PathBuf, Fallacy> {
+    let digest = PathBuf::from(format!("{:x}.pdf", md5::compute(&url)));
+    let mut path = config.storage.file_dir.clone();
+    path.push(&digest);
+
+    // download pdf.
+    if path.as_path().exists() {
+        return Err(Fallacy::CurlFileExistsError(
+            // follow the symlink
+            std::fs::read_link(&path)
+                .expect(format!("Failed to read symlink {}.", &path.display()).as_str()),
+        ));
+    } else {
+        let mut file = File::create(&path)?;
+        let mut cursor = Cursor::new(
+            client
+                .get(url)
+                .timeout(Duration::from_secs(90))
+                .send()?
+                .bytes()?,
+        );
+        std::io::copy(&mut cursor, &mut file)?;
+    }
+
+    let filename = match title {
+        Title::Just(title) => as_filename(title) + ".pdf",
+        Title::Parser(parse) => as_filename(parse(&path)?.as_ref()) + ".pdf",
+    };
+    let filepath = PathBuf::from(filename);
+
+    // to readable
+    let mut rdbpath = config.storage.file_dir.clone();
+    rdbpath.push(&filepath);
+
+    if rdbpath.exists() {
+        // remove the newly downloaded file, link it to the old one
+        std::fs::remove_file(&path).unwrap();
+        symlink_file(&rdbpath, &path)?;
+        return Err(Fallacy::CurlFileExistsError(rdbpath));
+    }
+
+    // rename the unreadable path to readable path
+    std::fs::rename(&path, &rdbpath).unwrap();
+
+    // reverse link
+    symlink_file(&rdbpath, &path).unwrap();
+
+    Ok(filepath)
 }
 
 fn from_arxiv(url: &str, config: &Config) -> Result<Paper, Fallacy> {
@@ -109,20 +215,12 @@ fn from_arxiv(url: &str, config: &Config) -> Result<Paper, Fallacy> {
     let authors: Vec<String> = authors.tag("a").find_all().map(|a| a.text()).collect();
 
     // Download paper PDF.
-    let pdf = format!("https://arxiv.org/pdf/{}.pdf", segments[1]);
-    let filename = as_filename(&title) + ".pdf";
-    let filepath = PathBuf::from(filename);
-    let mut path = config.storage.file_dir.clone();
-    path.push(&filepath);
-    let mut file = File::create(path)?;
-    let mut cursor = Cursor::new(
-        client
-            .get(pdf)
-            .timeout(Duration::from_secs(90)) // arXiv download is pretty slow
-            .send()?
-            .bytes()?,
-    );
-    std::io::copy(&mut cursor, &mut file)?;
+    let filepath = download_pdf(
+        &format!("https://arxiv.org/pdf/{}.pdf", segments[1]),
+        Title::Just(&title),
+        &client,
+        &config,
+    )?;
 
     Ok(Paper {
         title,
@@ -238,14 +336,7 @@ fn from_usenix(url: &str, config: &Config) -> Result<Paper, Fallacy> {
 
     // Maybe download paper PDF.
     let filepath = if let Some(pdf) = pdf {
-        let filename = as_filename(&title) + ".pdf";
-        let filepath = PathBuf::from(filename);
-        let mut path = config.storage.file_dir.clone();
-        path.push(&filepath);
-        let mut file = File::create(path)?;
-        let mut cursor = Cursor::new(client.get(pdf).send()?.bytes()?);
-        std::io::copy(&mut cursor, &mut file)?;
-        Some(filepath)
+        Some(download_pdf(&pdf, Title::Just(&title), &client, &config)?)
     } else {
         println!("Paper PDF not found. Skipping PDF download.");
         None
@@ -258,6 +349,52 @@ fn from_usenix(url: &str, config: &Config) -> Result<Paper, Fallacy> {
         venue,
         year,
         filepath,
+        ..Default::default()
+    })
+}
+
+fn from_pdf(url: &str, config: &Config) -> Result<Paper, Fallacy> {
+    let parsed_url = url::Url::parse(url)?;
+    if parsed_url.cannot_be_a_base() {
+        return Err(Fallacy::CurlInvalidSourceUrl(url.to_owned()));
+    }
+
+    // Initialize HTTP client.
+    let user_agent = format!("{}/{}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
+    let client = reqwest::blocking::ClientBuilder::new()
+        .user_agent(user_agent)
+        .build()?;
+
+    let mut maybe_title = None;
+    let mut maybe_pdf = None;
+
+    let mut parse = |path: &PathBuf| -> Result<String, Fallacy> {
+        let pdf = pdf::file::File::open(path.to_owned())?;
+        let title = extract_and_then_prompt(&pdf, "Title", "title");
+        maybe_title = Some(title.clone());
+        maybe_pdf = Some(pdf);
+        Ok(title)
+    };
+
+    let filepath = download_pdf(&url, Title::Parser(&mut parse), &client, &config)?;
+
+    let title = maybe_title.unwrap();
+    let pdf = maybe_pdf.unwrap();
+
+    let authors = extract_and_then_prompt(&pdf, "Author", "authors")
+        .split(",")
+        .map(str::trim)
+        .map(str::to_string)
+        .collect();
+    let venue = extract_and_then_prompt(&pdf, "Venue", "venue");
+    let year = extract_and_then_prompt(&pdf, "Year", "year");
+
+    Ok(Paper {
+        title,
+        authors,
+        venue,
+        year,
+        filepath: Some(filepath),
         ..Default::default()
     })
 }
