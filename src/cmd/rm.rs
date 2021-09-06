@@ -52,9 +52,11 @@ pub fn execute(
     }
 
     // Print errors.
-    println!("Errors occured while deleting files and notes:");
-    for e in errors {
-        println!("{}", e);
+    if !errors.is_empty() {
+        println!("Errors occured while deleting files and notes:");
+        for e in errors {
+            println!("{}", e);
+        }
     }
 
     Ok(CommandOutput::Message(format!(
