@@ -87,7 +87,7 @@ impl Paper {
         // Collect a mapping of keyword -> Option<argument>.
         let mut map = HashMap::new();
         let mut arg_iter = args.into_iter();
-        arg_iter.next();  // Skip the command.
+        arg_iter.next(); // Skip the command.
         while let Some(arg) = arg_iter.next() {
             match arg.as_ref() {
                 "as" | "by" | "at" | "in" | "@" | "is" => {
