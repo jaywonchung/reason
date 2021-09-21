@@ -140,8 +140,8 @@ Works now:
 - `rm` removes entries from your paperbase.
 - `set` sets attributes of papers.
 - `printf` creates an HTML page of your notes using `mdbook`.
-- `open` opens the paper with Zathura.
-- `ed` opens your editor (defaulting to `vim` but abiding by `$EDITOR`), in which you can edit your notes.
+- `open` opens the paper with your PDF viewer (configurable, defaults to zathura).
+- `ed` opens your editor (configurable, defaults to vim), in which you can edit your notes.
 - `man` plus a command will print documentation for that command.
 - `exit` or Ctrl-d quits `reason`.
 
