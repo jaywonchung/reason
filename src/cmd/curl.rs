@@ -5,7 +5,7 @@ use std::time::Duration;
 
 use crate::cmd::prelude::*;
 use crate::paper::{Paper, PaperList};
-use crate::utils::{as_filename, select};
+use crate::utils::{as_filename, confirm, select};
 
 use soup::prelude::*;
 
@@ -59,7 +59,10 @@ fn from_arxiv(url: &str, config: &Config) -> Result<Paper, Fallacy> {
         || !parsed_url.host_str().unwrap().ends_with("arxiv.org")
         || segments[0] != "abs"
     {
-        return Err(Fallacy::CurlInvalidSourceUrl(url.to_owned()));
+        confirm(
+            "URL of form https://arxiv.org/abs/{identifier} expected. Just continue?".to_string(),
+            true,
+        )?;
     }
     let pieces: Vec<_> = segments[1].split('.').collect();
     if pieces.len() != 2 || pieces[0].len() != 4 || pieces[1].len() != 5 {
@@ -148,7 +151,11 @@ fn from_usenix(url: &str, config: &Config) -> Result<Paper, Fallacy> {
         || segments[0] != "conference"
         || segments[2] != "presentation"
     {
-        return Err(Fallacy::CurlInvalidSourceUrl(url.to_owned()));
+        confirm(
+            "URL of form https://www.usenix.org/conference/{conference}/presentation/{name} expected. Just continue?"
+            .to_string(),
+            true
+        )?;
     }
     let conf = segments[1];
     let venue = {
