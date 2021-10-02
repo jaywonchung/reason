@@ -44,9 +44,9 @@ pub fn execute(
     ])))
 }
 
-/// Extract metadata from a PDF file.
-/// If not succeed, ask it from user.
-fn extract_and_then_prompt(pdf: &pdf::file::File<Vec<u8>>, key: &str, name: &str) -> String {
+/// Prompt with information extracted from pdf as default.
+fn prompt_with_default(name: &str, pdf: &pdf::file::File<Vec<u8>>, field: &str) -> String {
+    /// Some cleaning on the extracted metadata.
     fn parse_value<T>(s: T) -> String
     where
         T: ToString,
@@ -60,11 +60,12 @@ fn extract_and_then_prompt(pdf: &pdf::file::File<Vec<u8>>, key: &str, name: &str
         .trailer
         .info_dict
         .as_ref()
-        .and_then(|d| d.get(key).map(parse_value))
+        .and_then(|d| d.get(field).map(parse_value))
         .unwrap_or(String::new());
 
     let mut buffer = String::new();
 
+    // prompt
     loop {
         print!("{0} (default: \"{1}\"): ", &name, &value);
         let _ = stdout().flush();
@@ -81,76 +82,87 @@ fn extract_and_then_prompt(pdf: &pdf::file::File<Vec<u8>>, key: &str, name: &str
         .to_string()
 }
 
+/// If the title is known, then just use the title.
+/// Otherwise, the title is parsed by some parser.
 enum Title<'a> {
     Just(&'a str),
     Parser(&'a mut dyn FnMut(&PathBuf) -> Result<String, Fallacy>),
 }
 
 /// Download PDF file to local storage with the title as its name.
-/// If the title is not given, parse it from the downloaded PDF file.
-/// If fails, ask user to input a title.
-/// If the URL has already been downloaded, don't overwrite but raise an error.
-/// The URL will be remembered by creating a symlink to the PDF file named with its MD5 digest.
+/// If the title is not given, prompt with information parsed from pdf file as default.
+/// The URL will be remembered by creating a symlink to downloaded PDF file named with its MD5 digest.
+/// If the URL is already downloaded, don't overwrite but raise an error.
 fn download_pdf(
     url: &str,
     title: Title,
     client: &reqwest::blocking::Client,
     config: &Config,
 ) -> Result<PathBuf, Fallacy> {
-    let digest = PathBuf::from(format!("{:x}.pdf", md5::compute(&url)));
-    let mut path = config.storage.file_dir.clone();
-    path.push(&digest);
-
-    // download pdf.
-    if path.as_path().exists() {
-        return Err(Fallacy::CurlFileExistsError(
-            // follow the symlink
-            std::fs::read_link(&path)
-                .expect(format!("Failed to read symlink {}.", &path.display()).as_str()),
-        ));
-    } else {
-        // remove broken links under directory
-        for entry in config.storage.file_dir.read_dir().unwrap() {
-            if let Ok(entry) = entry {
-                if entry.metadata()?.file_type().is_symlink() && !entry.path().exists() {
-                    std::fs::remove_file(entry.path())?;
-                }
+    // Remove broken links under directory just before every time we download.
+    // Broken symlinks may be due to the last failed downloading or
+    // user manually deleting the rdbpath.
+    for entry in config.storage.file_dir.read_dir().unwrap() {
+        if let Ok(entry) = entry {
+            if entry.metadata()?.file_type().is_symlink() && !entry.path().exists() {
+                std::fs::remove_file(entry.path())?;
             }
         }
-
-        let mut file = File::create(&path)?;
-        let mut cursor = Cursor::new(
-            client
-                .get(url)
-                .timeout(Duration::from_secs(90))
-                .send()?
-                .bytes()?,
-        );
-        std::io::copy(&mut cursor, &mut file)?;
     }
 
+    // Create a md5 digest for url, and the local path of the url (md5path).
+    // As the title of the pdf is unknown in the beginning, we first download
+    // the url file to the md5path. After getting the title, we further
+    // rename the downloaded file to a readable path (rdbpath)
+    // and change the md5 path as a symlink to the rdbpath.
+    let digest = PathBuf::from(format!("{:x}.pdf", md5::compute(&url)));
+    let mut md5path = config.storage.file_dir.clone();
+    md5path.push(&digest);
+
+    if let Ok(rdbpath) = std::fs::read_link(&md5path) {
+        // If md5path exists and the file it points to also exists, raise a file exists error.
+        return Err(Fallacy::CurlFileExistsError(rdbpath));
+    } else if md5path.as_path().exists() {
+        // If, for some unknown reason, md5path is there but not a symlink, delete it.
+        std::fs::remove_file(&md5path)?;
+    }
+
+    // Download the file.
+    let mut cursor = Cursor::new(
+        client
+            .get(url)
+            .timeout(Duration::from_secs(90))
+            .send()?
+            .bytes()?,
+    );
+    let mut file = File::create(&md5path)?;
+    std::io::copy(&mut cursor, &mut file)?;
+
+    // Determine the readable file path.
+    // If the title is a Just, then use it directly.
+    // Otherwise, parse it from the md5path.
     let filename = match title {
         Title::Just(title) => as_filename(title) + ".pdf",
-        Title::Parser(parse) => as_filename(parse(&path)?.as_ref()) + ".pdf",
+        Title::Parser(parse) => as_filename(parse(&md5path)?.as_ref()) + ".pdf",
     };
     let filepath = PathBuf::from(filename);
 
-    // to readable
     let mut rdbpath = config.storage.file_dir.clone();
     rdbpath.push(&filepath);
 
     if rdbpath.exists() {
-        // remove the newly downloaded file, link it to the old one
-        std::fs::remove_file(&path).unwrap();
-        symlink_file(&rdbpath, &path)?;
+        // Remove the newly downloaded file, make md5path link to the old rdbpath.
+        // Raise the file exists error.
+        std::fs::remove_file(&md5path).unwrap();
+        symlink_file(&rdbpath, &md5path)?;
         return Err(Fallacy::CurlFileExistsError(rdbpath));
     }
 
-    // rename the unreadable path to readable path
-    std::fs::rename(&path, &rdbpath).unwrap();
+    // Rename the unreadable md5path to readable path
+    std::fs::rename(&md5path, &rdbpath).unwrap();
 
-    // reverse link
-    symlink_file(&rdbpath, &path).unwrap();
+    // Reverse link
+    symlink_file(&rdbpath, &md5path).unwrap();
 
     Ok(filepath)
 }
@@ -379,7 +391,7 @@ fn from_pdf(url: &str, config: &Config) -> Result<Paper, Fallacy> {
 
     let mut parse = |path: &PathBuf| -> Result<String, Fallacy> {
         let pdf = pdf::file::File::open(path.to_owned())?;
-        let title = extract_and_then_prompt(&pdf, "Title", "title");
+        let title = prompt_with_default("title", &pdf, "Title");
         maybe_title = Some(title.clone());
         maybe_pdf = Some(pdf);
         Ok(title)
@@ -390,13 +402,13 @@ fn from_pdf(url: &str, config: &Config) -> Result<Paper, Fallacy> {
     let title = maybe_title.unwrap();
     let pdf = maybe_pdf.unwrap();
 
-    let authors = extract_and_then_prompt(&pdf, "Author", "authors")
+    let authors = prompt_with_default("authors", &pdf, "Author")
         .split(",")
         .map(str::trim)
         .map(str::to_string)
         .collect();
-    let venue = extract_and_then_prompt(&pdf, "Venue", "venue");
-    let year = extract_and_then_prompt(&pdf, "Year", "year");
+    let venue = prompt_with_default("venue", &pdf, "Venue");
+    let year = prompt_with_default("year", &pdf, "Year");
 
     Ok(Paper {
         title,
