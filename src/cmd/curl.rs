@@ -291,13 +291,15 @@ fn from_pdf(url: &str, config: &Config) -> Result<Paper, Fallacy> {
     // Read the PDF information dictionary and get the specified field.
     let get_info_field = |field: &str| -> Option<String> {
         // Parse value from PDF.
-        pdf.as_ref().and_then(|p| {
+        let value = pdf.as_ref().and_then(|p| {
             p.trailer
                 .info_dict
                 .as_ref()
                 .and_then(|d| d.get(field)) //.map(trim_primitive));
                 .map(|s| s.to_string().trim().trim_matches('"').to_string())
-        })
+        });
+        // We don't need empty values.
+        value.filter(|s| !s.is_empty())
     };
 
     let title = ask_for("Title", get_info_field("Title"))?;

@@ -1,6 +1,6 @@
-use pdf::error::PdfError;
 use std::path::PathBuf;
 
+use pdf::error::PdfError;
 use thiserror::Error;
 
 /// A use of invalid or faulty reason.

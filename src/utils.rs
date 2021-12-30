@@ -66,7 +66,7 @@ pub fn ask_for(prompt: &str, default: Option<String>) -> Result<String, Fallacy>
         buffer = default.unwrap();
     }
 
-    Ok(buffer)
+    Ok(buffer.trim().to_string())
 }
 
 /// Ask confirmation to the user.
