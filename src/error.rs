@@ -72,8 +72,6 @@ pub enum Fallacy {
     CurlCannotFindTitle(String),
     #[error("Failed to parse author list. {0}")]
     CurlCannotFindAuthor(String),
-    #[error("File {0} exists. Skip downloading.")]
-    CurlFileExistsError(PathBuf),
     #[error("Failed to parse information from PDF File. {0}")]
     CurlPdfParsingError(#[from] PdfError),
     // printf command

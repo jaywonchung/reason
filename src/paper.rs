@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use crate::config::Config;
 use crate::error::Fallacy;
 use crate::state::State;
-use crate::utils::as_filename;
+use crate::utils::{as_filename, make_unique_path};
 
 pub static MAN: &str = include_str!("../man/paper.md");
 
@@ -87,7 +87,7 @@ impl Paper {
         // Collect a mapping of keyword -> Option<argument>.
         let mut map = HashMap::new();
         let mut arg_iter = args.into_iter();
-        arg_iter.next();  // Skip the command.
+        arg_iter.next(); // Skip the command.
         while let Some(arg) = arg_iter.next() {
             match arg.as_ref() {
                 "as" | "by" | "at" | "in" | "@" | "is" => {
@@ -261,25 +261,10 @@ impl Paper {
                 };
 
                 // Find a filename that doesn't exist.
-                let mut attempt = 0usize;
-                note = loop {
-                    let mut note = config.storage.note_dir.clone();
-                    let mut filename = file.clone();
-                    if attempt == 0 {
-                        filename.push_str(".md");
-                    } else {
-                        let formatted = format!("-{}.md", attempt);
-                        filename.push_str(&formatted);
-                    }
-                    note.push(&filename);
-                    if !note.exists() {
-                        // Record in state.
-                        self.notepath.replace(PathBuf::from(filename));
-                        break note;
-                    } else {
-                        attempt += 1;
-                    }
-                };
+                note = make_unique_path(&config.storage.note_dir, &file, ".md");
+                // `note` will never termiante with '..', so `unwrap` will not panic.
+                self.notepath
+                    .replace(PathBuf::from(note.file_name().unwrap()));
             }
         }
 

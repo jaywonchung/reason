@@ -1,4 +1,4 @@
-use std::io::Write;
+use std::io::{stdin, stdout, Write};
 use std::path::{Path, PathBuf};
 
 use crate::error::Fallacy;
@@ -49,16 +49,36 @@ pub fn expand_tilde_str(path: &str) -> Result<String, Fallacy> {
     }
 }
 
+/// Ask the user to input something.
+/// Automatically appends ": " to the prompt string.
+pub fn ask_for(prompt: &str, default: Option<String>) -> Result<String, Fallacy> {
+    // Ask.
+    match default {
+        Some(ref value) => print!("{} (\"{}\"): ", prompt, value),
+        None => print!("{}: ", prompt),
+    };
+    stdout().flush()?;
+
+    // Get input.
+    let mut buffer = String::new();
+    stdin().read_line(&mut buffer)?;
+    if buffer.trim().is_empty() && default.is_some() {
+        buffer = default.unwrap();
+    }
+
+    Ok(buffer)
+}
+
 /// Ask confirmation to the user.
 pub fn confirm(prompt: String, default: bool) -> Result<(), Fallacy> {
-    // Ask
+    // Ask.
     let yn = if default { " [Y/n] " } else { " [y/N] " };
     print!("{}", prompt + yn);
-    std::io::stdout().flush()?;
+    stdout().flush()?;
 
-    // Get input
+    // Get input.
     let mut buffer = String::new();
-    std::io::stdin().read_line(&mut buffer)?;
+    stdin().read_line(&mut buffer)?;
 
     let default = if default {
         Ok(())
@@ -79,7 +99,7 @@ pub fn select<'i, I>(prompt: &str, candidate: I) -> Result<usize, Fallacy>
 where
     I: Iterator<Item = &'i str>,
 {
-    // Ask
+    // Ask.
     print!("{}", prompt);
     let mut len = 0;
     for (index, cand) in candidate.enumerate() {
@@ -87,11 +107,11 @@ where
         print!(" {}) {}.", index, cand);
     }
     print!("\n: ");
-    std::io::stdout().flush()?;
+    stdout().flush()?;
 
-    // Get input
+    // Get input.
     let mut buffer = String::new();
-    std::io::stdin().read_line(&mut buffer)?;
+    stdin().read_line(&mut buffer)?;
 
     match buffer.trim().parse() {
         Ok(num) => {
@@ -113,4 +133,26 @@ pub fn as_filename(title: &str) -> String {
     title
         .replace(|c: char| c.is_whitespace(), "-")
         .replace(|c: char| c != '-' && !c.is_ascii_alphanumeric(), "")
+}
+
+/// Append hyphen numbers at the end of the file path to find a path
+/// that doesn't already exist in the filesystem.
+pub fn make_unique_path(dir: &Path, name: &str, ext: &str) -> PathBuf {
+    let mut attempt = 0;
+    loop {
+        let mut path = PathBuf::from(dir);
+        let mut filename = name.to_owned();
+        if attempt == 0 {
+            filename.push_str(ext);
+        } else {
+            filename.push_str(&format!("-{}{}", attempt, ext));
+        }
+        path.push(&filename);
+
+        if !path.exists() {
+            return path;
+        } else {
+            attempt += 1;
+        }
+    }
 }

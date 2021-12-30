@@ -136,7 +136,7 @@ Works now:
 - `cd` adds an AND filter to the default set of filters (which is empty upon startup).
 - `pwd` shows the current default filter set by `cd`.
 - `touch` creates a new entry in your paperbase.
-- `curl` imports papers from the web, e.g. arXiv or usenix.org. It also downloads paper PDFs if available.
+- `curl` imports papers from the web, e.g. arXiv or usenix.org. It also downloads paper PDFs if available. Also experimentally supports downloading raw PDF urls and inferring metadata fields.
 - `rm` removes entries from your paperbase.
 - `set` sets attributes of papers.
 - `printf` creates an HTML page of your notes using `mdbook`.

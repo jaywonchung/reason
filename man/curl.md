@@ -14,6 +14,7 @@ Currently, two sources are supported: arXiv and usenix.org.
 
 Usage example:
 `curl https://arxiv.org/abs/2003.10735`
+`curl https://arxiv.org/pdf/2003.10735.pdf`
 
 `reason` will visit the url and fetch the title and author
 list. The venue will be set to arXiv, and the year will be
@@ -37,3 +38,8 @@ be downloaded into the `storage.file_base_dir` directory.
 At times, USENIX conferences provide multiple versions of the
 paper (e.g., preprint and final). If so, `reason` will prompt
 the user to choose one.
+
+# Raw PDF
+
+Usage example:
+`curl 
