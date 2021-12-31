@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use pdf::error::PdfError;
 use thiserror::Error;
 
 /// A use of invalid or faulty reason.
@@ -59,8 +60,6 @@ pub enum Fallacy {
     // curl command
     #[error("`curl` accepts exactly one argument as source.")]
     CurlNoSource,
-    #[error("Unknown source: '{0}'")]
-    CurlUnknownSource(String),
     #[error("Invalid source: '{0}'. Refer to `man curl`.")]
     CurlInvalidSourceUrl(String),
     #[error("Failed to parse source url: '{0}'")]
@@ -71,6 +70,8 @@ pub enum Fallacy {
     CurlCannotFindTitle(String),
     #[error("Failed to parse author list. {0}")]
     CurlCannotFindAuthor(String),
+    #[error("Failed to parse information from PDF File. {0}")]
+    CurlPdfParsingError(#[from] PdfError),
     // printf command
     #[error("Failed to build book: '{0}'")]
     PrintfBuildError(#[from] mdbook::errors::Error),

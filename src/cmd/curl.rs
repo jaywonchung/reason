@@ -1,13 +1,13 @@
 use std::fs::File;
-use std::io::Cursor;
-use std::path::PathBuf;
+use std::io::{Cursor, Write};
 use std::time::Duration;
 
 use crate::cmd::prelude::*;
 use crate::paper::{Paper, PaperList};
-use crate::utils::{as_filename, confirm, select};
+use crate::utils::{as_filename, ask_for, confirm, make_unique_path, select};
 
 use soup::prelude::*;
+use tempfile::NamedTempFile;
 
 pub static MAN: &str = include_str!("../../man/curl.md");
 
@@ -29,7 +29,7 @@ pub fn execute(
     } else if url.contains("usenix") {
         from_usenix(url.as_ref(), config)?
     } else {
-        return Err(Fallacy::CurlUnknownSource(url));
+        from_pdf(url.as_ref(), config)?
     };
 
     // Add paper to state.
@@ -47,22 +47,30 @@ fn from_arxiv(url: &str, config: &Config) -> Result<Paper, Fallacy> {
     //       with soup seems tractable. However, if things get more complicated,
     //       consider switching to using the API.
 
+    println!("Fetching from arXiv.");
+
     // Parse and validate url.
-    // https://arxiv.org/
+    // https://arxiv.org/abs/2003.10735
     let parsed_url = url::Url::parse(url)?;
     if parsed_url.cannot_be_a_base() {
         return Err(Fallacy::CurlInvalidSourceUrl(url.to_owned()));
     }
-    let segments: Vec<_> = parsed_url.path_segments().unwrap().collect();
+    // Calling unwrap() not panic if !parsed_url.cannot_be_a_base().
+    let mut segments: Vec<_> = parsed_url.path_segments().unwrap().collect();
     if segments.len() != 2
         || !parsed_url.has_host()
         || !parsed_url.host_str().unwrap().ends_with("arxiv.org")
-        || segments[0] != "abs"
+        || (segments[0] != "abs" && segments[0] != "pdf")
     {
         confirm(
             "URL of form https://arxiv.org/abs/{identifier} expected. Just continue?".to_string(),
             true,
         )?;
+    }
+    // Convert https://arvix.org/pdf urls to https://arxiv.org/abs urls.
+    if segments[0] == "pdf" {
+        segments[0] = "abs";
+        segments[1] = segments[1].trim_end_matches(".pdf");
     }
     let pieces: Vec<_> = segments[1].split('.').collect();
     if pieces.len() != 2 || pieces[0].len() != 4 || pieces[1].len() != 5 {
@@ -112,19 +120,17 @@ fn from_arxiv(url: &str, config: &Config) -> Result<Paper, Fallacy> {
     let authors: Vec<String> = authors.tag("a").find_all().map(|a| a.text()).collect();
 
     // Download paper PDF.
-    let pdf = format!("https://arxiv.org/pdf/{}.pdf", segments[1]);
-    let filename = as_filename(&title) + ".pdf";
-    let filepath = PathBuf::from(filename);
-    let mut path = config.storage.file_dir.clone();
-    path.push(&filepath);
-    let mut file = File::create(path)?;
+    let url = format!("https://arxiv.org/pdf/{}.pdf", segments[1]);
     let mut cursor = Cursor::new(
         client
-            .get(pdf)
+            .get(url)
             .timeout(Duration::from_secs(90)) // arXiv download is pretty slow
             .send()?
             .bytes()?,
     );
+    let filename = as_filename(&title);
+    let filepath = make_unique_path(&config.storage.note_dir, &filename, ".pdf");
+    let mut file = File::create(&filepath)?;
     std::io::copy(&mut cursor, &mut file)?;
 
     Ok(Paper {
@@ -138,6 +144,8 @@ fn from_arxiv(url: &str, config: &Config) -> Result<Paper, Fallacy> {
 }
 
 fn from_usenix(url: &str, config: &Config) -> Result<Paper, Fallacy> {
+    println!("Fetching from usenix.org.");
+
     // Parse and validate source url.
     // https://usenix.org/conference/atc21/presentation/lee
     let parsed_url = url::Url::parse(url)?;
@@ -219,7 +227,7 @@ fn from_usenix(url: &str, config: &Config) -> Result<Paper, Fallacy> {
     // Parse PDF url.
     // Some presentations have both a pre-print and a camera-ready version (e.g.,
     // USENIX Security). We should ask the user which one to download.
-    let pdf = {
+    let url = {
         // Find file elements that have a link inside.
         let mut files: Vec<_> = soup
             .class("file")
@@ -244,13 +252,11 @@ fn from_usenix(url: &str, config: &Config) -> Result<Paper, Fallacy> {
     };
 
     // Maybe download paper PDF.
-    let filepath = if let Some(pdf) = pdf {
-        let filename = as_filename(&title) + ".pdf";
-        let filepath = PathBuf::from(filename);
-        let mut path = config.storage.file_dir.clone();
-        path.push(&filepath);
-        let mut file = File::create(path)?;
-        let mut cursor = Cursor::new(client.get(pdf).send()?.bytes()?);
+    let filepath = if let Some(url) = url {
+        let mut cursor = Cursor::new(client.get(url).send()?.bytes()?);
+        let filename = as_filename(&title);
+        let filepath = make_unique_path(&config.storage.note_dir, &filename, ".pdf");
+        let mut file = File::create(&filepath)?;
         std::io::copy(&mut cursor, &mut file)?;
         Some(filepath)
     } else {
@@ -265,6 +271,72 @@ fn from_usenix(url: &str, config: &Config) -> Result<Paper, Fallacy> {
         venue,
         year,
         filepath,
+        ..Default::default()
+    })
+}
+
+fn from_pdf(url: &str, config: &Config) -> Result<Paper, Fallacy> {
+    println!("Treating as raw PDF.");
+
+    // Parse and validate source url.
+    let parsed_url = url::Url::parse(url)?;
+    if parsed_url.cannot_be_a_base() {
+        return Err(Fallacy::CurlInvalidSourceUrl(url.to_owned()));
+    }
+
+    // Initialize HTTP client.
+    let user_agent = format!("{}/{}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
+    let client = reqwest::blocking::ClientBuilder::new()
+        .user_agent(user_agent)
+        .build()?;
+
+    // Download PDF file.
+    let mut cursor = Cursor::new(client.get(url).send()?.bytes()?);
+    let mut tmpfile = NamedTempFile::new_in(&config.storage.file_dir)?;
+    std::io::copy(&mut cursor, &mut tmpfile)?;
+    tmpfile.flush()?;
+
+    // Attempt to parse PDF file.
+    let pdf = pdf::file::File::open(tmpfile.path()).ok();
+
+    // Read the PDF information dictionary and get the specified field.
+    let get_info_field = |field: &str| -> Option<String> {
+        // Parse value from PDF.
+        let value = pdf.as_ref().and_then(|p| {
+            p.trailer
+                .info_dict
+                .as_ref()
+                .and_then(|d| d.get(field)) //.map(trim_primitive));
+                .map(|s| s.to_string().trim().trim_matches('"').to_string())
+        });
+        // We don't need empty values.
+        value.filter(|s| !s.is_empty())
+    };
+
+    let title = ask_for("Title", get_info_field("Title"))?;
+    let authors = ask_for("Comma-separated authors", get_info_field("Author"))?
+        .split(',')
+        .map(|s| s.trim().to_string())
+        .collect();
+    let venue = ask_for("Venue", None)?;
+    let year = ask_for(
+        "Year",
+        get_info_field("CreationDate").map(|d| d[2..6].to_string()),
+    )?;
+
+    // Rename named tempfile to appropriate name since we only now
+    // know the title of the PDF.
+    let filename = as_filename(&title);
+    let filepath = make_unique_path(&config.storage.file_dir, &filename, ".pdf");
+    println!("Saving to {:?}.", filepath);
+    std::fs::rename(tmpfile.path(), &filepath)?;
+
+    Ok(Paper {
+        title,
+        authors,
+        venue,
+        year,
+        filepath: Some(filepath),
         ..Default::default()
     })
 }
