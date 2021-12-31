@@ -42,4 +42,9 @@ the user to choose one.
 # Raw PDF
 
 Usage example:
-`curl 
+`curl [URL of PDF]`
+
+`reason` will visit the url and download the PDF file. It will
+also try to infer the essential metadata of the PDF by reading
+the information dictionary. Usually this is only useful for
+inferring the 'year' entry, but still better than nothing.
