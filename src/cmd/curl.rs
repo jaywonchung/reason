@@ -28,10 +28,8 @@ pub fn execute(
         from_arxiv(url.as_ref(), config)?
     } else if url.contains("usenix") {
         from_usenix(url.as_ref(), config)?
-    } else if url.contains("pdf") {
-        from_pdf(url.as_ref(), config)?
     } else {
-        return Err(Fallacy::CurlUnknownSource(url));
+        from_pdf(url.as_ref(), config)?
     };
 
     // Add paper to state.
@@ -48,6 +46,8 @@ fn from_arxiv(url: &str, config: &Config) -> Result<Paper, Fallacy> {
     //       just for this. As of now our use case is simple and parsing HTML
     //       with soup seems tractable. However, if things get more complicated,
     //       consider switching to using the API.
+
+    println!("Fetching from arXiv.");
 
     // Parse and validate url.
     // https://arxiv.org/abs/2003.10735
@@ -141,6 +141,8 @@ fn from_arxiv(url: &str, config: &Config) -> Result<Paper, Fallacy> {
 }
 
 fn from_usenix(url: &str, config: &Config) -> Result<Paper, Fallacy> {
+    println!("Fetching from usenix.org.");
+
     // Parse and validate source url.
     // https://usenix.org/conference/atc21/presentation/lee
     let parsed_url = url::Url::parse(url)?;
@@ -267,6 +269,8 @@ fn from_usenix(url: &str, config: &Config) -> Result<Paper, Fallacy> {
 }
 
 fn from_pdf(url: &str, config: &Config) -> Result<Paper, Fallacy> {
+    println!("Treating as raw PDF.");
+
     // Parse and validate source url.
     let parsed_url = url::Url::parse(url)?;
     if parsed_url.cannot_be_a_base() {

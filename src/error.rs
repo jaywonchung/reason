@@ -60,8 +60,6 @@ pub enum Fallacy {
     // curl command
     #[error("`curl` accepts exactly one argument as source.")]
     CurlNoSource,
-    #[error("Unknown source: '{0}'")]
-    CurlUnknownSource(String),
     #[error("Invalid source: '{0}'. Refer to `man curl`.")]
     CurlInvalidSourceUrl(String),
     #[error("Failed to parse source url: '{0}'")]

@@ -44,6 +44,9 @@ the user to choose one.
 Usage example:
 `curl [URL of PDF]`
 
+All other urls that are not recognized to be one of the sources
+stated above are considered raw PDF urls.
+
 `reason` will visit the url and download the PDF file. It will
 also try to infer the essential metadata of the PDF by reading
 the information dictionary. Usually this is only useful for
