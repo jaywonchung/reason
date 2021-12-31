@@ -92,6 +92,21 @@ impl App {
 
     /// The main command line loop.
     pub fn main_loop(&mut self) -> Result<(), Fallacy> {
+        // Check direct argument invocation.
+        // In that case, execute the command and return right away.
+        // e.g. $ reason printf
+        let mut args: Vec<_> = std::env::args().collect();
+        if args.len() > 1 {
+            args.remove(0);
+            match self.execute(args.join(" ").as_str()) {
+                Ok(msg) => print!("{}", msg),
+                Err(Fallacy::ExitReason) => {}
+                Err(e) => println!("{}", e),
+            };
+            return Ok(());
+        }
+
+        // Run the main loop.
         loop {
             let readline = self.editor.readline(">> ");
             match readline {

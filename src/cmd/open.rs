@@ -79,7 +79,7 @@ fn spawn(mut command: Command) -> bool {
         Ok(_) => true,
         Err(e) => {
             if matches!(e.kind(), std::io::ErrorKind::NotFound) {
-                println!("Invalid editor command: '{:?}'", e);
+                println!("Invalid viewer command: '{:?}'", e);
             } else {
                 println!("Failed to spawn subprocess: '{:?}'", e);
             }

@@ -62,7 +62,10 @@ fn from_arxiv(url: &str, config: &Config) -> Result<Paper, Fallacy> {
         || !parsed_url.host_str().unwrap().ends_with("arxiv.org")
         || (segments[0] != "abs" && segments[0] != "pdf")
     {
-        return Err(Fallacy::CurlInvalidSourceUrl(url.to_owned()));
+        confirm(
+            "URL of form https://arxiv.org/abs/{identifier} expected. Just continue?".to_string(),
+            true,
+        )?;
     }
     // Convert https://arvix.org/pdf urls to https://arxiv.org/abs urls.
     if segments[0] == "pdf" {
@@ -156,7 +159,11 @@ fn from_usenix(url: &str, config: &Config) -> Result<Paper, Fallacy> {
         || segments[0] != "conference"
         || segments[2] != "presentation"
     {
-        return Err(Fallacy::CurlInvalidSourceUrl(url.to_owned()));
+        confirm(
+            "URL of form https://www.usenix.org/conference/{conference}/presentation/{name} expected. Just continue?"
+            .to_string(),
+            true
+        )?;
     }
     let conf = segments[1];
     let venue = {

@@ -20,7 +20,7 @@ pub fn execute(
             match crate::cmd::ls::execute(input, state, config)? {
                 CommandOutput::Papers(paper_list) => paper_list.0,
                 // `ls` always returns CommandOutput::Papers.
-                _ => panic!("internal ls invocation returned output variant"),
+                _ => panic!("internal ls invocation returned wrong output variant"),
             }
         }
     };
