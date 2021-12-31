@@ -4,7 +4,7 @@ use std::time::Duration;
 
 use crate::cmd::prelude::*;
 use crate::paper::{Paper, PaperList};
-use crate::utils::{as_filename, ask_for, make_unique_path, select};
+use crate::utils::{as_filename, ask_for, confirm, make_unique_path, select};
 
 use soup::prelude::*;
 use tempfile::NamedTempFile;
