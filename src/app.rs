@@ -107,20 +107,27 @@ impl App {
         }
 
         // Run the main loop.
-        loop {
+        let mut run = true;
+        while run {
             let readline = self.editor.readline(">> ");
             match readline {
                 Ok(line) => match self.execute(&line) {
                     Ok(msg) => print!("{}", msg),
-                    Err(Fallacy::ExitReason) => break,
+                    Err(Fallacy::ExitReason) => run = false,
                     Err(e) => println!("{}", e),
                 },
                 Err(ReadlineError::Interrupted) => continue,
-                Err(ReadlineError::Eof) => break,
+                Err(ReadlineError::Eof) => run = false,
                 Err(e) => {
                     eprintln!("Error reading from stdin: {}", e);
+                    // There should be nothing to save. Just break.
                     break;
                 }
+            }
+
+            // Save paper metadata state after every command.
+            if let Err(e) = self.state.store(&self.config.storage.paper_metadata) {
+                eprintln!("Could not save paper metadata: {}", e);
             }
         }
 
@@ -128,8 +135,8 @@ impl App {
     }
 
     /// Teardown the app.
-    /// This function only prints errors to stderr and does not fail immediately.
-    /// - Save paper metadata state
+    /// This function only prints errors to stderr and does not fail.
+    /// - Save paper metadata
     /// - Save readline history
     pub fn terminate(&mut self) {
         // Save state to state file.
