@@ -129,7 +129,7 @@ fn from_arxiv(url: &str, config: &Config) -> Result<Paper, Fallacy> {
             .bytes()?,
     );
     let filename = as_filename(&title);
-    let filepath = make_unique_path(&config.storage.note_dir, &filename, ".pdf");
+    let filepath = make_unique_path(&config.storage.file_dir, &filename, ".pdf");
     let mut file = File::create(&filepath)?;
     std::io::copy(&mut cursor, &mut file)?;
 
@@ -255,7 +255,7 @@ fn from_usenix(url: &str, config: &Config) -> Result<Paper, Fallacy> {
     let filepath = if let Some(url) = url {
         let mut cursor = Cursor::new(client.get(url).send()?.bytes()?);
         let filename = as_filename(&title);
-        let filepath = make_unique_path(&config.storage.note_dir, &filename, ".pdf");
+        let filepath = make_unique_path(&config.storage.file_dir, &filename, ".pdf");
         let mut file = File::create(&filepath)?;
         std::io::copy(&mut cursor, &mut file)?;
         Some(filepath)
