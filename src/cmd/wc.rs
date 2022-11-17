@@ -20,5 +20,8 @@ pub fn execute(
         }
     };
 
-    Ok(CommandOutput::Message(format!("{} papers.\n", paper_list.0.len())))
+    Ok(CommandOutput::Message(format!(
+        "{} papers.\n",
+        paper_list.0.len()
+    )))
 }

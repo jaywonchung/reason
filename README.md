@@ -142,6 +142,7 @@ Works now:
 - `printf` creates an HTML page of your notes using `mdbook`.
 - `open` opens the paper with your PDF viewer (configurable, defaults to zathura).
 - `ed` opens your editor (configurable, defaults to vim), in which you can edit your notes.
+- `wc` counts the number of papers.
 - `man` plus a command will print documentation for that command.
 - `exit` or Ctrl-d quits `reason`.
 
