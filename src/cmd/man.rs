@@ -28,6 +28,7 @@ pub fn execute(
         "rm" => crate::cmd::rm::MAN,
         "set" => crate::cmd::set::MAN,
         "touch" => crate::cmd::touch::MAN,
+        "wc" => crate::cmd::wc::MAN,
         "config" => crate::config::MAN,
         "filter" => crate::filter::MAN,
         "paper" => crate::paper::MAN,

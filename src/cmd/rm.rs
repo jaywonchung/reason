@@ -60,7 +60,7 @@ pub fn execute(
     }
 
     Ok(CommandOutput::Message(format!(
-        "Removed {} {} from the paperbase.",
+        "Removed {} {} from the paperbase.\n",
         num_paper,
         if num_paper != 1 { "papers" } else { "paper" },
     )))

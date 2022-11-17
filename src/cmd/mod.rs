@@ -16,6 +16,7 @@ mod pwd;
 mod rm;
 mod set;
 mod touch;
+mod wc;
 
 pub static MAN: &str = include_str!("../../man/command.md");
 
@@ -67,6 +68,7 @@ pub fn to_executor(command: String) -> Result<ExecuteFn, Fallacy> {
         "rm" => Ok(rm::execute),
         "set" => Ok(set::execute),
         "touch" => Ok(touch::execute),
+        "wc" => Ok(wc::execute),
         _ => Err(Fallacy::UnknownCommand(command.to_owned())),
     }
 }
