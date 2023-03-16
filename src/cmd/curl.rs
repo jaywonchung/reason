@@ -90,7 +90,9 @@ fn from_arxiv(url: &str, config: &Config) -> Result<Paper, Fallacy> {
         .build()?;
 
     // Parse title.
-    let res = client.get(format!("https://arxiv.org/abs/{}", segments[1])).send()?;
+    let res = client
+        .get(format!("https://arxiv.org/abs/{}", segments[1]))
+        .send()?;
     let soup = Soup::from_reader(res)?;
     let title = match soup.class("title").find() {
         Some(title) => title,
