@@ -50,12 +50,13 @@ fn from_arxiv(url: &str, config: &Config) -> Result<Paper, Fallacy> {
     println!("Fetching from arXiv.");
 
     // Parse and validate url.
-    // https://arxiv.org/abs/2003.10735
+    // https://arxiv.org/abs/2208.06102
+    // https://arxiv.org/pdf/2208.06102.pdf
     let parsed_url = url::Url::parse(url)?;
     if parsed_url.cannot_be_a_base() {
         return Err(Fallacy::CurlInvalidSourceUrl(url.to_owned()));
     }
-    // Calling unwrap() not panic if !parsed_url.cannot_be_a_base().
+    // Calling unwrap() doesn't panic if !parsed_url.cannot_be_a_base().
     let mut segments: Vec<_> = parsed_url.path_segments().unwrap().collect();
     if segments.len() != 2
         || !parsed_url.has_host()
@@ -89,7 +90,7 @@ fn from_arxiv(url: &str, config: &Config) -> Result<Paper, Fallacy> {
         .build()?;
 
     // Parse title.
-    let res = client.get(url).send()?;
+    let res = client.get(format!("https://arxiv.org/abs/{}", segments[1])).send()?;
     let soup = Soup::from_reader(res)?;
     let title = match soup.class("title").find() {
         Some(title) => title,

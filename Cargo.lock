@@ -1990,7 +1990,7 @@ dependencies = [
 
 [[package]]
 name = "reason-shell"
-version = "0.3.5"
+version = "0.3.6"
 dependencies = [
  "ansi_term",
  "comfy-table",
