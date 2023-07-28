@@ -324,7 +324,9 @@ fn from_pdf(url: &str, config: &Config) -> Result<Paper, Fallacy> {
     let venue = ask_for("Venue", None)?;
     let year = ask_for(
         "Year",
-        get_info_field("CreationDate").map(|d| d[2..6].to_string()),
+        get_info_field("CreationDate")
+            .filter(|d| d.to_lowercase().starts_with("d:"))
+            .map(|d| d[2..6].to_string()),
     )?;
 
     // Rename named tempfile to appropriate name since we only now
