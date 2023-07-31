@@ -63,3 +63,8 @@ with default settings.
   will be substituted in that location. Otherwise, the
   path to `index.html` will be placed at the end.
    (default: ['google-chrome-stable']
+- label_colors: Colors to track currently reading or
+  already read papers. Tracking can be set like:
+  ls <papers> | set is read
+  ls <papers> | set is current
+    (default: { 'read' = 'Green', 'current' = 'Yellow' }

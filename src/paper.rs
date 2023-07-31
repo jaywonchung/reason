@@ -1,8 +1,9 @@
 use std::collections::{HashMap, HashSet};
+use std::convert::TryFrom;
 use std::io::Write;
 use std::path::PathBuf;
 
-use comfy_table::{Attribute, Cell, CellAlignment, ContentArrangement, Table};
+use comfy_table::{Attribute, Cell, CellAlignment, Color, ContentArrangement, Table};
 use serde::{Deserialize, Serialize};
 
 use crate::config::Config;
@@ -29,6 +30,20 @@ impl PaperList {
         });
         table.set_header(header);
 
+        // Get read and current colors from the config.
+        let mut read_color: Result<Color, ()> = Err(());
+        let mut current_color: Result<Color, ()> = Err(());
+
+        if let Some(label_colors) = &config.output.label_colors {
+            if let Some(color) = label_colors.get("read") {
+                read_color = Color::try_from(color.as_str());
+            }
+
+            if let Some(color) = label_colors.get("current") {
+                current_color = Color::try_from(color.as_str());
+            }
+        }
+
         // One row per paper.
         for ind in self.0 {
             let p = &state.papers[ind];
@@ -36,7 +51,16 @@ impl PaperList {
             for col in config.output.table_columns.iter() {
                 row.push(p.field_as_string(col));
             }
-            table.add_row(row);
+
+            let labels = &state.papers[ind].labels;
+
+            if labels.contains("read") && read_color.is_ok() {
+                table.add_row(row.iter().map(|s| Cell::new(s).fg(read_color.unwrap())));
+            } else if labels.contains("current") && current_color.is_ok() {
+                table.add_row(row.iter().map(|s| Cell::new(s).fg(current_color.unwrap())));
+            } else {
+                table.add_row(row);
+            }
         }
 
         table.to_string() + "\n"
@@ -207,6 +231,13 @@ impl Paper {
         }
         if let Some(labels) = map.remove("is") {
             for label in labels.split(',') {
+                match label {
+                    "read" | "current" => {
+                        self.labels.remove("read");
+                        self.labels.remove("current");
+                    }
+                    _ => {}
+                };
                 self.labels.insert(label.trim().to_string());
             }
         }

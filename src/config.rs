@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
@@ -36,6 +37,7 @@ pub struct OutputConfig {
     pub editor_command: Vec<String>,
     pub editor_batch: bool,
     pub browser_command: Vec<String>,
+    pub label_colors: Option<HashMap<String, String>>,
 }
 
 impl Config {
@@ -182,6 +184,9 @@ impl Default for OutputConfig {
         let editor_command = vec![String::from("vim"), String::from("-p")];
         let editor_batch = true;
         let browser_command = vec![String::from("google-chrome-stable")];
+        let mut label_colors = HashMap::new();
+        label_colors.insert(String::from("read"), String::from("Green"));
+        label_colors.insert(String::from("current"), String::from("Yellow"));
 
         Self {
             table_columns,
@@ -190,6 +195,7 @@ impl Default for OutputConfig {
             editor_command,
             editor_batch,
             browser_command,
+            label_colors: Some(label_colors),
         }
     }
 }
