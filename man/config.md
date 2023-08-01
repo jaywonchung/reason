@@ -65,6 +65,6 @@ with default settings.
    (default: ['google-chrome-stable']
 - label_colors: Colors to track currently reading or
   already read papers. Tracking can be set like:
-  ls <papers> | set is read
-  ls <papers> | set is current
-    (default: { 'read' = 'Green', 'current' = 'Yellow' }
+  ls <papers> | set is done
+  ls <papers> | set is active
+    (default: { 'done' = 'Green', 'active' = 'Yellow' }
