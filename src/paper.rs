@@ -30,20 +30,6 @@ impl PaperList {
         });
         table.set_header(header);
 
-        // Get read and current colors from the config.
-        let mut read_color: Result<Color, ()> = Err(());
-        let mut current_color: Result<Color, ()> = Err(());
-
-        if let Some(label_colors) = &config.output.label_colors {
-            if let Some(color) = label_colors.get("read") {
-                read_color = Color::try_from(color.as_str());
-            }
-
-            if let Some(color) = label_colors.get("current") {
-                current_color = Color::try_from(color.as_str());
-            }
-        }
-
         // One row per paper.
         for ind in self.0 {
             let p = &state.papers[ind];
@@ -52,13 +38,23 @@ impl PaperList {
                 row.push(p.field_as_string(col));
             }
 
-            let labels = &state.papers[ind].labels;
+            let labels: &Vec<String> = &state.papers[ind].labels.clone().into_iter().collect();
+            let mut is_painted = false;
 
-            if labels.contains("read") && read_color.is_ok() {
-                table.add_row(row.iter().map(|s| Cell::new(s).fg(read_color.unwrap())));
-            } else if labels.contains("current") && current_color.is_ok() {
-                table.add_row(row.iter().map(|s| Cell::new(s).fg(current_color.unwrap())));
-            } else {
+            if let Some(colors) = &config.output.label_colors {
+                for label in labels.iter().rev() {
+                    if let Some(color) = colors.get(label) {
+                        table
+                            .add_row(row.iter().map(|s| {
+                                Cell::new(s).fg(Color::try_from(color.as_str()).unwrap())
+                            }));
+                        is_painted = true;
+                        break;
+                    }
+                }
+            }
+
+            if !is_painted {
                 table.add_row(row);
             }
         }
@@ -232,9 +228,9 @@ impl Paper {
         if let Some(labels) = map.remove("is") {
             for label in labels.split(',') {
                 match label {
-                    "read" | "current" => {
-                        self.labels.remove("read");
-                        self.labels.remove("current");
+                    "done" | "active" => {
+                        self.labels.remove("done");
+                        self.labels.remove("active");
                     }
                     _ => {}
                 };

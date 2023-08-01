@@ -185,8 +185,8 @@ impl Default for OutputConfig {
         let editor_batch = true;
         let browser_command = vec![String::from("google-chrome-stable")];
         let mut label_colors = HashMap::new();
-        label_colors.insert(String::from("read"), String::from("Green"));
-        label_colors.insert(String::from("current"), String::from("Yellow"));
+        label_colors.insert(String::from("done"), String::from("Green"));
+        label_colors.insert(String::from("active"), String::from("Yellow"));
 
         Self {
             table_columns,
