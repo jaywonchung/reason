@@ -1,8 +1,9 @@
 use std::collections::{HashMap, HashSet};
+use std::convert::TryFrom;
 use std::io::Write;
 use std::path::PathBuf;
 
-use comfy_table::{Attribute, Cell, CellAlignment, ContentArrangement, Table};
+use comfy_table::{Attribute, Cell, CellAlignment, Color, ContentArrangement, Table};
 use serde::{Deserialize, Serialize};
 
 use crate::config::Config;
@@ -36,7 +37,26 @@ impl PaperList {
             for col in config.output.table_columns.iter() {
                 row.push(p.field_as_string(col));
             }
-            table.add_row(row);
+
+            let labels: &Vec<String> = &state.papers[ind].labels.clone().into_iter().collect();
+            let mut is_painted = false;
+
+            if let Some(colors) = &config.output.label_colors {
+                for label in labels.iter().rev() {
+                    if let Some(color) = colors.get(label) {
+                        table
+                            .add_row(row.iter().map(|s| {
+                                Cell::new(s).fg(Color::try_from(color.as_str()).unwrap())
+                            }));
+                        is_painted = true;
+                        break;
+                    }
+                }
+            }
+
+            if !is_painted {
+                table.add_row(row);
+            }
         }
 
         table.to_string() + "\n"
@@ -207,6 +227,13 @@ impl Paper {
         }
         if let Some(labels) = map.remove("is") {
             for label in labels.split(',') {
+                match label {
+                    "done" | "active" => {
+                        self.labels.remove("done");
+                        self.labels.remove("active");
+                    }
+                    _ => {}
+                };
                 self.labels.insert(label.trim().to_string());
             }
         }
