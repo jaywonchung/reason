@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
@@ -38,6 +38,7 @@ pub struct OutputConfig {
     pub editor_batch: bool,
     pub browser_command: Vec<String>,
     pub label_colors: Option<HashMap<String, String>>,
+    pub exclusive_label_groups: Option<Vec<HashSet<String>>>,
 }
 
 impl Config {
@@ -69,7 +70,14 @@ impl FilterConfig {
 
 impl OutputConfig {
     fn validate(&mut self) -> Result<(), Fallacy> {
-        let allowed_columns = vec!["title", "authors", "first author", "venue", "year", "state"];
+        let allowed_columns = vec![
+            "title",
+            "authors",
+            "first author",
+            "venue",
+            "year",
+            "labels",
+        ];
 
         // Convert everything to lowercase.
         for field in &mut self.table_columns {
@@ -177,7 +185,7 @@ impl Default for FilterConfig {
 
 impl Default for OutputConfig {
     fn default() -> Self {
-        let table_columns = vec!["title", "first author", "venue", "year"];
+        let table_columns = vec!["title", "first author", "venue", "year", "labels"];
         let table_columns = table_columns.into_iter().map(|s| s.to_string()).collect();
         let viewer_command = vec![String::from("zathura")];
         let viewer_batch = false;
@@ -187,6 +195,7 @@ impl Default for OutputConfig {
         let mut label_colors = HashMap::new();
         label_colors.insert(String::from("done"), String::from("Green"));
         label_colors.insert(String::from("active"), String::from("Yellow"));
+        let exclusive_label_groups = vec![["done".to_owned(), "active".to_owned()].into()];
 
         Self {
             table_columns,
@@ -196,6 +205,7 @@ impl Default for OutputConfig {
             editor_batch,
             browser_command,
             label_colors: Some(label_colors),
+            exclusive_label_groups: Some(exclusive_label_groups),
         }
     }
 }

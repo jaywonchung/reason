@@ -138,7 +138,7 @@ Works now:
 - `touch` creates a new entry in your paperbase.
 - `curl` imports papers from the web, e.g. arXiv or usenix.org. It also downloads paper PDFs if available. Also experimentally supports downloading raw PDF urls and inferring metadata fields.
 - `rm` removes entries from your paperbase.
-- `set` sets attributes of papers.
+- `set` sets paper attributes, including custom labels that can also be used to give colors to papers in `ls`.
 - `printf` creates an HTML page of your notes using `mdbook`.
 - `open` opens the paper with your PDF viewer (configurable, defaults to zathura).
 - `ed` opens your editor (configurable, defaults to vim), in which you can edit your notes.
@@ -146,7 +146,7 @@ Works now:
 - `man` plus a command will print documentation for that command.
 - `exit` or Ctrl-d quits `reason`.
 
-Not yet, but hopefully soon:
+Not yet, but hopefully soon (Contributions are more than welcome!):
 - `grep` returns a list of papers whose notes contain the query string that you specify.
 - `sort` sorts papers by given columns.
 - `stat` prints the metadata and notes of papers.

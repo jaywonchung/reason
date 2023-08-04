@@ -184,7 +184,7 @@ impl Paper {
         })
     }
 
-    pub fn apply_from_args(&mut self, args: &[String]) -> Result<(), Fallacy> {
+    pub fn apply_from_args(&mut self, config: &Config, args: &[String]) -> Result<(), Fallacy> {
         // Collect a mapping of keyword -> Option<argument>.
         let mut map = HashMap::new();
         let mut arg_iter = args.iter().cloned();
@@ -226,15 +226,24 @@ impl Paper {
             self.year = year;
         }
         if let Some(labels) = map.remove("is") {
-            for label in labels.split(',') {
-                match label {
-                    "done" | "active" => {
-                        self.labels.remove("done");
-                        self.labels.remove("active");
+            // Is the label is together with an existing label inside an
+            // exclusive label group, remove the existing label.
+            for label in labels.split(',').map(|s| s.trim().to_string()) {
+                if let Some(exclusive_groups) = &config.output.exclusive_label_groups {
+                    // Iterate over all exclusive groups. If there's a group that contains the
+                    // currently added label, remove all labels in that group.
+                    for exclusive_group in exclusive_groups.iter() {
+                        if exclusive_group.contains(&label) {
+                            let mut removed_labels = Vec::with_capacity(exclusive_group.len() - 1);
+                            for label in exclusive_group.iter() {
+                                if self.labels.remove(label) {
+                                    removed_labels.push(label);
+                                }
+                            }
+                        }
                     }
-                    _ => {}
-                };
-                self.labels.insert(label.trim().to_string());
+                }
+                self.labels.insert(label);
             }
         }
         if let Some(labels) = map.remove("not") {
@@ -254,6 +263,12 @@ impl Paper {
             "first author" => self.authors.first().unwrap().clone(),
             "venue" => self.venue.clone(),
             "year" => self.year.clone(),
+            "labels" => self
+                .labels
+                .clone()
+                .into_iter()
+                .collect::<Vec<_>>()
+                .join(","),
             _ => "".to_string(),
         }
     }

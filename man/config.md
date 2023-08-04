@@ -29,7 +29,7 @@ with default settings.
 
 - table_columns: Which paper attributes `ls` shows.
   Allowed values are 'title', 'authors', 'first author',
-  'venue', and 'year'.
+  'venue', 'year', and 'labels'.
    (default: ['title', 'first author', 'venue', 'year'])
 - viewer_command: Command to use for the viewer to open
   papers. It is assumed that the viewer program is a
@@ -63,8 +63,15 @@ with default settings.
   will be substituted in that location. Otherwise, the
   path to `index.html` will be placed at the end.
    (default: ['google-chrome-stable']
-- label_colors: Colors to track currently reading or
-  already read papers. Tracking can be set like:
-  ls <papers> | set is done
-  ls <papers> | set is active
-    (default: { 'done' = 'Green', 'active' = 'Yellow' }
+- label_colors: Papers with specific labels can be displayed
+  in colors chosen by the user. By default, if you set the
+  label 'done' for a paper (`set is done`), it'll be shown
+  in Green, and likewise Yellow for label 'active'.
+   (default: { done = 'Green', active = 'Yellow' })
+- exclusive_label_groups: Some labels are exclusive to each
+  other. For instance, if you want to track reading progress
+  with labels 'done' and 'active', you don't want a paper to
+  have both of those labels. That is, when you `set is done`
+  a paper that had the label 'active', you want the command
+  to automatically delete 'active' and insert 'done'. 
+   (default: [ [ 'done, 'active' ] ])
