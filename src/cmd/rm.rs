@@ -53,7 +53,7 @@ pub fn execute(
 
     // Print errors.
     if !errors.is_empty() {
-        println!("Errors occured while deleting files and notes:");
+        println!("Errors occurred while deleting files and notes:");
         for e in errors {
             println!("{}", e);
         }
